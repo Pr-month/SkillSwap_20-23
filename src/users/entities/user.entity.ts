@@ -1,4 +1,3 @@
-import { IsEmail } from "class-validator";
 import { Column, Entity, PrimaryColumn } from "typeorm";
 
 type Gender = 'male' | 'female';

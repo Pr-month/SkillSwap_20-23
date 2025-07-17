@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppDataSource } from './data-source';
+// import { TypeOrmModule } from '@nestjs/typeorm'; // Деактивирован для проведения тестов на моках
+// import { AppDataSource } from './data-source'; // Деактивирован для проведения тестов на моках
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -25,7 +25,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env',
     }),
-    TypeOrmModule.forRoot(AppDataSource.options),
+    //TypeOrmModule.forRoot(AppDataSource.options), // Деактивирован для проведения тестов на моках
     UsersModule,
     AuthModule,
   ],

@@ -1,30 +1,37 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+//import { UsersService } from 'src/users/users.service';
+import { UsersService } from 'src/usersMock/usersMock.service'; // Это моки затычки чтобы проверить работоспособность Auth Login
+import { JwtService } from '@nestjs/jwt';
+import { returnSignInDto } from 'src/auth/dto/signInDto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    //Затычка линтинга
-    console.log(createAuthDto);
-    return 'This action adds a new auth';
-  }
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async signIn(username: string, pass: string): Promise<returnSignInDto> {
+    const user = await this.usersService.findOne(username);
+    if (!user) {
+      throw new Error('Пользователь не найден');
+    }
+    const hashedPassword = user.password;
+    const isMatch = await bcrypt.compare(pass, hashedPassword);
+    if (!isMatch) {
+      throw new UnauthorizedException('Ошибка авторизации.');
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    //Вот это создает accessToken
+    const payload = { username: user.name };
+    const accessToken = await this.jwtService.signAsync(payload);
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    //Затычка линтинга
-    console.log(updateAuthDto);
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    const refreshToken = user.refreshToken; // Здесь должна быть функция создающая Refresh Token
+    return {
+      user,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    };
   }
 }

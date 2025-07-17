@@ -1,5 +1,5 @@
 import { IsEmail } from "class-validator";
-import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn } from "typeorm";
 
 type Gender = 'male' | 'female';
 type Role = 'USER' | 'ADMIN';
@@ -11,7 +11,6 @@ export class User {
     @Column({type: 'text'})
     name: string;
     @Column({ type: 'text'})
-    @IsEmail()
     email: string;
     @Column({ type: 'text' })
     password: string;

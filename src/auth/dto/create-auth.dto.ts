@@ -3,6 +3,10 @@ import { Gender } from "src/common/types";
 
 export class CreateAuthDto {
     @IsNotEmpty()
+    @IsString()
+    id: string
+
+    @IsNotEmpty()
     @IsEmail()
     @IsString()
     email: string;

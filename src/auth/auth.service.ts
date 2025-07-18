@@ -2,15 +2,36 @@ import { Injectable } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import bcrypt from 'bcrypt';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    //Затычка линтинга
-    console.log(createAuthDto);
+  constructor(
+    private usersService: UsersService,
+  ) {}
+
+  async create(createAuthDto: CreateAuthDto) {
+
     const { password } = createAuthDto;
+
     const saltRound = 10;
-    return 'This action adds a new auth';
+
+    const passwordHash: string = await bcrypt.hash(password, saltRound);
+    const newUser = {
+      ...createAuthDto,
+      password: passwordHash,
+
+    }
+
+    try {
+      await this.usersService.create(newUser)
+    } catch (err) {
+      throw new Error(err)
+    }
+    
+    return {
+      user: newUser,
+    }
   }
 
   findAll() {

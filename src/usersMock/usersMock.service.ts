@@ -1,6 +1,6 @@
 // ЭТОТ ФАЙЛ СЛЕДУЕТ УДАЛИТЬ
 //ВНИМАНИЕ! Это МОК-ЗАТЫЧКА ОНА НЕ ДОЛЖНА ПОПАСТЬ В ПРОД
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 //import * as bcrypt from 'bcrypt';
 
 // TO DO: ВНИМАНИЕ ЭТО БЛОК ВРЕМЕННАЯ ЗАТЫЧКА, ЕЕ НУЖНО УДАЛИТЬ!
@@ -56,5 +56,18 @@ export class UsersService {
     // eslint-disable-next-line @typescript-eslint/await-thenable
     const response = await this.users.find((user) => user.name === username);
     return response;
+  }
+
+  async updateRefreshToken(userId: string, newRefreshToken: string) {
+    //ЭТО МОК функция ее нужно удалить
+    // eslint-disable-next-line @typescript-eslint/await-thenable
+    const user = await this.users.find((user) => user.id === userId);
+    const userIndex = this.users.findIndex((user) => user.id === userId);
+    if (!user || !userIndex) {
+      throw new BadRequestException('Пользователь не найден');
+    }
+    user.refreshToken = newRefreshToken;
+    this.users[userIndex] = user;
+    return user;
   }
 }

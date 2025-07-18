@@ -2,7 +2,13 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 //import { UsersService } from 'src/users/users.service';
 import { UsersService } from 'src/usersMock/usersMock.service'; // Это моки затычки чтобы проверить работоспособность Auth Login
 import { JwtService } from '@nestjs/jwt';
-import { returnSignInDto } from 'src/auth/dto/signInDto';
+import { ConfigService } from '@nestjs/config';
+import {
+  getTokensDTO,
+  returnGetTokensDTO,
+  returnSignInDto,
+  signInDto,
+} from 'src/auth/dto/signInDto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -10,26 +16,51 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
-  async signIn(username: string, pass: string): Promise<returnSignInDto> {
-    const user = await this.usersService.findOne(username);
+  async getTokens(payload: getTokensDTO): Promise<returnGetTokensDTO> {
+    //Вот это создает accessToken
+    const accessToken = await this.jwtService.signAsync(payload);
+    const refreshToken = await this.jwtService.signAsync(
+      { sub: payload.userId },
+      {
+        secret: this.configService.get('JWT_SECRET'),
+        expiresIn: this.configService.get('JWT_EXPIRATION'),
+      },
+    );
+    return { accessToken, refreshToken };
+  }
+
+  async signIn(userData: signInDto): Promise<returnSignInDto> {
+    const user = await this.usersService.findOne(userData.username);
     if (!user) {
       throw new Error('Пользователь не найден');
     }
+
     const hashedPassword = user.password;
-    const isMatch = await bcrypt.compare(pass, hashedPassword);
+    const isMatch = await bcrypt.compare(userData.password, hashedPassword);
     if (!isMatch) {
       throw new UnauthorizedException('Ошибка авторизации.');
     }
 
-    //Вот это создает accessToken
-    const payload = { username: user.name };
-    const accessToken = await this.jwtService.signAsync(payload);
+    const payload: getTokensDTO = {
+      username: user.name,
+      userId: user.id,
+      userEmail: user.email,
+      userRole: user.role,
+    };
 
-    const refreshToken = user.refreshToken; // Здесь должна быть функция создающая Refresh Token
+    const { accessToken, refreshToken } = await this.getTokens(payload);
+
+    // Обновление RefreshToken в пользователе
+    const newUser = await this.usersService.updateRefreshToken(
+      user.id,
+      refreshToken,
+    );
+
     return {
-      user,
+      user: newUser,
       accessToken: accessToken,
       refreshToken: refreshToken,
     };

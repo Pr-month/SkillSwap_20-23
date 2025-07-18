@@ -20,11 +20,10 @@ export class AuthService {
     const newUser = {
       ...createAuthDto,
       password: passwordHash,
-
     }
 
     try {
-      await this.usersService.create(newUser)
+      this.usersService.create(newUser)
     } catch (err) {
       throw new Error(err)
     }

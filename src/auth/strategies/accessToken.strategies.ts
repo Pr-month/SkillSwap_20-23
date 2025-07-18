@@ -7,12 +7,16 @@ import { JwtPayload } from '../auth.types';
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(configService: ConfigService) {
+    
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken() as any,
+      jwtFromRequest,
       secretOrKey:
         configService.get<string>('JWT_SECRET') || 'defaultSecretKey',
       ignoreExpiration: false,
-    }as StrategyOptions);
+    });
   }
 
   validate(payload: JwtPayload) {

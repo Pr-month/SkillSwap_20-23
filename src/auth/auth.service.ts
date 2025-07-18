@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   create(createAuthDto: CreateAuthDto) {
     //Затычка линтинга
     console.log(createAuthDto);
+    const { password } = createAuthDto;
+    const saltRound = 10;
     return 'This action adds a new auth';
   }
 

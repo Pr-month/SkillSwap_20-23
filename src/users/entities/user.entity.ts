@@ -1,7 +1,5 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
-
-type Gender = 'male' | 'female';
-type Role = 'USER' | 'ADMIN';
+import { Gender, Role } from "src/common/types";
 
 @Entity()
 export class User {

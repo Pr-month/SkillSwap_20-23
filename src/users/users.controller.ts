@@ -27,12 +27,12 @@ export class UsersController {
 
   @Get('/me')
   findMe() {
-    return this.usersService.findMe();
+    return this.usersService.findMe(1);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  findOne(@Param('id') id: number) {
+    return this.usersService.findId(id);
   }
 
   // @Patch(':id')

@@ -25,7 +25,7 @@ export class Users {
 
   @Column({
     type: 'enum',
-    enum: ['male', 'female'],
+    enum: Gender,
   })
   gender: Gender;
 
@@ -34,7 +34,8 @@ export class Users {
 
   @Column({
     type: 'enum',
-    enum: ['USER', 'ADMIN'],
+    enum: Role,
+    default: Role.USER, // Устанавливаем значение по умолчанию
   })
   role: Role;
 

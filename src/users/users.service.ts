@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { dataUsers } from './data/users';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './entities/users.entity';
 import { Repository } from 'typeorm';
@@ -12,14 +11,10 @@ export class UsersService {
   ) {}
 
   async findAll(): Promise<Users[]> {
-    return this.usersRepository.find();
+    return await this.usersRepository.find();
   }
 
-  findMe(id: number) {
-    return this.usersRepository.findOne({where: {id}});
-  }
-
-  findId(id: number) {
-    return this.usersRepository.findOne({where: {id}});
+  async findId(id: number) {
+    return await this.usersRepository.findOneOrFail({ where: { id } });
   }
 }

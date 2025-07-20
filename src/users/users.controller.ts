@@ -1,42 +1,62 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
-  Delete,
+  BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
-  }
+  // @Post()
+  // create(@Body() createUserDto: CreateUserDto) {
+  //   return this.usersService.create(createUserDto);
+  // }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  getUserById(@Param('id') id: string) {
+    return this.usersService.findUserById(id);
+  }
+
+  @UseGuards(AuthGuard) //TO DO: Здесь должен быть Auth Guard
+  @Get('me')
+  getMe(@Request() req) {
+    const currentUser = this.usersService.findUserById(req.id);
+    return currentUser;
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  async upadteUserById(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    try {
+      const response = await this.usersService.updateUserById(
+        id,
+        updateUserDto,
+      );
+      return response;
+    } catch {
+      throw new BadRequestException('Ошибка при обновлении пользователя');
+    }
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @UseGuards(AuthGuard) //TO DO: Здесь должен быть Auth Guard
+  @Patch('me')
+  async updateMe(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+    try {
+      const response = await this.usersService.updateUserById(
+        req.id,
+        updateUserDto,
+      );
+      return response;
+    } catch {
+      throw new BadRequestException('Ошибка при обновлении пользователя');
+    }
   }
 }

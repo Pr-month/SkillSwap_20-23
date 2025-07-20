@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm'; // Деактивирован для проведения тестов на моках
-import { AppDataSource } from './data-source'; // Деактивирован для проведения тестов на моках
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppDataSource } from './data-source';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';

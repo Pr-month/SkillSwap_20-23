@@ -1,7 +1,7 @@
 //TAKEN FROM https://github.com/Pr-month/SkillSwap_20-23/blob/week1-daniel/src/users/entities/user.entity.ts
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-type Gender = 'male' | 'female';
+export type Gender = 'male' | 'female';
 type Role = 'USER' | 'ADMIN';
 
 @Entity()

@@ -1,20 +1,19 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-//import { UsersService } from 'src/users/users.service';
-import { UsersService } from 'src/usersMock/usersMock.service'; // Это моки затычки чтобы проверить работоспособность Auth Login
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import {
-  getTokensDTO,
-  returnGetTokensDTO,
-  returnSignInDto,
-  signInDto,
-} from 'src/auth/dto/signInDto';
+import { returnSignInDto, signInDto } from 'src/auth/dto/signInDto';
+import { getTokensDTO, returnGetTokensDTO } from 'src/auth/dto/getTokensDTO';
 import * as bcrypt from 'bcrypt';
+import { UserRepository } from 'src/users/users.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    private userRepository: UserRepository,
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
@@ -33,9 +32,9 @@ export class AuthService {
   }
 
   async signIn(userData: signInDto): Promise<returnSignInDto> {
-    const user = await this.usersService.findOne(userData.username);
+    const user = await this.userRepository.findUserByMail(userData.email);
     if (!user) {
-      throw new Error('Пользователь не найден');
+      throw new NotFoundException('Пользователь не найден');
     }
 
     const hashedPassword = user.password;
@@ -54,7 +53,7 @@ export class AuthService {
     const { accessToken, refreshToken } = await this.getTokens(payload);
 
     // Обновление RefreshToken в пользователе
-    const newUser = await this.usersService.updateRefreshToken(
+    const newUser = await this.userRepository.updateRefreshToken(
       user.id,
       refreshToken,
     );

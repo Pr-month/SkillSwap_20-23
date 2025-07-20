@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-//import { UsersModule } from 'src/users/users.module';
-//import { UsersService } from 'src/users/users.service';
-import { UsersModule } from 'src/usersMock/usersMock.module'; // Это моки затычки чтобы проверить работоспособность Auth Login
-import { UsersService } from 'src/usersMock/usersMock.service'; // Это моки затычки чтобы проверить работоспособность Auth Login
+import { UsersModule } from 'src/users/users.module'; // Это моки затычки чтобы проверить работоспособность Auth Login
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserRepository } from 'src/users/users.repository';
 
 @Module({
-  imports: [UsersModule],
+  imports: [UsersModule, ConfigModule, TypeOrmModule],
   controllers: [AuthController],
-  providers: [AuthService, UsersService],
+  providers: [AuthService, UserRepository],
 })
 export class AuthModule {}

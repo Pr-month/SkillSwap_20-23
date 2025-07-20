@@ -58,6 +58,7 @@ CREATE TABLE public."user" (
     password text NOT NULL,
     age integer NOT NULL,
     city text NOT NULL,
+    about text NOT NULL,
     gender public.user_gender_enum NOT NULL,
     avatar text NOT NULL,
     role public.user_role_enum NOT NULL,
@@ -71,9 +72,9 @@ ALTER TABLE public."user" OWNER TO postgres;
 -- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."user" (id, name, email, password, age, city, gender, avatar, role, "refreshToken") FROM stdin;
-92b8a2a7-ab6b-4fa9-915b-d27945865e39	Jane Doe	janedoe@mail.com	$2b$10$KaVaAuk2h7zTvoZMMon7E.Oalv82rifj09Fmr5XHLfofHOX14oKlS	25	St. Petersburg	female	link/to/avatar.jpg	USER	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5MmI4YTJhNy1hYjZiLTRmYTktOTE1Yi1kMjc5NDU4NjVlMzkiLCJpYXQiOjE3NTI5ODI1MjYsImV4cCI6MTc1Mjk4NjEyNn0.Rl2k8h_jIwlgHwrP3Aiwl1nGeOXNHZ-hoE__PLbNvkA
-0354a762-8928-427f-81d7-1656f717f39c	John Doe	johndoe@mail.com	$2b$10$pCHdOHoXp7sP0zPWuk05sujC4tDdB5Z1ZqVi7rIPS8KxvBQh9UFmy	30	Moscow	male	link/to/avatar.jpg	ADMIN	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMzU0YTc2Mi04OTI4LTQyN2YtODFkNy0xNjU2ZjcxN2YzOWMiLCJpYXQiOjE3NTI5ODQ1MzgsImV4cCI6MTc1Mjk4ODEzOH0.CWT12NF803dfSCrGYC8DLpdd6QWlHOwUhjS0cCh-dsU
+COPY public."user" (id, name, email, password, age, city, about, gender, avatar, role, "refreshToken") FROM stdin;
+92b8a2a7-ab6b-4fa9-915b-d27945865e39	Jane Doe	janedoe@mail.com	$2b$10$KaVaAuk2h7zTvoZMMon7E.Oalv82rifj09Fmr5XHLfofHOX14oKlS	25	St. Petersburg	JaneDoeAbout	female	link/to/avatar.jpg	USER	someSecretValues
+0354a762-8928-427f-81d7-1656f717f39c	John Doe	johndoe@mail.com	$2b$10$pCHdOHoXp7sP0zPWuk05sujC4tDdB5Z1ZqVi7rIPS8KxvBQh9UFmy	30	Moscow	AboutJohnDoe	male	link/to/avatar.jpg	ADMIN	someSecretttValues
 \.
 
 

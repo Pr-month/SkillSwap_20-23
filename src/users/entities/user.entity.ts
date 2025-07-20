@@ -18,6 +18,8 @@ export class User {
   age: number;
   @Column({ type: 'text' })
   city: string;
+  @Column({ type: 'text' })
+  about: string;
   @Column({
     type: 'enum',
     enum: ['male', 'female'],

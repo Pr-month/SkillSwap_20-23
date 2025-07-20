@@ -9,52 +9,30 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { RequestWithGuard, UpdateUserDto } from './dto/update-user.dto';
+import { AccessTokenGuard } from 'src/auth/guards/accessToken.guard';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // @Post()
-  // create(@Body() createUserDto: CreateUserDto) {
-  //   return this.usersService.create(createUserDto);
-  // }
-
-  @Get(':id')
-  getUserById(@Param('id') id: string) {
-    return this.usersService.findUserById(id);
-  }
-
-  @UseGuards(AuthGuard) //TO DO: Здесь должен быть Auth Guard
   @Get('me')
-  getMe(@Request() req) {
-    const currentUser = this.usersService.findUserById(req.id);
+  @UseGuards(AuthGuard('jwt'))
+  async getMe(@Request() req: RequestWithGuard) {
+    const currentUser = await this.usersService.findUserById(req.user.userId);
     return currentUser;
   }
 
-  @Patch(':id')
-  async upadteUserById(
-    @Param('id') id: string,
+  @UseGuards(AccessTokenGuard)
+  @Patch('me')
+  async updateMe(
+    @Request() req: RequestWithGuard,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     try {
       const response = await this.usersService.updateUserById(
-        id,
-        updateUserDto,
-      );
-      return response;
-    } catch {
-      throw new BadRequestException('Ошибка при обновлении пользователя');
-    }
-  }
-
-  @UseGuards(AuthGuard) //TO DO: Здесь должен быть Auth Guard
-  @Patch('me')
-  async updateMe(@Request() req, @Body() updateUserDto: UpdateUserDto) {
-    try {
-      const response = await this.usersService.updateUserById(
-        req.id,
+        req.user.userId, // ID пользователя
         updateUserDto,
       );
       return response;

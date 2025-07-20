@@ -13,7 +13,7 @@ export class UsersService {
   ) {}
 
   async findUserById(id: string) {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findUserById(id);
 
     if (!user) {
       throw new UnauthorizedException('Пользователь не найден');
@@ -25,26 +25,10 @@ export class UsersService {
   }
 
   async updateUserById(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOne({ where: { id } });
-
-    if (!user) {
-      throw new UnauthorizedException('Пользователь не найден');
-    }
-
-    const { name, email, age, city, gender, avatar } = updateUserDto;
-    user.name = name;
-    user.email = email;
-    user.age = age;
-    user.city = city;
-    user.gender = gender;
-    user.avatar = avatar;
-
-    const newUser = await this.userRepository.save(user);
-
     // Поскольку пароль и рефереш токен надо выкинуть оставлю здесь эту линию
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, refreshToken, ...returnValues } = newUser;
-
-    return returnValues;
+    const { password, refreshToken, ...updatedUser } =
+      await this.userRepository.updateUserById(id, updateUserDto);
+    return updatedUser;
   }
 }

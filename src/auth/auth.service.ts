@@ -5,7 +5,8 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcrypt';
+// import * as bcrypt from 'bcrypt';
+import { hash, compare } from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -28,7 +29,7 @@ export class AuthService {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    const hashedPassword = await hash(registerDto.password, 10);
 
     // Create user
     const user = await this.usersService.create({
@@ -40,7 +41,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user.id, user.email, user.role);
 
     // Save refresh token
-    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    const hashedRefreshToken = await hash(tokens.refreshToken, 10);
     await this.usersService.updateRefreshToken(user.id, hashedRefreshToken);
 
     return {
@@ -57,10 +58,7 @@ export class AuthService {
     }
 
     // Check password
-    const isPasswordValid = await bcrypt.compare(
-      loginDto.password,
-      user.password,
-    );
+    const isPasswordValid = await compare(loginDto.password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials!');
     }
@@ -69,7 +67,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user.id, user.email, user.role);
 
     // Save refresh token
-    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    const hashedRefreshToken = await hash(tokens.refreshToken, 10);
     await this.usersService.updateRefreshToken(user.id, hashedRefreshToken);
 
     return {
@@ -86,10 +84,7 @@ export class AuthService {
     }
 
     // Verify refresh token
-    const isRefreshTokenValid = await bcrypt.compare(
-      refreshToken,
-      user.refreshToken,
-    );
+    const isRefreshTokenValid = await compare(refreshToken, user.refreshToken);
     if (!isRefreshTokenValid) {
       throw new UnauthorizedException('Access denied!');
     }
@@ -98,7 +93,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user.id, user.email, user.role);
 
     // Save new refresh token
-    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    const hashedRefreshToken = await hash(tokens.refreshToken, 10);
     await this.usersService.updateRefreshToken(user.id, hashedRefreshToken);
 
     return tokens;
@@ -134,6 +129,9 @@ export class AuthService {
     user: User,
   ): Omit<User, 'password' | 'refreshToken'> {
     const { password, refreshToken, ...userWithoutSensitiveData } = user;
+    // Variables are intentionally unused - they're extracted to exclude them from the result
+    void password;
+    void refreshToken;
     return userWithoutSensitiveData;
   }
 

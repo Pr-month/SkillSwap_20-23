@@ -1,6 +1,5 @@
 import {
   Injectable,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -34,7 +33,7 @@ export class AuthService {
   async signIn(userData: signInDto): Promise<returnSignInDto> {
     const user = await this.userRepository.findUserByMail(userData.email);
     if (!user) {
-      throw new NotFoundException('Пользователь не найден');
+      throw new UnauthorizedException('Пользователь не найден');
     }
 
     const hashedPassword = user.password;

@@ -7,6 +7,7 @@ import { AppDataSource } from './database/appDataSource';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AccessTokenStrategy } from './auth/strategies/accessToken.strategies';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       global: true, // Делаем модуль глобальным
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET'),
+        secret: configService.get('JWT_SECRET') || 'defaultSecretKey',
         signOptions: {
           expiresIn: configService.get('JWT_EXPIRATION') || '2h',
         },
@@ -31,6 +32,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   ],
 
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,AccessTokenStrategy],
 })
 export class AppModule {}

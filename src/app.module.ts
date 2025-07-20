@@ -33,6 +33,6 @@ import { AccessTokenStrategy } from './auth/strategies/accessToken.strategies';
   ],
 
   controllers: [AppController],
-  providers: [AppService,AccessTokenStrategy],
+  providers: [AppService, AccessTokenStrategy],
 })
 export class AppModule {}

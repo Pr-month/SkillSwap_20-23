@@ -3,3 +3,6 @@ export interface JwtPayload {
   email: string; //Email пользователя
   roles: string[]; //Роли пользователя
 }
+export interface AuthenticatedRequest extends Request {
+  user: JwtPayload;
+}

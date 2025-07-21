@@ -23,6 +23,13 @@ export class UsersController {
     return currentUser;
   }
 
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  async getMe(@Request() req: RequestWithGuard) {
+    const currentUser = await this.usersService.findId(req.user.userId);
+    return currentUser;
+  }
+
   @UseGuards(AccessTokenGuard)
   @Patch('me')
   async updateMe(

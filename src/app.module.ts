@@ -24,6 +24,7 @@ import { AccessTokenStrategy } from './auth/strategies/accessToken.strategies';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
+      expandVariables: true,
       envFilePath: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env',
     }),
     TypeOrmModule.forRoot(AppDataSource.options),
@@ -32,6 +33,6 @@ import { AccessTokenStrategy } from './auth/strategies/accessToken.strategies';
   ],
 
   controllers: [AppController],
-  providers: [AppService,AccessTokenStrategy],
+  providers: [AppService, AccessTokenStrategy],
 })
 export class AppModule {}

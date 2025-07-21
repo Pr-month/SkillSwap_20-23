@@ -1,36 +1,39 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/users.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './users.repository';
-import { IUserWithoutSensitive } from 'src/types/userWithoutSensitive';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: UserRepository,
+    private userRepository: UserRepository,
+    private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
-
-  async findAll(): Promise<User[]> {
-    return await this.usersRepository.find();
+  create(createUserDto: CreateUserDto) {
+    //Затычка линтинга
+    return this.userRepository.create(createUserDto);
   }
 
-  async findId(id: string): Promise<IUserWithoutSensitive> {
-    const user = await this.usersRepository.findOneOrFail({ where: { id } });
+  async findUserById(id: string) {
+    const user = await this.userRepository.findUserById(id);
 
     if (!user) {
       throw new UnauthorizedException('Пользователь не найден');
     }
-    return user;
+    // Поскольку пароль и рефереш токен надо выкинуть оставлю здесь эту линию
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, refreshToken, ...returnValues } = user;
+    return returnValues;
   }
 
-  async updateUserById(
-    id: string,
-    updateUserDto: UpdateUserDto,
-  ): Promise<IUserWithoutSensitive> {
-    const updatedUser: IUserWithoutSensitive =
-      await this.usersRepository.updateUserById(id, updateUserDto);
+  async updateUserById(id: string, updateUserDto: UpdateUserDto) {
+    // Поскольку пароль и рефереш токен надо выкинуть оставлю здесь эту линию
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, refreshToken, ...updatedUser } =
+      await this.userRepository.updateUserById(id, updateUserDto);
     return updatedUser;
   }
 }

@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { User } from './entities/users.entity';
+import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
@@ -15,8 +15,9 @@ export class UserRepository extends Repository<User> {
   }
 
   async findUserById(id: string) {
-    console.log('РЕПО: ИЩУ ПОЛЬЗОВАТЕЛЯ ПО ID!');
-    console.log(id);
+    if (!id) {
+      throw new BadRequestException('ID пользователя не задан!');
+    }
     try {
       const user = await this.findOne({ where: { id } });
       if (!user) {
@@ -29,6 +30,9 @@ export class UserRepository extends Repository<User> {
   }
 
   async updateUserById(id: string, updateUserDto: UpdateUserDto) {
+    if (!id) {
+      throw new BadRequestException('ID пользователя не задан!');
+    }
     const user = await this.findOne({ where: { id } });
 
     if (!user) {
@@ -49,33 +53,35 @@ export class UserRepository extends Repository<User> {
   }
 
   async findUserByMail(email: string): Promise<User | undefined> {
+    if (!email) {
+      throw new BadRequestException('Email пользователя не задан!');
+    }
     try {
-      console.log(`EMAIL: ${email}`);
       const response = await this.findOne({
         where: { email },
       });
       if (!response) {
-        console.log('ERROR1!');
         throw new NotFoundException(
           `Пользователь с почтой ${email} не найден!`,
         );
       }
       return response;
-    } catch (error) {
-      console.log('ERROR2!');
-      console.log(error);
+    } catch {
       throw new NotFoundException(`Пользователь с почтой ${email} не найден!`);
     }
   }
 
   async updateRefreshToken(userId: string, newRefreshToken: string) {
+    if (!userId) {
+      throw new BadRequestException('ID пользователя не задан!');
+    }
     const user = await this.findOne({
       where: { id: userId },
     });
     if (!user) {
       throw new BadRequestException('Пользователь не найден');
     }
-    user.refreshtoken = newRefreshToken;
+    user.refreshToken = newRefreshToken;
     try {
       await this.save(user);
     } catch {

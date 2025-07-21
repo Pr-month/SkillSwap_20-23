@@ -6,20 +6,21 @@ import {
   Patch,
   BadRequestException,
   UseGuards,
-  Param,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { RequestWithGuardDTO, UpdateUserDto } from './dto/update-user.dto';
 import { AccessTokenGuard } from 'src/auth/guards/accessToken.guard';
 import { AuthGuard } from '@nestjs/passport';
-import { RequestWithGuard, UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  async getMe(@Request() req: RequestWithGuardDTO) {
+    const currentUser = await this.usersService.findUserById(req.user.userId);
+    return currentUser;
   }
 
   @Get('me')
@@ -29,20 +30,16 @@ export class UsersController {
     return currentUser;
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findId(id);
-  }
-
   @UseGuards(AccessTokenGuard)
   @Patch('me')
   async updateMe(
-    @Request() req: RequestWithGuard,
+    @Request() req: RequestWithGuardDTO,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     try {
+      console.log(req.user);
       const response = await this.usersService.updateUserById(
-        req.user.userId,
+        req.user.userId, // ID пользователя
         updateUserDto,
       );
       return response;

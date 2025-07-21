@@ -3,7 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppDataSource } from './data-source';
+import { AppDataSource } from './database/appDataSource';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -24,6 +24,7 @@ import { AccessTokenStrategy } from './auth/strategies/accessToken.strategies';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
+      expandVariables: true,
       envFilePath: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env',
     }),
     TypeOrmModule.forRoot(AppDataSource.options),
@@ -32,6 +33,6 @@ import { AccessTokenStrategy } from './auth/strategies/accessToken.strategies';
   ],
 
   controllers: [AppController],
-  providers: [AppService,AccessTokenStrategy],
+  providers: [AppService, AccessTokenStrategy],
 })
 export class AppModule {}

@@ -1,7 +1,7 @@
 import {
   Controller,
+  Request,
   Get,
-  Post,
   Body,
   Patch,
   Param,
@@ -10,41 +10,50 @@ import {
   Req,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { RequestWithGuard, UpdateUserDto } from './dto/update-user.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { AuthenticatedRequest } from 'src/auth/auth.types';
+import { AccessTokenGuard } from 'src/auth/guards/accessToken.guard';
 import { UpdatePasswordDto } from './dto/password-update.dto';
-import { AccessTokenGuard } from '../auth/guards/accessToken.guard';
-import { AuthenticatedRequest } from '../auth/auth.types';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  async getMe(@Request() req: RequestWithGuardDTO) {
+    const currentUser = await this.usersService.findUserById(req.user.userId);
+    return currentUser;
   }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  async getMe(@Request() req: RequestWithGuard) {
+    const currentUser = await this.usersService.findId(req.user.userId);
+    return currentUser;
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @UseGuards(AccessTokenGuard)
+  @Patch('me')
+  async updateMe(
+    @Request() req: RequestWithGuardDTO,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    try {
+      console.log(req.user);
+      const response = await this.usersService.updateUserById(
+        req.user.userId, // ID пользователя
+        updateUserDto,
+      );
+      return response;
+    } catch {
+      throw new BadRequestException('Ошибка при обновлении пользователя');
+    }
   }
 
   //обновление пароля

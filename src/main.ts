@@ -8,8 +8,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: false, // удаляет все свойства, которых нет в DTO
-      forbidNonWhitelisted: false, // выбрасывает ошибку, если есть лишние поля
+      whitelist: true, // удаляет все свойства, которых нет в DTO
+      forbidNonWhitelisted: true, // выбрасывает ошибку, если есть лишние поля
       transform: true, // автоматически преобразует payload к типу DTO
     }),
   );

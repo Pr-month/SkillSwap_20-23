@@ -50,20 +50,16 @@ export class UserRepository extends Repository<User> {
 
   async findUserByMail(email: string): Promise<User | undefined> {
     try {
-      console.log(`EMAIL: ${email}`);
       const response = await this.findOne({
         where: { email },
       });
       if (!response) {
-        console.log('ERROR1!');
         throw new NotFoundException(
           `Пользователь с почтой ${email} не найден!`,
         );
       }
       return response;
-    } catch (error) {
-      console.log('ERROR2!');
-      console.log(error);
+    } catch {
       throw new NotFoundException(`Пользователь с почтой ${email} не найден!`);
     }
   }

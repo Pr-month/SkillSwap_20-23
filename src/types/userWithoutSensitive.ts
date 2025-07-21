@@ -1,15 +1,14 @@
 import { Gender } from 'src/common/gender.enum';
 import { Role } from 'src/common/role.enum';
 
-export class CreateUserDto {
-  id: number;
+export interface IUserWithoutSensitive {
+  id: string;
   name: string;
   email: string;
-  password: string;
   age: number;
   city: string;
   gender: Gender;
   avatar: string;
+  about: string | null;
   role: Role;
-  refreshToken: string;
 }

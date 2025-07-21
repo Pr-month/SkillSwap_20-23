@@ -1,24 +1,26 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-import { Gender, Role } from 'src/common/types';
+
+import { Gender } from '../../common/gender.enum';
+import { Role } from '../../common/role.enum';
 
 @Entity()
 export class User {
   @PrimaryColumn({ type: 'uuid' })
   id: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar' })
   name: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar' })
   email: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar' })
   password: string;
 
   @Column({ type: 'int' })
   age: number;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar' })
   city: string;
 
   @Column({
@@ -27,8 +29,11 @@ export class User {
   })
   gender: Gender;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar' })
   avatar: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  about: string | null;
 
   @Column({
     type: 'enum',
@@ -42,14 +47,5 @@ export class User {
     length: 255,
     unique: true,
   })
-  refreshToken: string;
-
-  // @OneToMany(() => Skill, (skill) => skill.id)
-  // skills: Skill
-
-  // @OneToMany(() => Skill, (skill) => skill.id)
-  // wantToLearn: Skill
-
-  // @OneToMany(() => Skill, (skill) => skill.id)
-  // favoriteSkills: Skill
+  refreshtoken: string;
 }

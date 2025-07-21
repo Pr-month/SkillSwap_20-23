@@ -3,10 +3,7 @@ import { Gender } from '../entities/user.entity';
 import {
   IsArray,
   IsEmail,
-  IsNotEmpty,
-  IsNotEmptyObject,
   IsNumber,
-  IsObject,
   IsString,
   ValidateNested,
 } from 'class-validator';

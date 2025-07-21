@@ -12,8 +12,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || 'postgres',
   // password: String(process.env.DB_PASSWORD) || 'postgres', // Эта строка вызывает ошибку
   database: process.env.DB_NAME || 'skillswap',
-  //entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  entities: [User],
+  entities: [__dirname + '/**/*.entity{.ts,.js}'],
   synchronize: false,
   logging: true,
 });

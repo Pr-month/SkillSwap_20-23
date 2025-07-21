@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { UsersModule } from 'src/users/users.module';
 import { AuthController } from './auth.controller';
 import { UsersModule } from 'src/users/users.module'; // Это моки затычки чтобы проверить работоспособность Auth Login
 import { ConfigModule } from '@nestjs/config';

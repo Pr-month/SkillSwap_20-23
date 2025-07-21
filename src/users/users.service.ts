@@ -3,6 +3,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './users.repository';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -11,6 +12,10 @@ export class UsersService {
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
+  create(createUserDto: CreateUserDto) {
+    //Затычка линтинга
+    return this.userRepository.create(createUserDto);
+  }
 
   async findUserById(id: string) {
     const user = await this.userRepository.findUserById(id);

@@ -1,19 +1,11 @@
-INSERT INTO users (
-    name,
-    email,
-    password,
-    age,
-    city,
-    gender,
-    avatar,
-    role,
-    refreshtoken
-) VALUES 
+INSERT INTO public."user" (id, name, email, password, age, city, gender, avatar, role, refreshtoken) 
+VALUES 
 -- Административная учетная запись
 (
+    '123e4567-e89b-12d3-a456-426614174001',
     'Admin User',
     'admin@example.com',
-    '$2b$10$examplehash', -- пример хеша пароля
+    '$2b$10$examplehash',
     30,
     'Москва',
     'male',
@@ -24,6 +16,7 @@ INSERT INTO users (
 
 -- Обычные пользователи
 (
+    '123e4567-e89b-12d3-a456-426614174002',
     'Иван Петров',
     'ivan@example.com',
     '$2b$10$examplehash2',
@@ -35,6 +28,7 @@ INSERT INTO users (
     'refresh-token-ivan-123'
 ),
 (
+    '123e4567-e89b-12d3-a456-426614174003',
     'Анна Сидорова',
     'anna@example.com',
     '$2b$10$examplehash3',
@@ -46,6 +40,7 @@ INSERT INTO users (
     'refresh-token-anna-123'
 ),
 (
+    '123e4567-e89b-12d3-a456-426614174004',
     'Мария Иванова',
     'maria@example.com',
     '$2b$10$examplehash4',

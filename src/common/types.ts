@@ -1,3 +1,9 @@
-export type Gender = 'male' | 'female';
+export enum Gender {
+  MALE = 'male',
+  FEMALE = 'female',
+}
 
-export type Role = 'USER' | 'ADMIN';
+export enum Role {
+  USER = 'user',
+  ADMIN = 'admin',
+}

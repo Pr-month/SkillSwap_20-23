@@ -1,23 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
-
-export class getTokensDTO {
-  username: string;
-  userId: string;
-  userEmail: string;
-  userRole: string;
-}
-
-export class returnGetTokensDTO {
-  accessToken: string;
-  refreshToken: string;
-}
+import { returnJwtToken, JwtPayload } from './types';
+import { Role } from 'src/common/types';
 
 @Injectable()
 export class AuthService {
@@ -27,8 +17,19 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async getTokens(payload: getTokensDTO): Promise<returnGetTokensDTO> {
+  async _getTokens(user: {
+    id: string;
+    email: string;
+    role?: Role;
+  }): Promise<returnJwtToken> {
     //Вот это создает accessToken
+
+    const payload: JwtPayload = {
+      userEmail: user.email,
+      userId: user.id,
+      userRole: user.role || Role.USER,
+    };
+
     const accessToken = await this.jwtService.signAsync(payload);
     const refreshToken = await this.jwtService.signAsync(
       { sub: payload.userId },
@@ -41,35 +42,35 @@ export class AuthService {
   }
 
   async create(createAuthDto: CreateAuthDto) {
-
-    const { name, email, password  } = createAuthDto;
+    const { email, password } = createAuthDto;
 
     const saltRound = 10;
 
     const passwordHash: string = await bcrypt.hash(password, saltRound);
 
-    try {
-      const id: string = uuidv4();
+    const id: string = uuidv4();
 
-      const payload: getTokensDTO = {
-        username: name,
-        userEmail: email,
-        userRole: 'USER',
-        userId: id,
-      }
-      const tokens = await this.getTokens(payload);
-      const { refreshToken } = tokens;
-      const newUser = {
-        ...createAuthDto,
-        password: passwordHash,
-        refreshToken
-      }
+    const payload = {
+      id,
+      email,
+    };
 
-      this.usersService.create(newUser)
-      return newUser;
-    } catch (err) {
-      throw new Error(err);
-    }
+    const tokens = await this._getTokens(payload);
+
+    const { refreshToken, accessToken } = tokens;
+
+    const newUser = {
+      ...createAuthDto,
+      password: passwordHash,
+      refreshToken,
+    };
+
+    this.usersService.create(newUser);
+    return {
+      user: newUser,
+      accessToken,
+      refreshToken,
+    };
   }
 
   findAll() {

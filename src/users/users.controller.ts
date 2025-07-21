@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { RequestWithGuard, UpdateUserDto } from './dto/update-user.dto';
+import { RequestWithGuardDTO, UpdateUserDto } from './dto/update-user.dto';
 import { AccessTokenGuard } from 'src/auth/guards/accessToken.guard';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -18,7 +18,7 @@ export class UsersController {
 
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
-  async getMe(@Request() req: RequestWithGuard) {
+  async getMe(@Request() req: RequestWithGuardDTO) {
     const currentUser = await this.usersService.findUserById(req.user.userId);
     return currentUser;
   }
@@ -26,10 +26,11 @@ export class UsersController {
   @UseGuards(AccessTokenGuard)
   @Patch('me')
   async updateMe(
-    @Request() req: RequestWithGuard,
+    @Request() req: RequestWithGuardDTO,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     try {
+      console.log(req.user);
       const response = await this.usersService.updateUserById(
         req.user.userId, // ID пользователя
         updateUserDto,

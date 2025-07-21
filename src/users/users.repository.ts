@@ -15,8 +15,9 @@ export class UserRepository extends Repository<User> {
   }
 
   async findUserById(id: string) {
-    console.log('РЕПО: ИЩУ ПОЛЬЗОВАТЕЛЯ ПО ID!');
-    console.log(id);
+    if (!id) {
+      throw new BadRequestException('ID пользователя не задан!');
+    }
     try {
       const user = await this.findOne({ where: { id } });
       if (!user) {
@@ -29,6 +30,9 @@ export class UserRepository extends Repository<User> {
   }
 
   async updateUserById(id: string, updateUserDto: UpdateUserDto) {
+    if (!id) {
+      throw new BadRequestException('ID пользователя не задан!');
+    }
     const user = await this.findOne({ where: { id } });
 
     if (!user) {
@@ -49,6 +53,9 @@ export class UserRepository extends Repository<User> {
   }
 
   async findUserByMail(email: string): Promise<User | undefined> {
+    if (!email) {
+      throw new BadRequestException('Email пользователя не задан!');
+    }
     try {
       const response = await this.findOne({
         where: { email },
@@ -65,6 +72,9 @@ export class UserRepository extends Repository<User> {
   }
 
   async updateRefreshToken(userId: string, newRefreshToken: string) {
+    if (!userId) {
+      throw new BadRequestException('ID пользователя не задан!');
+    }
     const user = await this.findOne({
       where: { id: userId },
     });

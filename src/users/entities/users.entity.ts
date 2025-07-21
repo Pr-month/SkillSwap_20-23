@@ -1,12 +1,13 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Gender } from '../../common/gender.enum';
 import { Role } from '../../common/role.enum';
+import { IsOptional } from 'class-validator';
 
 @Entity()
-export class Users {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class User {
+  @PrimaryColumn({ type: 'uuid' })
+  id: string;
 
   @Column({ type: 'varchar' })
   name: string;
@@ -32,10 +33,13 @@ export class Users {
   @Column({ type: 'varchar' })
   avatar: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  about: string | null;
+
   @Column({
     type: 'enum',
     enum: Role,
-    default: Role.USER, // Устанавливаем значение по умолчанию
+    default: Role.USER,
   })
   role: Role;
 

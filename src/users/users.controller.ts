@@ -4,13 +4,21 @@ import {
   Get,
   Body,
   Patch,
-  BadRequestException,
+  Param,
+  Delete,
   UseGuards,
+  Req,
+  HttpCode,
+  HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { RequestWithGuardDTO, UpdateUserDto } from './dto/update-user.dto';
-import { AccessTokenGuard } from 'src/auth/guards/accessToken.guard';
+import { CreateUserDto } from './dto/create-user.dto';
+import { RequestWithGuard, UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { AuthenticatedRequest } from 'src/auth/auth.types';
+import { AccessTokenGuard } from 'src/auth/guards/accessToken.guard';
+import { UpdatePasswordDto } from './dto/password-update.dto';
 
 @Controller('users')
 export class UsersController {
@@ -46,5 +54,24 @@ export class UsersController {
     } catch {
       throw new BadRequestException('Ошибка при обновлении пользователя');
     }
+  }
+
+  //обновление пароля
+  @UseGuards(AccessTokenGuard) // Защита эндпоинта
+  @Patch('me/password') // Определение метода и пути
+  @HttpCode(HttpStatus.NO_CONTENT) // Установка HTTP-статуса
+  async updatePassword(
+    @Req() req: AuthenticatedRequest, // Запрос с данными пользователя
+    @Body() updatePasswordDto: UpdatePasswordDto, // Валидированные данные
+  ) {
+    const { sub: userId } = req.user; // Извлечение ID пользователя
+    const { currentPassword, newPassword } = updatePasswordDto; // Получение паролей
+
+    await this.usersService.updatePassword(
+      // Вызов сервиса для обновления
+      userId,
+      currentPassword,
+      newPassword,
+    );
   }
 }

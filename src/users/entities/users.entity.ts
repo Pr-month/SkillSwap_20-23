@@ -1,8 +1,7 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 import { Gender } from '../../common/gender.enum';
 import { Role } from '../../common/role.enum';
-import { IsOptional } from 'class-validator';
 
 @Entity()
 export class User {

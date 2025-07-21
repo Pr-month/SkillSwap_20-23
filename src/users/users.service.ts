@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/users.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './users.repository';
+import { IUserWithoutSensitive } from 'src/types/userWithoutSensitive';
 
 @Injectable()
 export class UsersService {
@@ -15,20 +16,20 @@ export class UsersService {
     return await this.usersRepository.find();
   }
 
-  async findId(id: string) {
+  async findId(id: string): Promise<IUserWithoutSensitive> {
     const user = await this.usersRepository.findOneOrFail({ where: { id } });
 
     if (!user) {
       throw new UnauthorizedException('Пользователь не найден');
     }
-    const { password, refreshtoken, ...returnValues } = user;
-    return returnValues;
+    return user;
   }
 
-  async updateUserById(id: string, updateUserDto: UpdateUserDto) {
-    // Поскольку пароль и рефереш токен надо выкинуть оставлю здесь эту линию
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, refreshtoken, ...updatedUser } =
+  async updateUserById(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<IUserWithoutSensitive> {
+    const updatedUser: IUserWithoutSensitive =
       await this.usersRepository.updateUserById(id, updateUserDto);
     return updatedUser;
   }

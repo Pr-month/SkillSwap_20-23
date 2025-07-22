@@ -7,6 +7,7 @@ import { configuration } from './config/configuration';
 import { AppDataSource } from './config/data-source';
 import { AuthModule } from './auth/auth.module';
 import { AccessTokenStrategy } from './auth/strategies/access-token.strategy';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AccessTokenStrategy } from './auth/strategies/access-token.strategy';
     TypeOrmModule.forRoot(AppDataSource.options),
     UsersModule,
     AuthModule,
+    UploadModule,
   ],
   providers: [AccessTokenStrategy],
 })

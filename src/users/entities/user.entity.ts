@@ -60,21 +60,8 @@ export class User {
   })
   skills?: Skill[];
 
-  @ManyToMany(() => Skill, (skill) => skill.enjoyers, {
-    onDelete: 'NO ACTION',
-    onUpdate: 'NO ACTION',
-  })
-  @JoinTable({
-    name: 'user_skill',
-    joinColumn: {
-      name: 'user_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'skill_id',
-      referencedColumnName: 'id',
-    },
-  })
+  @ManyToMany(() => Skill, { eager: true })
+  @JoinTable()
   favoriteSkills?: Skill[];
 
   // @OneToMany(() => Category, (category) => Category.value)

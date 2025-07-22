@@ -1,11 +1,5 @@
 import { User } from '../../users/entities/user.entity';
-import {
-  Column,
-  Entity,
-  ManyToMany,
-  ManyToOne,
-  PrimaryColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToMany, ManyToOne, PrimaryColumn } from 'typeorm';
 
 @Entity('skill')
 export class Skill {

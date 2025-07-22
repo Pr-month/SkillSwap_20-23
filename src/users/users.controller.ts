@@ -1,59 +1,51 @@
 import {
-  Controller,
-  Request,
-  Get,
   Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  Req,
+  Controller,
+  Get,
   HttpCode,
   HttpStatus,
-  BadRequestException,
+  Param,
+  Patch,
+  Req,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { RequestWithGuard, UpdateUserDto } from './dto/update-user.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { AuthenticatedRequest } from 'src/auth/auth.types';
-import { AccessTokenGuard } from 'src/auth/guards/accessToken.guard';
+import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 import { UpdatePasswordDto } from './dto/password-update.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('me')
-  @UseGuards(AuthGuard('jwt'))
-  async getMe(@Request() req: RequestWithGuardDTO) {
-    const currentUser = await this.usersService.findUserById(req.user.userId);
-    return currentUser;
+  @Get('')
+  findAll() {
+    return this.usersService.findAll();
   }
 
   @Get('me')
-  @UseGuards(AuthGuard('jwt'))
-  async getMe(@Request() req: RequestWithGuard) {
-    const currentUser = await this.usersService.findId(req.user.userId);
-    return currentUser;
+  @UseGuards(AccessTokenGuard)
+  getMe(@Request() req: AuthenticatedRequest) {
+    return this.usersService.findUserById(req.user.sub);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.usersService.findUserById(id);
   }
 
   @UseGuards(AccessTokenGuard)
   @Patch('me')
   async updateMe(
-    @Request() req: RequestWithGuardDTO,
+    @Request() req: AuthenticatedRequest,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    try {
-      console.log(req.user);
-      const response = await this.usersService.updateUserById(
-        req.user.userId, // ID пользователя
-        updateUserDto,
-      );
-      return response;
-    } catch {
-      throw new BadRequestException('Ошибка при обновлении пользователя');
-    }
+    return await this.usersService.updateUserById(
+      req.user.sub, // ID пользователя
+      updateUserDto,
+    );
   }
 
   //обновление пароля

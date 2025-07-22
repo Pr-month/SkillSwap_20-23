@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/mapped-types';
 import {
   IsEmail,
   IsNotEmpty,
@@ -9,9 +10,10 @@ import {
   Min,
   Max,
 } from 'class-validator';
-import { Gender } from '../../users/entities/user.entity';
+import { Gender } from 'src/common/gender.enum';
+import { User } from 'src/users/entities/user.entity';
 
-export class RegisterDto {
+export class RegisterDto extends PartialType(User) {
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -24,6 +26,10 @@ export class RegisterDto {
   @IsNotEmpty()
   @MinLength(6)
   password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  about: string;
 
   @IsOptional()
   @IsInt()

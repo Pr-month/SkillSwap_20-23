@@ -11,11 +11,3 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   gender: Gender;
   avatar: string;
 }
-
-export interface RequestWithGuard extends Request {
-  user: {
-    userId: string;
-    email: string;
-    roles: string[];
-  };
-}

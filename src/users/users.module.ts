@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersService } from './users.service';
-import { UsersController } from './users.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 import { User } from './entities/user.entity';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]) // Регистрация репозитория User
+    TypeOrmModule.forFeature([User]), // Регистрация репозитория User
   ],
   controllers: [UsersController],
-  providers: [UsersService],
-  exports: [UsersService]
+  providers: [UsersService, AccessTokenGuard],
+  exports: [UsersService],
 })
 export class UsersModule {}

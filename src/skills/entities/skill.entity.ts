@@ -1,3 +1,4 @@
+import { Category } from '../../categories/entities/category.entity';
 import { User } from '../../users/entities/user.entity';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 
@@ -25,6 +26,6 @@ export class Skill {
   @ManyToOne(() => User, (user) => user.skills)
   owner: User;
 
-  // @ManyToOne(() => Category, (category) => category.id)
-  // category: Category
+  @ManyToOne(() => Category, (category) => category.id)
+  category: Category;
 }

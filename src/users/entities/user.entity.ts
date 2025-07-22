@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Gender, Role } from 'src/common/types';
 import { Skill } from '../../skills/entities/skill.entity';
+import { Category } from 'src/categories/entities/category.entity';
 
 @Entity('user')
 export class User {
@@ -64,6 +65,7 @@ export class User {
   @JoinTable()
   favoriteSkills?: Skill[];
 
-  // @OneToMany(() => Category, (category) => Category.value)
-  // wantToLearn: Category[];
+  @ManyToMany(() => Category, { eager: true })
+  @JoinTable()
+  wantToLearn?: Category[];
 }

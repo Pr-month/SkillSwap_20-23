@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import {
   Column,
   Entity,
@@ -13,7 +14,7 @@ import { Category } from 'src/categories/entities/category.entity';
 @Entity('user')
 export class User {
   @PrimaryColumn({ type: 'uuid' })
-  id: string;
+  id: string = uuidv4();
 
   @Column({ type: 'text' })
   name: string;

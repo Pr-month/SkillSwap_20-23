@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { CreateSkillDto } from './dto/create-skill.dto';
-import { UpdateSkillDto } from './dto/update-skill.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CreateSkillDto } from './dto/create-skill.dto';
+import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
 
 @Injectable()
@@ -24,9 +24,21 @@ export class SkillsService {
     return `This action returns a #${id} skill`;
   }
 
-  update(id: number, updateSkillDto: UpdateSkillDto) {
-    console.log(updateSkillDto);
-    return `This action updates a #${id} skill`;
+  async update(id: string, updateSkillDto: UpdateSkillDto) {
+    const skill = await this.skillRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!skill) {
+      throw new NotFoundException('Skill not found!');
+    }
+
+    return this.skillRepository.save({
+      ...skill,
+      ...updateSkillDto,
+    });
   }
 
   remove(id: number) {

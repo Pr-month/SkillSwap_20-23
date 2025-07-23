@@ -2,11 +2,12 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
@@ -14,7 +15,7 @@ import { User } from './entities/user.entity';
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<User[]> {
     return await this.userRepository.find();
@@ -22,21 +23,21 @@ export class UsersService {
 
   async findUserById(id: string) {
     const user = await this.userRepository.findOneOrFail({ where: { id } });
-
-    // Поскольку пароль и рефереш токен надо выкинуть оставлю здесь эту линию
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, refreshToken, ...returnValues } = user;
     return returnValues;
   }
 
   async updateUserById(id: string, updateUserDto: UpdateUserDto) {
-    // Поскольку пароль и рефереш токен надо выкинуть оставлю здесь эту линию
+    try {
+      const user = await this.userRepository.findOneOrFail({ where: { id } });
+      const mergedUser = this.userRepository.merge(user, updateUserDto);
+      const savedUser = await this.userRepository.save(mergedUser);
+      const { password, refreshToken, ...updatedUser } = savedUser;
 
-    const user = await this.userRepository.findOneOrFail({ where: { id } });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, refreshToken, ...updatedUser } =
-      (await this.userRepository.save({ ...user, ...updateUserDto })) as User;
-    return updatedUser;
+      return updatedUser;
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to update user');
+    }
   }
 
   async updatePassword(

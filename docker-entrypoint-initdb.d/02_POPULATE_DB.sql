@@ -92,11 +92,11 @@ CREATE TABLE public."user" (
     name text NOT NULL,
     email text NOT NULL,
     password text NOT NULL,
-    about text NOT NULL,
-    age integer NOT NULL,
-    city text NOT NULL,
-    gender public.user_gender_enum NOT NULL,
-    avatar text NOT NULL,
+    about text,
+    age integer,
+    city text,
+    gender public.user_gender_enum,
+    avatar text,
     role public.user_role_enum DEFAULT 'user'::public.user_role_enum NOT NULL,
     "refreshToken" character varying(255) NOT NULL
 );

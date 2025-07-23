@@ -9,15 +9,15 @@ export class WinstonLogger implements LoggerService {
   private logger: winston.Logger;
 
   constructor() {
-    // конфигурация логгера
+    //конфигурация логгера
     this.logger = winston.createLogger({
       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
       format: winston.format.combine(
-        // форматирование логов
-        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), // добавляет временную метку в указанном формате
-        winston.format.errors({ stack: true }), // включает стек вызовов для ошибок
-        winston.format.splat(), // обеспечивает поддержку интерполяции строк
-        winston.format.json(), // форматирует лог в JSON (для файлов)
+        //форматирование логов
+        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), //добавляет временную метку в указанном формате
+        winston.format.errors({ stack: true }), //включает стек вызовов для ошибок
+        winston.format.splat(), //обеспечивает поддержку интерполяции строк
+        winston.format.json(), //форматирует лог в JSON (для файлов)
       ),
       defaultMeta: { service: 'nestjs-app' },
       transports: [
@@ -27,16 +27,16 @@ export class WinstonLogger implements LoggerService {
             winston.format.colorize(),
             winston.format.printf(
               ({ timestamp, level, message, context, stack }) => {
-                const contextMsg = context ? `[${String(context)}] ` : ''; // Явное преобразование в строку
-                const stackMsg = stack ? `\n${String(stack)}` : ''; // Явное преобразование в строку
-                return `${timestamp} ${level}: ${contextMsg}${String(message)}${stackMsg}`;
+                const contextMsg = context ? `[${context}] ` : '';
+                const stackMsg = stack ? `\n${stack}` : '';
+                return `${timestamp} ${level}: ${contextMsg}${message}${stackMsg}`;
               },
             ),
           ),
         }),
-        // файлы с ротацией
+        //файлы с ротацией
         new DailyRotateFile({
-          // для ошибок
+          //для ошибок
           dirname: `${logDir}/error`,
           filename: 'error-%DATE%.log',
           datePattern: 'YYYY-MM-DD',
@@ -46,7 +46,7 @@ export class WinstonLogger implements LoggerService {
           level: 'error',
         }),
         new DailyRotateFile({
-          // общие логи 
+          //общие логи 
           dirname: `${logDir}/combined`,
           filename: 'combined-%DATE%.log',
           datePattern: 'YYYY-MM-DD',
@@ -55,7 +55,7 @@ export class WinstonLogger implements LoggerService {
           maxFiles: '30d',
         }),
       ],
-      // обработка исключений
+      //обработка исключений
       exceptionHandlers: [
         new DailyRotateFile({
           dirname: `${logDir}/exceptions`,
@@ -67,8 +67,7 @@ export class WinstonLogger implements LoggerService {
         }),
       ],
     });
-
-    // особенности для development режима
+    //собенности для development режима
     if (process.env.NODE_ENV !== 'production') {
       this.logger.add(
         new winston.transports.Console({
@@ -81,25 +80,24 @@ export class WinstonLogger implements LoggerService {
       );
     }
   }
-
   // реализация методов LoggerService
-  log(message: unknown, context?: string) {
-    this.logger.info(String(message), { context });
+  log(message: string, context?: string) {
+    this.logger.info(message, { context });
   }
 
-  error(message: unknown, trace?: string, context?: string) {
-    this.logger.error(String(message), { stack: trace, context });
+  error(message: string, trace?: string, context?: string) {
+    this.logger.error(message, { stack: trace, context });
   }
 
-  warn(message: unknown, context?: string) {
-    this.logger.warn(String(message), { context });
+  warn(message: string, context?: string) {
+    this.logger.warn(message, { context });
   }
 
-  debug(message: unknown, context?: string) {
-    this.logger.debug(String(message), { context });
+  debug(message: string, context?: string) {
+    this.logger.debug(message, { context });
   }
 
-  verbose(message: unknown, context?: string) {
-    this.logger.verbose(String(message), { context });
+  verbose(message: string, context?: string) {
+    this.logger.verbose(message, { context });
   }
 }

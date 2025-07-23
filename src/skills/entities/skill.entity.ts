@@ -28,6 +28,7 @@ export class Skill {
   @JoinColumn({ name: 'ownerId' })
   owner: User;
 
-  @ManyToOne(() => Category, (category) => category.id)
+  @ManyToOne(() => Category, category => category.id)
+  @JoinColumn({ name: 'categoryId' })
   category: Category;
 }

@@ -20,8 +20,9 @@ export class SkillsService {
     return await this.skillRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} skill`;
+  findOne(id: string): Promise<Skill> {
+    const skill = this.skillRepository.findOneOrFail({ where: { id } });
+    return skill
   }
 
   update(id: number, updateSkillDto: UpdateSkillDto) {

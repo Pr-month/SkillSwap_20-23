@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { Category } from '../../categories/entities/category.entity';
 import { User } from '../../users/entities/user.entity';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
@@ -5,7 +6,7 @@ import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 @Entity('skill')
 export class Skill {
   @PrimaryColumn({ type: 'uuid' })
-  id: string;
+  id: string = uuidv4();
 
   @Column({
     type: 'varchar',

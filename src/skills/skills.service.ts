@@ -11,9 +11,13 @@ export class SkillsService {
     @InjectRepository(Skill) private skillRepository: Repository<Skill>,
   ) {}
 
-  create(createSkillDto: CreateSkillDto) {
-    console.log(createSkillDto);
-    return 'This action adds a new skill';
+  async create(createSkillDto: CreateSkillDto): Promise<Skill> {
+    try {
+      const newSkill = this.skillRepository.create(createSkillDto) as Skill;
+      return await this.skillRepository.save(newSkill);
+    } catch (error) {
+      throw new Error('Ошибка при создании навыка: ' + error.message);
+    }
   }
 
   async findAll(): Promise<Skill[]> {

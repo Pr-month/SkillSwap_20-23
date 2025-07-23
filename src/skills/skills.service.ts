@@ -16,8 +16,8 @@ export class SkillsService {
     return 'This action adds a new skill';
   }
 
-  findAll() {
-    return `This action returns all skills`;
+  async findAll(): Promise<Skill[]> {
+    return await this.skillRepository.find();
   }
 
   findOne(id: number) {

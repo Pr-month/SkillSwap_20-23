@@ -30,7 +30,7 @@ export class SkillsService {
     return `This action updates a #${id} skill`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} skill`;
+  remove(id: string) {
+    return this.skillRepository.delete(id);
   }
 }

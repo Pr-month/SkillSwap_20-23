@@ -25,14 +25,16 @@ export class User {
   @Column({ type: 'text' })
   password: string;
 
-  @Column({ type: 'text' })
-  about: string;
+  @Column({ type: 'text', nullable: true, })
+  about: string | null = null;
 
-  @Column({ type: 'int' })
-  age: number;
+  @Column({
+    type: 'int', nullable: true,
+  })
+  age: number | null = null;
 
-  @Column({ type: 'text' })
-  city: string;
+  @Column({ type: 'text', nullable: true, })
+  city: string | null = null;
 
   @Column({
     type: 'enum',

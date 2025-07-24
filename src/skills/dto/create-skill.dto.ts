@@ -1,26 +1,20 @@
-import { IsArray, IsNotEmpty, IsString, IsUUID } from "class-validator";
+import { IsArray, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class CreateSkillDto {
-    
-    @IsString()
-    @IsNotEmpty()
-    title: string;
+  @IsString()
+  @IsNotEmpty()
+  title: string;
 
-    @IsString()
-    @IsNotEmpty()
-    description: string;
+  @IsString()
+  @IsNotEmpty()
+  description: string;
 
-    @IsNotEmpty()
-    @IsArray()
-    images?: string[];
+  @IsNotEmpty()
+  @IsArray()
+  images?: string[];
 
-    @IsString()
-    @IsNotEmpty()
-    @IsUUID()
-    ownerId: string;
-
-    @IsString()
-    @IsNotEmpty()
-    @IsUUID()
-    categoryId: string;
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  categoryId: string;
 }

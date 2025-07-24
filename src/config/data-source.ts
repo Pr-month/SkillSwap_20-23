@@ -11,5 +11,5 @@ export const AppDataSource = new DataSource({
   password: String(process.env.DB_PASSWORD) || 'postgres',
   database: process.env.DB_NAME,
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  synchronize: false,
+  synchronize: Boolean(process.env.SYNCHRONIZE),
 });

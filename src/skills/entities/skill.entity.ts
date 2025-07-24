@@ -24,11 +24,13 @@ export class Skill {
   @Column('text', { array: true, nullable: true })
   images: string[];
 
-  @ManyToOne(() => User, user => user.skills)
+  @ManyToOne(() => User, (user) => user.skills, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'ownerId' })
   owner: User;
 
-  @ManyToOne(() => Category, category => category.id)
+  @ManyToOne(() => Category, (category) => category.id)
   @JoinColumn({ name: 'categoryId' })
   category: Category;
 }

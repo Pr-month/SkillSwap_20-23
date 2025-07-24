@@ -6,19 +6,18 @@ import {
   Patch,
   Param,
   Delete,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { SkillsService } from './skills.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
+import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
+import { AuthenticatedRequest } from 'src/auth/auth.types';
 
 @Controller('skills')
 export class SkillsController {
   constructor(private readonly skillsService: SkillsService) {}
-
-  @Post()
-  create(@Body() createSkillDto: CreateSkillDto) {
-    return this.skillsService.create(createSkillDto);
-  }
 
   @Get()
   findAll() {
@@ -28,6 +27,15 @@ export class SkillsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.skillsService.findOne(id);
+  }
+
+  @Post()
+  @UseGuards(AccessTokenGuard)
+  create(
+    @Request() req: AuthenticatedRequest,
+    @Body() createSkillDto: CreateSkillDto,
+  ) {
+    return this.skillsService.create(req.user.sub, createSkillDto);
   }
 
   @Patch(':id')

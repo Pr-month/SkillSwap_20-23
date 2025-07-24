@@ -26,11 +26,14 @@ export class Skill {
 
   @ManyToOne(() => User, (user) => user.skills, {
     onDelete: 'CASCADE',
+    nullable: false,
   })
   @JoinColumn({ name: 'ownerId' })
   owner: User;
 
-  @ManyToOne(() => Category, (category) => category.id)
+  @ManyToOne(() => Category, (category) => category.id, {
+    nullable: false,
+  })
   @JoinColumn({ name: 'categoryId' })
   category: Category;
 }

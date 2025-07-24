@@ -34,10 +34,10 @@ export class UpdateUserDto {
   @Min(16)
   @Max(100)
   age?: number | null; // Разрешаем null
-  
+
   @IsOptional()
   @IsString()
-  city?: string | null;;
+  city?: string | null;
 
   @IsOptional()
   @IsEnum(Gender)
@@ -48,5 +48,5 @@ export class UpdateUserDto {
   avatar?: string;
 
   @IsString()
-  refreshToken: string
+  refreshToken: string;
 }

@@ -35,9 +35,13 @@ export class SkillsService {
     return skill
   }
 
-  update(id: number, updateSkillDto: UpdateSkillDto) {
-    console.log(updateSkillDto);
-    return `This action updates a #${id} skill`;
+      return savedSkill;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to update user',
+        String(error),
+      );
+    }
   }
 
   async remove(userId: string, skillId: string) {

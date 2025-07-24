@@ -1,8 +1,31 @@
-export class Skill {}
+import { Category } from '../../categories/entities/category.entity';
+import { User } from '../../users/entities/user.entity';
+import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 
-// id, 
-// title, 
-// description,
-// category (Категория),
-// images (Массив ссылок на изображения),
-// owner(Пользователь создавший навык)
+@Entity('skill')
+export class Skill {
+  @PrimaryColumn({ type: 'uuid' })
+  id: string;
+
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+  })
+  title: string;
+
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
+  description: string;
+
+  @Column('text', { array: true, nullable: true })
+  images: string[];
+
+  @ManyToOne(() => User, (user) => user.skills)
+  owner: User;
+
+  @ManyToOne(() => Category, (category) => category.id)
+  category: Category;
+}

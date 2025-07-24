@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { AccessTokenStrategy } from './auth/strategies/access-token.strategy';
 import { UploadModule } from './upload/upload.module';
 import { SkillsModule } from './skills/skills.module';
+import { CategoriesModule } from './categories/categories.module';
+import {WinstonLogger} from './logger/winston-logger';
 
 @Module({
   imports: [
@@ -35,7 +37,13 @@ import { SkillsModule } from './skills/skills.module';
     AuthModule,
     UploadModule,
     SkillsModule,
+    CategoriesModule,
   ],
-  providers: [AccessTokenStrategy],
+  providers: [AccessTokenStrategy,
+              { provide: WinstonLogger,
+                useFactory: () => new WinstonLogger(),
+              },   //WinstonLogger регистрируется через фабрику, что дает больше гибкости при создании экземпляра
+            ],
+  exports: [WinstonLogger] //для использования в других модулях
 })
 export class AppModule {}

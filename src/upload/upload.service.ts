@@ -6,11 +6,11 @@ export class UploadService {
     if (!file) {
       throw new BadRequestException('no file uploaded');
     }
-
+    const normalizedPath = file.path.replace(/\\/g, '/');
     console.log(file);
     return {
       message: 'File uploaded successfully',
-      filePath: `${fileUrl}/${file.path}`,
+      filePath: `${fileUrl}/${normalizedPath}`,
     };
   }
 }

@@ -8,6 +8,7 @@ import { AppDataSource } from './config/data-source';
 import { AuthModule } from './auth/auth.module';
 import { AccessTokenStrategy } from './auth/strategies/access-token.strategy';
 import { UploadModule } from './upload/upload.module';
+import { SkillsModule } from './skills/skills.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { UploadModule } from './upload/upload.module';
     UsersModule,
     AuthModule,
     UploadModule,
+    SkillsModule,
   ],
   providers: [AccessTokenStrategy],
 })

@@ -6,9 +6,9 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
-import { Gender, Role } from 'src/common/types';
+import { Gender, Role } from '../../common/types';
 import { Skill } from '../../skills/entities/skill.entity';
-import { Category } from 'src/categories/entities/category.entity';
+import { Category } from '../../categories/entities/category.entity';
 
 @Entity('user')
 export class User {

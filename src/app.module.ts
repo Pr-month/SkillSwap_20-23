@@ -29,7 +29,6 @@ import { CategoriesModule } from './categories/categories.module';
       }),
       inject: [ConfigService],
     }),
-
     TypeOrmModule.forRoot(AppDataSource.options),
     UsersModule,
     AuthModule,

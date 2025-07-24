@@ -25,15 +25,13 @@ export class WinstonLogger implements LoggerService {
         new winston.transports.Console({
           format: winston.format.combine(
             winston.format.colorize(),
-            winston.format.printf(
-              ({ timestamp, level, message, context, stack }) => {
-                const contextMsg = context ? `[${context}] ` : '';
-                const stackMsg = stack ? `\n${stack}` : '';
-                return `${timestamp} ${level}: ${contextMsg}${message}${stackMsg}`;
-              },
+            winston.format.timestamp(), //Также добавляем форматирование времени
+            winston.format.printf((info) => {
+              return `${info.message as string}`;
+            }), 
             ),
-          ),
         }),
+        
         //файлы с ротацией
         new DailyRotateFile({
           //для ошибок
@@ -80,7 +78,8 @@ export class WinstonLogger implements LoggerService {
       );
     }
   }
-  // реализация методов LoggerService
+
+   // реализация методов LoggerService
   log(message: string, context?: string) {
     this.logger.info(message, { context });
   }

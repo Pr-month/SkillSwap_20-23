@@ -82,20 +82,28 @@ async function seed() {
     return;
   }
 
-// создаем родительские категории
-  for (const categoryData of categories) {
-    const parentCategory = new Category();
-    parentCategory.name = categoryData.name;
-    await categoryRepo.save(parentCategory);
+// создаем все категории с использованием Promise.all для оптимизации
+  await Promise.all(
+    categories.map(async (categoryData) => {
+      // Создаем родительскую категорию
+      const parentCategory = await categoryRepo.save(
+        categoryRepo.create({ name: categoryData.name })
+      );
 
-// создаем дочерние категории
-    for (const childName of categoryData.children) {
-      const childCategory = new Category();
-      childCategory.name = childName;
-      childCategory.parent = parentCategory;
-      await categoryRepo.save(childCategory);
-    }
-  }
+      // создаем дочерние категории для текущего родителя
+      await Promise.all(
+        categoryData.children.map(childName =>
+          categoryRepo.save(
+            categoryRepo.create({
+              name: childName,
+              parent: parentCategory
+            })
+          )
+        )
+      );
+    })
+  );
+  
 // завершение работы
   console.log('Категории успешно добавлены в базу данных');
   await AppDataSource.destroy();

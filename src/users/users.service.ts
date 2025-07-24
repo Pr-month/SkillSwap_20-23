@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToInstance } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -23,9 +24,7 @@ export class UsersService {
 
   async findUserById(id: string) {
     const user = await this.userRepository.findOneOrFail({ where: { id } });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, refreshToken, ...returnValues } = user;
-    return returnValues;
+    return plainToInstance(User, user);
   }
 
   async updateUserById(id: string, updateUserDto: UpdateUserDto) {

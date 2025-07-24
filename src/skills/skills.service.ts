@@ -40,7 +40,28 @@ export class SkillsService {
     return `This action updates a #${id} skill`;
   }
 
-  remove(id: string) {
-    return this.skillRepository.delete(id);
+  async remove(userId: string, skillId: string) {
+    try {
+      const user = await this.userRepository.findOneOrFail({
+        where: { id: userId },
+      });
+
+      const skill = await this.skillRepository.findOneOrFail({
+        where: { id: skillId },
+      });
+
+      if (user.id == skill.owner.id)
+        return await this.skillRepository.delete(skill.id);
+      else {
+        throw new ForbiddenException(
+          'You do not have permission to delete this skill',
+        );
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to update user',
+        String(error),
+      );
+    }
   }
 }

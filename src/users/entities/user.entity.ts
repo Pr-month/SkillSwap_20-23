@@ -7,9 +7,13 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import { Gender, Role } from 'src/common/types';
 import { Skill } from '../../skills/entities/skill.entity';
 import { Category } from 'src/categories/entities/category.entity';
+
+// @Exclude() // По умолчанию все поля исключены
+// @Expose() // Явно указываем, что поле нужно включать
 
 @Entity('user')
 export class User {
@@ -23,6 +27,7 @@ export class User {
   email: string;
 
   @Column({ type: 'text' })
+  @Exclude()
   password: string;
 
   @Column({ type: 'text', nullable: true })
@@ -58,6 +63,7 @@ export class User {
     length: 255,
     unique: true,
   })
+  @Exclude()
   refreshToken: string;
 
   @OneToMany(() => Skill, (skill) => skill.owner, {

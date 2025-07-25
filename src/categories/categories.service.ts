@@ -38,6 +38,7 @@ export class CategoriesService {
   }*/
 
   async remove(id: string, user: JwtPayload) {
+    
     // Проверяем, является ли пользователь администратором
     if (user.role !== Role.ADMIN) {
       throw new ForbiddenException('Only admin can delete categories');

@@ -38,8 +38,8 @@ export class CategoriesService {
   }*/
 
   async remove(id: string, user: JwtPayload) {
-    
-    // Проверяем, является ли пользователь администратором
+
+    // проверяем, является ли пользователь администратором
     if (user.role !== Role.ADMIN) {
       throw new ForbiddenException('Only admin can delete categories');
     }
@@ -55,12 +55,12 @@ export class CategoriesService {
       throw new NotFoundException(`Category with ID ${id} not found`);
     }
 
-    // Проверяем, есть ли связанные навыки
+    // проверяем, есть ли связанные навыки
     if (category.skills && category.skills.length > 0) {
       throw new ForbiddenException('Cannot delete category with associated skills');
     }
 
-    // Удаляем категорию (каскадное удаление подкатегорий настроено в entity)
+    // удаляем категорию (каскадное удаление подкатегорий настроено в entity)
     return this.categoryRepository.delete(id);
   }
 }

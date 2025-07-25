@@ -50,7 +50,6 @@ export class CategoriesController {
   // удаление категории
   @Delete(':id') // определение метода DELETE и пути с параметром :id
   @UseGuards(AccessTokenGuard) // защита эндпоинта JWT-аутентификацией
-  
   async remove(
     @Param('id') id: string, // извлечение ID категории из URL-параметра
     @Req() req: AuthenticatedRequest // запрос с данными аутентифицированного пользователя

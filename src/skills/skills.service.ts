@@ -16,8 +16,15 @@ export class SkillsService {
     return 'This action adds a new skill';
   }
 
-  findAll() {
-    return `This action returns all skills`;
+  async findAll(page: number, limit: number) {
+    const [items, total] = await this.skillRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      relations: ['owner'],
+    });
+
+    console.log(page, limit);
+    return { total, page, limit, items };
   }
 
   findOne(id: number) {

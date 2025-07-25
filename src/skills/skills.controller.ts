@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { SkillsService } from './skills.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
@@ -21,8 +22,8 @@ export class SkillsController {
   }
 
   @Get()
-  findAll() {
-    return this.skillsService.findAll();
+  findAll(@Query('page') page = 1, @Query('limit') limit = 20) {
+    return this.skillsService.findAll(Number(page), Number(limit));
   }
 
   @Get(':id')
@@ -40,3 +41,10 @@ export class SkillsController {
     return this.skillsService.remove(+id);
   }
 }
+
+// id,
+// title,
+// description,
+// category (Категория),
+// images (Массив ссылок на изображения),
+// owner(Пользователь создавший навык)

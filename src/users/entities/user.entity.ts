@@ -1,7 +1,16 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
-import { Gender, Role } from 'src/common/types';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
+import { Gender, Role } from '../../common/types';
+import { Skill } from '../../skills/entities/skill.entity';
+import { Category } from '../../categories/entities/category.entity';
 
-@Entity()
+@Entity('user')
 export class User {
   @PrimaryColumn({ type: 'uuid' })
   id: string;
@@ -47,12 +56,16 @@ export class User {
   })
   refreshToken: string;
 
-  // @OneToMany(() => Skill, (skill) => skill.id)
-  // skills: Skill
+  @OneToMany(() => Skill, (skill) => skill.owner, {
+    cascade: true,
+  })
+  skills?: Skill[];
 
-  // @OneToMany(() => Skill, (skill) => skill.id)
-  // wantToLearn: Skill
+  @ManyToMany(() => Skill, { eager: true })
+  @JoinTable()
+  favoriteSkills?: Skill[];
 
-  // @OneToMany(() => Skill, (skill) => skill.id)
-  // favoriteSkills: Skill
+  @ManyToMany(() => Category, { eager: true })
+  @JoinTable()
+  wantToLearn?: Category[];
 }

@@ -5,11 +5,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionFilter } from './common/all-exception.filter';
 import { WinstonLogger } from './logger/winston-logger';
 
-async function bootstrap() {
-  dotenv.config();
-  const app = await NestFactory.create(AppModule);
-  app.useGlobalFilters(new AllExceptionFilter());
-
   async function bootstrap() {
     dotenv.config();
     //const app = await NestFactory.create(AppModule);

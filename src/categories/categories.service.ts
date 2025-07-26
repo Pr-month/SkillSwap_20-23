@@ -13,8 +13,6 @@ export class CategoriesService {
   ) {}
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {
-    console.log(updateCategoryDto);
-
     const category = await this.categoryRepository.findOneOrFail({
       where: { id },
     });
@@ -22,8 +20,6 @@ export class CategoriesService {
     const updatedCategory = (await this.categoryRepository.save(
       newCategory,
     )) as Category;
-
-    console.log(newCategory);
 
     return updatedCategory;
   }

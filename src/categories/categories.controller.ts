@@ -17,7 +17,6 @@ export class CategoriesController {
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    console.log(`CONTROLLER updatin category ${id}`);
     return this.categoriesService.update(id, updateCategoryDto);
   }
 }

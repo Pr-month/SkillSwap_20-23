@@ -36,7 +36,6 @@ export class RolesGuard implements CanActivate {
   }
 }
 
-
 /*
 ПРИМЕР ПРИМЕНЕНИЯ: 
 

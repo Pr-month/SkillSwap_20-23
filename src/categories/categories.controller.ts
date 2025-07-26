@@ -7,13 +7,11 @@ import {
   Param,
   Delete,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { AuthenticatedRequest } from '../auth/auth.types';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '../common/types';
 import { HasRoles } from '../auth/decorators/roles.decorator';

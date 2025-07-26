@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { MulterError } from 'multer';
+import { EntityNotFoundError } from 'typeorm';
 
 export interface PostgressError extends Error {
   code?: string;
@@ -25,6 +26,10 @@ export class AllExceptionFilter implements ExceptionFilter {
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
+      message = exception.message;
+    } else if (exception instanceof EntityNotFoundError) {
+      status = HttpStatus.NOT_FOUND;
+      message = 'Entity not found';
     } else if (exception instanceof MulterError) {
       if (exception.code === 'LIMIT_FILE_SIZE') {
         status = HttpStatus.PAYLOAD_TOO_LARGE;

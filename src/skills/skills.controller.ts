@@ -11,6 +11,7 @@ import {
 import { SkillsService } from './skills.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
+import { FindSkillsQueryDto } from './dto/find--skills.dto';
 
 @Controller('skills')
 export class SkillsController {
@@ -22,8 +23,8 @@ export class SkillsController {
   }
 
   @Get()
-  findAll(@Query('page') page = 1, @Query('limit') limit = 20) {
-    return this.skillsService.findAll(Number(page), Number(limit));
+  findAll(@Query() query: FindSkillsQueryDto) {
+    return this.skillsService.findAll(query);
   }
 
   @Get(':id')

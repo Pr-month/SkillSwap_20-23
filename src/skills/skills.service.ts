@@ -45,8 +45,11 @@ export class SkillsService {
 
     const totalPage = Math.ceil(total / limit);
     if (page > totalPage && totalPage !== 0) {
-      throw new NotFoundException();
-      // console.log('test');
+      throw new NotFoundException({
+        statusCode: 404,
+        message: `Page ${page} exceeds total pages (${totalPage})`,
+        error: 'Not Found',
+      });
     }
     return { data: skills, page, totalPage };
   }

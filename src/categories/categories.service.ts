@@ -37,13 +37,7 @@ export class CategoriesService {
     return `This action removes a #${id} category`;
   }*/
 
-  async remove(id: string, user: JwtPayload) {
-
-    // проверяем, является ли пользователь администратором
-    if (user.role !== Role.ADMIN) {
-      throw new ForbiddenException('Only admin can delete categories');
-    }
-
+  async remove(id: string) {
     //поиск категории по ID и проверку ее существования
     const category = await this.categoryRepository.findOne({ 
       where: { id }, // условие поиска (ищем категорию с указанным ID)

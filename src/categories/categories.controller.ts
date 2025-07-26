@@ -14,6 +14,9 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { AuthenticatedRequest } from '../auth/auth.types';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '../common/types';
+import { HasRoles } from '../auth/decorators/roles.decorator';
 
 @Controller('categories')
 export class CategoriesController {
@@ -49,15 +52,9 @@ export class CategoriesController {
 
   // удаление категории
   @Delete(':id') // определение метода DELETE и пути с параметром :id
-  @UseGuards(AccessTokenGuard) // защита эндпоинта JWT-аутентификацией
-  async remove(
-    @Param('id') id: string, // извлечение ID категории из URL-параметра
-    @Req() req: AuthenticatedRequest // запрос с данными аутентифицированного пользователя
-  ) {
-     // вызов сервиса для удаления категории
-    return this.categoriesService.remove( 
-      id,  // ID категории для удаления
-      req.user // данные пользователя (JWT payload)
-    );
+  @HasRoles(Role.ADMIN) // только для админов
+  @UseGuards(AccessTokenGuard, RolesGuard) // защита эндпоинта JWT-аутентификацией
+  async remove(@Param('id') id: string) {
+     return this.categoriesService.remove(id);
   }
 }

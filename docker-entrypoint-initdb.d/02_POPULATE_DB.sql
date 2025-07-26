@@ -1,3 +1,4 @@
+--Здесь нужно вручную задать название БД. Это значение есть в .env файле под названием db_name
 \connect skillswap
 
 SET statement_timeout = 0;
@@ -311,18 +312,4 @@ ALTER TABLE ONLY public.skill
     ADD CONSTRAINT "FK_ed56eae08a494394cbab254bf56" FOREIGN KEY ("ownerId") REFERENCES public."user"(id);
 
 
---
--- Name: DATABASE skillswap; Type: ACL; Schema: -; Owner: postgres
---
-
-GRANT ALL ON DATABASE skillswap TO skillswapuser;
-
-
---
--- PostgreSQL database dump complete
---
-
---
--- PostgreSQL database cluster dump complete
---
 

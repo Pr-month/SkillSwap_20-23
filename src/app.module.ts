@@ -30,7 +30,6 @@ import {WinstonLogger} from './logger/winston-logger';
       }),
       inject: [ConfigService],
     }),
-
     TypeOrmModule.forRoot(AppDataSource.options),
     UsersModule,
     AuthModule,

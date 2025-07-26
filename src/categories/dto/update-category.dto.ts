@@ -4,7 +4,6 @@ import { Category } from '../entities/category.entity';
 import { Skill } from 'src/skills/entities/skill.entity';
 
 export class UpdateCategoryDto extends PartialType(CreateCategoryDto) {
-  id: string;
   name: string;
   parent?: Category;
   children?: Category[];

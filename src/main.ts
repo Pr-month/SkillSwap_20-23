@@ -13,7 +13,6 @@ async function bootstrap() {
     bufferLogs: true, // Важно для корректной работы кастомного логгера
   });
 
-  
   const logger = app.get(WinstonLogger);
 
   // Устанавливаем глобальный логгер
@@ -21,14 +20,20 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // удаляет все свойства, которых нет в DTO
-      forbidNonWhitelisted: true, // выбрасывает ошибку, если есть лишние поля
+      whitelist: false, // удаляет все свойства, которых нет в DTO
+      forbidNonWhitelisted: false, // выбрасывает ошибку, если есть лишние поля
       transform: true, // автоматически преобразует payload к типу DTO
     }),
   );
 
-  logger.log(`Application started on port ${process.env.PORT || 3000}`, 'Bootstrap'); //логирование порта приложения
-  logger.log(`Environment: ${process.env.NODE_ENV || 'development'}`, 'Bootstrap'); //логирование окружения
+  logger.log(
+    `Application started on port ${process.env.PORT || 3000}`,
+    'Bootstrap',
+  ); //логирование порта приложения
+  logger.log(
+    `Environment: ${process.env.NODE_ENV || 'development'}`,
+    'Bootstrap',
+  ); //логирование окружения
   await app.listen(process.env.PORT ?? 3000);
 }
 

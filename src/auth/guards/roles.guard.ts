@@ -13,7 +13,7 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    console.log(requiredRoles);
+    // console.log(requiredRoles);
     if (!requiredRoles || requiredRoles.length === 0) {
       // console.log('Нет ограничений! ');
       return true;

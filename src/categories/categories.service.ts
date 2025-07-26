@@ -14,7 +14,6 @@ export class CategoriesService {
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {
     console.log(updateCategoryDto);
-    // Поскольку пароль и рефереш токен надо выкинуть оставлю здесь эту линию
 
     const category = await this.categoryRepository.findOneOrFail({
       where: { id },
@@ -23,6 +22,8 @@ export class CategoriesService {
     const updatedCategory = (await this.categoryRepository.save(
       newCategory,
     )) as Category;
+
+    console.log(newCategory);
 
     return updatedCategory;
   }

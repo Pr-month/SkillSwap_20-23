@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-// import { CreateCategoryDto } from './dto/create-category.dto';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
@@ -12,6 +12,19 @@ export class CategoriesService {
     private categoryRepository: Repository<Category>,
   ) {}
 
+  create(createCategoryDto: CreateCategoryDto) {
+    console.log(createCategoryDto);
+    return 'This action adds a new category';
+  }
+
+  findAll() {
+    return `This action returns all categories`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} category`;
+  }
+
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {
     const category = await this.categoryRepository.findOneOrFail({
       where: { id },
@@ -22,5 +35,26 @@ export class CategoriesService {
     )) as Category;
 
     return updatedCategory;
+  }
+
+  async remove(id: string) {
+    //поиск категории по ID и проверку ее существования
+    const category = await this.categoryRepository.findOne({ 
+      where: { id }, // условие поиска (ищем категорию с указанным ID)
+      relations: ['skills'] //загружаем связанные сущности (все навыки, привязанные к этой категории)
+    });
+
+    //проверка существования категории
+    if (!category) {
+      throw new NotFoundException(`Category with ID ${id} not found`);
+    }
+
+    // проверяем, есть ли связанные навыки
+    if (category.skills && category.skills.length > 0) {
+      throw new ForbiddenException('Cannot delete category with associated skills');
+    }
+
+    // удаляем категорию (каскадное удаление подкатегорий настроено в entity)
+    return this.categoryRepository.delete(id);
   }
 }

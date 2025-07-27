@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Patch,
+  Query,
   Req,
   Request,
   UseGuards,
@@ -13,6 +14,7 @@ import {
 import { AuthenticatedRequest } from 'src/auth/auth.types';
 import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 import { UpdatePasswordDto } from './dto/password-update.dto';
+import { QueryParamsDto } from './dto/query-param.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
@@ -20,9 +22,9 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('')
-  findAll() {
-    return this.usersService.findAll();
+  @Get()
+  findAll(@Query() query: QueryParamsDto) {
+    return this.usersService.findAll(query);
   }
 
   @UseGuards(AccessTokenGuard)

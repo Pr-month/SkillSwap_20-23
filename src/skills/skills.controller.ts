@@ -1,15 +1,21 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Request,
+  UseGuards,
+  Query,
 } from '@nestjs/common';
-import { SkillsService } from './skills.service';
+import { AuthenticatedRequest } from 'src/auth/auth.types';
+import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
+import { SkillsService } from './skills.service';
+import { FindSkillsQueryDto } from './dto/find--skills.dto';
 
 @Controller('skills')
 export class SkillsController {
@@ -21,8 +27,8 @@ export class SkillsController {
   }
 
   @Get()
-  findAll() {
-    return this.skillsService.findAll();
+  findAll(@Query() query: FindSkillsQueryDto) {
+    return this.skillsService.findAll(query);
   }
 
   @Get(':id')
@@ -31,8 +37,13 @@ export class SkillsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSkillDto: UpdateSkillDto) {
-    return this.skillsService.update(+id, updateSkillDto);
+  @UseGuards(AccessTokenGuard)
+  update(
+    @Param('id') id: string,
+    @Body() updateSkillDto: UpdateSkillDto,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.skillsService.update(id, updateSkillDto, req.user.sub);
   }
 
   @Delete(':id')

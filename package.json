@@ -18,6 +18,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "docker:run": "docker-compose up -d --build --force-recreate",
+    "docker:down": "docker-compose down",
+    "docker:pgadmin:console": "docker exec -it pgadmin /bin/bash",
+    "docker:database:console": "docker exec -it database /bin/bash",
     "seed:categories": "ts-node src/scripts/seed-categories.ts"
   },
   "dependencies": {

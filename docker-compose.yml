@@ -8,14 +8,25 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
+
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     ports:
       - '5432:5432'
+    networks:
+      - postgres-network
+    # Добавьте проверку существования скрипта
+    command: >
+      /bin/bash -c "
+        if [ -f /docker-entrypoint-initdb.d/01_INITIALIZE_DB.sh ]; then
+          chmod +x /docker-entrypoint-initdb.d/01_INITIALIZE_DB.sh;
+        fi;
+        docker-entrypoint.sh postgres
+      "
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin4_conatiner
+    container_name: pgadmin4_container
     restart: always
     ports:
       - '8080:80'
@@ -24,6 +35,12 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - postgres-network
+
+networks:
+  postgres-network:
+    driver: bridge
 
 volumes:
   db_data:

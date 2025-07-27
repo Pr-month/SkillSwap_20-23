@@ -1,11 +1,12 @@
+import { v4 as uuidv4 } from 'uuid';
 import { Category } from '../../categories/entities/category.entity';
 import { User } from '../../users/entities/user.entity';
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
 @Entity('skill')
 export class Skill {
   @PrimaryColumn({ type: 'uuid' })
-  id: string;
+  id: string = uuidv4();
 
   @Column({
     type: 'varchar',
@@ -23,9 +24,16 @@ export class Skill {
   @Column('text', { array: true, nullable: true })
   images: string[];
 
-  @ManyToOne(() => User, (user) => user.skills)
+  @ManyToOne(() => User, (user) => user.skills, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
+  @JoinColumn({ name: 'ownerId' })
   owner: User;
 
-  @ManyToOne(() => Category, (category) => category.id)
+  @ManyToOne(() => Category, (category) => category.id, {
+    nullable: false,
+  })
+  @JoinColumn({ name: 'categoryId' })
   category: Category;
 }

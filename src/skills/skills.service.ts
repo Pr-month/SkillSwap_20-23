@@ -1,4 +1,11 @@
-import { ForbiddenException, Injectable, NotFoundException, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,11 +19,10 @@ export class SkillsService {
   constructor(
     @InjectRepository(Skill) private skillRepository: Repository<Skill>,
     private readonly userService: UsersService,
-  ) { }
+  ) {}
 
-  create(createSkillDto: CreateSkillDto) {
-    console.log(createSkillDto);
-    return 'This action adds a new skill';
+  async findOne(skillId: string): Promise<Skill> {
+    return await this.skillRepository.findOneOrFail({ where: { id: skillId } });
   }
 
   async findAll(@Query() query: FindSkillsQueryDto) {
@@ -56,8 +62,22 @@ export class SkillsService {
     return { data: skills, page, totalPage };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} skill`;
+  async create(userId: string, createSkillDto: CreateSkillDto): Promise<Skill> {
+    try {
+      const user = await this.userService.findUserById(userId);
+
+      const newSkill = this.skillRepository.create({
+        ...createSkillDto,
+        owner: { id: user.id },
+      });
+
+      return await this.skillRepository.save(newSkill);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to update user',
+        String(error),
+      );
+    }
   }
 
   async update(id: string, updateSkillDto: UpdateSkillDto, userId: string) {
@@ -78,7 +98,33 @@ export class SkillsService {
     });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} skill`;
+  async remove(userId: string, skillId: string) {
+    try {
+      const user = await this.userService.findUserById(userId);
+      const skill = await this.skillRepository.findOneOrFail({
+        where: { id: skillId },
+        relations: ['owner'], // Загружаем связь owner
+      });
+
+      if (!skill.owner) throw new BadRequestException('Skill has no owner');
+
+      if (user.id === skill.owner.id)
+        return await this.skillRepository.remove(skill);
+      else {
+        throw new ForbiddenException(
+          'You do not have permission to delete this skill',
+        );
+      }
+    } catch (error) {
+      if (
+        error instanceof ForbiddenException ||
+        error instanceof BadRequestException
+      )
+        throw error;
+      throw new InternalServerErrorException(
+        'Failed to delete skill',
+        String(error),
+      );
+    }
   }
 }

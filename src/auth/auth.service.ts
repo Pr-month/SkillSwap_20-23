@@ -7,7 +7,6 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
-import { v4 as uuidv4 } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -26,28 +25,23 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    // Check if user already exists
     const existingUser = await this.userRepository.findOne({
       where: { email: registerDto.email },
     });
+
     if (existingUser) {
       throw new ConflictException('User with this email already exists!');
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-    const id = uuidv4();
-    // Create user
+
     const user = this.userRepository.create({
       ...registerDto,
-      id,
       password: hashedPassword,
     });
 
-    // Generate tokens
     const tokens = await this._getTokens(user);
 
-    // Save refresh token
     const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
     await this.userRepository.save({
       ...user,
@@ -61,31 +55,30 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    // Find user
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
     });
+
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials!');
+      throw new UnauthorizedException('Invalid email credentials!');
     }
 
-    // Check password
     const isPasswordValid = await bcrypt.compare(
       loginDto.password,
       user.password,
     );
+
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials!');
+      throw new UnauthorizedException('Invalid password credentials!');
     }
 
-    // Generate tokens
     const tokens = await this._getTokens(user);
 
-    // Save refresh token
     const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
     await this.userRepository.update(user.id, {
       refreshToken: hashedRefreshToken,
     });
+
     return {
       user: this.excludePasswordAndRefreshToken(user),
       tokens,
@@ -93,25 +86,27 @@ export class AuthService {
   }
 
   async refresh(userPayload: JwtPayload) {
-    // Find user
     const user = await this.userRepository.findOne({
       where: { id: userPayload.sub },
     });
+
     if (!user) {
       throw new UnauthorizedException('Access denied!');
     }
+
     const tokens = await this._getTokens(user);
-    // Verify refresh token
+
     const isRefreshTokenValid = await bcrypt.compare(
       tokens.refreshToken,
       user.refreshToken,
     );
+
     if (!isRefreshTokenValid) {
       throw new UnauthorizedException('Access denied!');
     }
 
-    // Save new refresh token
     const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+
     await this.userService.updateUserById(user.id, {
       ...user,
       refreshToken: hashedRefreshToken,
@@ -128,15 +123,12 @@ export class AuthService {
     user: User,
   ): Omit<User, 'password' | 'refreshToken'> {
     const { password, refreshToken, ...userWithoutSensitiveData } = user;
-    // Variables are intentionally unused - they're extracted to exclude them from the result
     void password;
     void refreshToken;
     return userWithoutSensitiveData;
   }
 
   async _getTokens(user: User) {
-    //Вот это создает accessToken
-
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
@@ -147,10 +139,12 @@ export class AuthService {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
       expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION') || '15m',
     });
+
     const refreshToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
       expiresIn: this.configService.get('JWT_EXPIRATION'),
     });
+
     return { accessToken, refreshToken };
   }
 }

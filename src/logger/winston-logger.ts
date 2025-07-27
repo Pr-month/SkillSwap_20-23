@@ -28,10 +28,10 @@ export class WinstonLogger implements LoggerService {
             winston.format.timestamp(), //Также добавляем форматирование времени
             winston.format.printf((info) => {
               return `${info.message as string}`;
-            }), 
-            ),
+            }),
+          ),
         }),
-        
+
         //файлы с ротацией
         new DailyRotateFile({
           //для ошибок
@@ -44,7 +44,7 @@ export class WinstonLogger implements LoggerService {
           level: 'error',
         }),
         new DailyRotateFile({
-          //общие логи 
+          //общие логи
           dirname: `${logDir}/combined`,
           filename: 'combined-%DATE%.log',
           datePattern: 'YYYY-MM-DD',
@@ -79,7 +79,7 @@ export class WinstonLogger implements LoggerService {
     }
   }
 
-   // реализация методов LoggerService
+  // реализация методов LoggerService
   log(message: string, context?: string) {
     this.logger.info(message, { context });
   }

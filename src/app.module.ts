@@ -7,9 +7,10 @@ import { configuration } from './config/configuration';
 import { AppDataSource } from './config/data-source';
 import { AuthModule } from './auth/auth.module';
 import { AccessTokenStrategy } from './auth/strategies/access-token.strategy';
+import { UploadModule } from './upload/upload.module';
 import { SkillsModule } from './skills/skills.module';
 import { CategoriesModule } from './categories/categories.module';
-import {WinstonLogger} from './logger/winston-logger';
+import { WinstonLogger } from './logger/winston-logger';
 
 @Module({
   imports: [
@@ -33,14 +34,14 @@ import {WinstonLogger} from './logger/winston-logger';
     TypeOrmModule.forRoot(AppDataSource.options),
     UsersModule,
     AuthModule,
+    UploadModule,
     SkillsModule,
     CategoriesModule,
   ],
-  providers: [AccessTokenStrategy,
-              { provide: WinstonLogger,
-                useFactory: () => new WinstonLogger(),
-              },   //WinstonLogger регистрируется через фабрику, что дает больше гибкости при создании экземпляра
-            ],
-  exports: [WinstonLogger] //для использования в других модулях
+  providers: [
+    AccessTokenStrategy,
+    { provide: WinstonLogger, useFactory: () => new WinstonLogger() }, //WinstonLogger регистрируется через фабрику, что дает больше гибкости при создании экземпляра
+  ],
+  exports: [WinstonLogger], //для использования в других модулях
 })
 export class AppModule {}

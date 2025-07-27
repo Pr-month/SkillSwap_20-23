@@ -1,22 +1,18 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, Query } from '@nestjs/common';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { Skill } from './entities/skill.entity';
-import { User } from 'src/users/entities/user.entity';
+import { FindSkillsQueryDto } from './dto/find--skills.dto';
 
 @Injectable()
 export class SkillsService {
   constructor(
     @InjectRepository(Skill) private skillRepository: Repository<Skill>,
-    @InjectRepository(User) private userRepository: Repository<User>,
-  ) {}
+    private readonly userService: UsersService,
+  ) { }
 
   async findAll(): Promise<Skill[]> {
     return await this.skillRepository.find();
@@ -24,6 +20,43 @@ export class SkillsService {
 
   async findOne(skillId: string): Promise<Skill> {
     return await this.skillRepository.findOneOrFail({ where: { id: skillId } });
+  }
+  
+  async findAll(@Query() query: FindSkillsQueryDto) {
+    const page = Math.max(parseInt(query.page ?? '1'), 1);
+    const limit = Math.min(Math.max(parseInt(query.limit ?? '20'), 1), 100);
+    const search = query.search?.trim() || '';
+    const categorySearch = query.category?.trim().toLowerCase() || '';
+
+    const db = this.skillRepository
+      .createQueryBuilder('skill')
+      .leftJoinAndSelect('skill.category', 'category');
+
+    if (search) {
+      db.where('LOWER(skill.title) LIKE :search', { search: `%${search}%` });
+    }
+
+    if (categorySearch) {
+      db.where('LOWER(category.name) LIKE :search', {
+        categorySearch: `%${categorySearch}%`,
+      });
+    }
+
+    const [skills, total] = await db
+      .skip((page - 1) * limit)
+      .take(limit)
+      .leftJoinAndSelect('skill.owner', 'owner')
+      .getManyAndCount();
+
+    const totalPage = Math.ceil(total / limit);
+    if (page > totalPage && totalPage !== 0) {
+      throw new NotFoundException({
+        statusCode: 404,
+        message: `Page ${page} exceeds total pages (${totalPage})`,
+        error: 'Not Found',
+      });
+    }
+    return { data: skills, page, totalPage };
   }
 
   async create(userId: string, createSkillDto: CreateSkillDto): Promise<Skill> {
@@ -46,30 +79,22 @@ export class SkillsService {
     }
   }
 
-  async update(
-    userId: string,
-    skillId: string,
-    updateSkillDto: UpdateSkillDto,
-  ) {
-    try {
-      await this.userRepository.findOneOrFail({
-        where: { id: userId },
-      });
+  async update(id: string, updateSkillDto: UpdateSkillDto, userId: string) {
+    const skill = await this.skillRepository.findOneOrFail({
+      where: {
+        id,
+      },
+    });
 
-      const skill = await this.skillRepository.findOneOrFail({
-        where: { id: skillId },
-      });
+    const currentUser = await this.userService.findUserById(userId);
 
-      const mergedSkill = this.skillRepository.merge(skill, updateSkillDto);
-      const savedSkill = await this.skillRepository.save(mergedSkill);
+    if (currentUser.id !== skill.owner.id)
+      throw new ForbiddenException('Недостаточно прав');
 
-      return savedSkill;
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'Failed to update user',
-        String(error),
-      );
-    }
+    return this.skillRepository.save({
+      ...skill,
+      ...updateSkillDto,
+    });
   }
 
   async remove(userId: string, skillId: string) {

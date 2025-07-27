@@ -10,7 +10,7 @@ import {
 import { Exclude } from 'class-transformer';
 import { Gender, Role } from 'src/common/types';
 import { Skill } from '../../skills/entities/skill.entity';
-import { Category } from 'src/categories/entities/category.entity';
+import { Category } from '../../categories/entities/category.entity';
 
 // @Exclude() // По умолчанию все поля исключены
 // @Expose() // Явно указываем, что поле нужно включать

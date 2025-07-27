@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
-import { SkillsService } from './skills.service';
-import { SkillsController } from './skills.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from 'src/users/users.module';
 import { Skill } from './entities/skill.entity';
-import { User } from 'src/users/entities/user.entity';
+import { SkillsController } from './skills.controller';
+import { SkillsService } from './skills.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Skill, User]), // Регистрация репозитория Skill
+    TypeOrmModule.forFeature([Skill]), // Регистрация репозитория Skill
+    UsersModule,
   ],
   controllers: [SkillsController],
   providers: [SkillsService],

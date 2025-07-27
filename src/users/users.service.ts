@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
+import { QueryParamsDto } from './dto/query-param.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
@@ -18,8 +19,27 @@ export class UsersService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async findAll(): Promise<User[]> {
-    return await this.userRepository.find();
+  async findAll(query: QueryParamsDto): Promise<{
+    data: User[];
+    page: number;
+    totalPages: number;
+  }> {
+    const page = Math.max(parseInt(query.page ?? '1'), 1);
+    const take = Math.min(Math.max(parseInt(query.limit ?? '20'), 1), 100);
+    const skip = (page - 1) * take;
+
+    const [users, total] = await this.userRepository.findAndCount({
+      take,
+      skip,
+    });
+
+    const totalPages = Math.ceil(total / take);
+
+    return {
+      data: users,
+      page,
+      totalPages,
+    };
   }
 
   async findUserById(id: string) {

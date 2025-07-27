@@ -27,9 +27,10 @@ export class UsersController {
     return this.usersService.findAll(query);
   }
 
-  @Get('me')
   @UseGuards(AccessTokenGuard)
+  @Get('me')
   getMe(@Request() req: AuthenticatedRequest) {
+    console.log(req.user);
     return this.usersService.findUserById(req.user.sub);
   }
 

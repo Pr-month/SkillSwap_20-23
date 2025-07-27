@@ -29,5 +29,10 @@ export const configuration = registerAs('APP_CONFIG', () => ({
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'test',
     accessExpiration: process.env.JWT_EXPIRATION || '3600s',
     refreshExpiration: process.env.REFRESH_TOKEN_EXPIRATION || '2h',
+   }
+  // Работа с файлами
+  fileUploads: {
+    destination: process.env.FILE_UPLOAD_DEST || './public/uploads',
+    limit: parseInt(process.env.FILE_UPLOAD_LIMIT || '2097152', 10),
   },
 }));

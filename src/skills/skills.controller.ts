@@ -8,7 +8,6 @@ import {
   Post,
   Request,
   UseGuards,
-  Delete,
   Query,
 } from '@nestjs/common';
 import { AuthenticatedRequest } from 'src/auth/auth.types';

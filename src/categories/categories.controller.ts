@@ -1,46 +1,30 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Param,
+  Patch,
   UseGuards,
 } from '@nestjs/common';
+import { HasRoles } from 'src/auth/decorators/roles.decorator';
+import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Role } from 'src/common/types';
 import { CategoriesService } from './categories.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Role } from '../common/types';
-import { HasRoles } from '../auth/decorators/roles.decorator';
 
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-  @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.categoriesService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
-  }
-
+  @HasRoles(Role.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+    return this.categoriesService.update(id, updateCategoryDto);
   }
 
   /*@Delete(':id')
@@ -53,6 +37,6 @@ export class CategoriesController {
   @HasRoles(Role.ADMIN) // только для админов
   @UseGuards(AccessTokenGuard, RolesGuard) // защита эндпоинта JWT-аутентификацией
   async remove(@Param('id') id: string) {
-     return this.categoriesService.remove(id);
+    return this.categoriesService.remove(id);
   }
 }

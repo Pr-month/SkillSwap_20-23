@@ -1,4 +1,8 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,9 +12,8 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class CategoriesService {
   constructor(
-    @InjectRepository(Category) 
-    //private skillRepository: Repository<Category>, 
-    private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
   ) {}
 
   create(createCategoryDto: CreateCategoryDto) {
@@ -26,20 +29,23 @@ export class CategoriesService {
     return `This action returns a #${id} category`;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    console.log(updateCategoryDto);
-    return `This action updates a #${id} category`;
-  }
+  async update(id: string, updateCategoryDto: UpdateCategoryDto) {
+    const category = await this.categoryRepository.findOneOrFail({
+      where: { id },
+    });
+    const newCategory = { ...category, ...updateCategoryDto };
+    const updatedCategory = (await this.categoryRepository.save(
+      newCategory,
+    )) as Category;
 
-  /*remove(id: number) {
-    return `This action removes a #${id} category`;
-  }*/
+    return updatedCategory;
+  }
 
   async remove(id: string) {
     //поиск категории по ID и проверку ее существования
-    const category = await this.categoryRepository.findOne({ 
+    const category = await this.categoryRepository.findOne({
       where: { id }, // условие поиска (ищем категорию с указанным ID)
-      relations: ['skills'] //загружаем связанные сущности (все навыки, привязанные к этой категории)
+      relations: ['skills'], //загружаем связанные сущности (все навыки, привязанные к этой категории)
     });
 
     //проверка существования категории
@@ -49,7 +55,9 @@ export class CategoriesService {
 
     // проверяем, есть ли связанные навыки
     if (category.skills && category.skills.length > 0) {
-      throw new ForbiddenException('Cannot delete category with associated skills');
+      throw new ForbiddenException(
+        'Cannot delete category with associated skills',
+      );
     }
 
     // удаляем категорию (каскадное удаление подкатегорий настроено в entity)

@@ -1,12 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { Injectable, NotFoundException, Query } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, Query } from '@nestjs/common';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
-import { CreateSkillDto } from './dto/create-skill.dto';
-import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
 import { FindSkillsQueryDto } from './dto/find--skills.dto';
 
@@ -15,7 +12,7 @@ export class SkillsService {
   constructor(
     @InjectRepository(Skill) private skillRepository: Repository<Skill>,
     private readonly userService: UsersService,
-  ) {}
+  ) { }
 
   create(createSkillDto: CreateSkillDto) {
     console.log(createSkillDto);

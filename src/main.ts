@@ -13,7 +13,6 @@ async function bootstrap() {
     bufferLogs: true, // Важно для корректной работы кастомного логгера
   });
 
-  
   const logger = app.get(WinstonLogger);
 
   // Устанавливаем глобальный логгер
@@ -27,8 +26,14 @@ async function bootstrap() {
     }),
   );
 
-  logger.log(`Application started on port ${process.env.PORT || 3000}`, 'Bootstrap'); //логирование порта приложения
-  logger.log(`Environment: ${process.env.NODE_ENV || 'development'}`, 'Bootstrap'); //логирование окружения
+  logger.log(
+    `Application started on port ${process.env.PORT || 3000}`,
+    'Bootstrap',
+  ); //логирование порта приложения
+  logger.log(
+    `Environment: ${process.env.NODE_ENV || 'development'}`,
+    'Bootstrap',
+  ); //логирование окружения
   await app.listen(process.env.PORT ?? 3000);
 }
 

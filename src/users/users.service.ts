@@ -74,14 +74,14 @@ export class UsersService {
     });
 
     // Проверка совпадения текущего пароля
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       throw new UnauthorizedException('Неверный пароль');
     }
 
     // Проверка, что новый пароль не совпадает с текущим
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     if (await bcrypt.compare(newPassword, user.password)) {
       throw new ConflictException('Новый пароль должен отличаться от текущего');
     }
@@ -92,9 +92,9 @@ export class UsersService {
     }
 
     // Хеширование нового пароля
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     const hashedNewPassword = await bcrypt.hash(newPassword, 12); // Увеличили salt rounds
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
     user.password = hashedNewPassword; // Обновление пароля
     await this.userRepository.save(user); // Сохранение изменений
   }

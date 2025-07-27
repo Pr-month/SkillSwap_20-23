@@ -9,6 +9,7 @@ async function bootstrap() {
   dotenv.config();
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true, // Важно для корректной работы кастомного логгера
+    logger: new WinstonLogger()
   });
 
   const logger = app.get(WinstonLogger);

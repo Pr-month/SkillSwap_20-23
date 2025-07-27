@@ -86,7 +86,6 @@ export class AuthService {
   }
 
   async refresh(userPayload: JwtPayload) {
-
     const user = await this.userRepository.findOne({
       where: { id: userPayload.sub },
     });
@@ -130,7 +129,6 @@ export class AuthService {
   }
 
   async _getTokens(user: User) {
-
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
@@ -146,7 +144,7 @@ export class AuthService {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
       expiresIn: this.configService.get('JWT_EXPIRATION'),
     });
-    
+
     return { accessToken, refreshToken };
   }
 }

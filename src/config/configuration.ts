@@ -1,4 +1,5 @@
 import { registerAs } from '@nestjs/config';
+import { dbConfig } from './db-config';
 
 export const configuration = registerAs('APP_CONFIG', () => ({
   // Приложение
@@ -6,14 +7,7 @@ export const configuration = registerAs('APP_CONFIG', () => ({
   env: process.env.NODE_ENV || 'development',
 
   // База данных
-  db: {
-    driver: process.env.DB_DRIVER || 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT) || 5432,
-    user: process.env.DB_USER || 'skillswapuser',
-    password: process.env.DB_PASSWORD || 'skillswapuserpassword',
-    name: process.env.DB_NAME || 'skillswap',
-  },
+  db: dbConfig,
 
   // postgres
   postgres: {

@@ -17,15 +17,27 @@ export class UsersService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async findAll(query: QueryParamsDto): Promise<User[]> {
-    const take = Number(query.limit) || 10;
-    const page = Number(query.page) || 1;
+  async findAll(query: QueryParamsDto): Promise<{
+    data: User[];
+    page: number;
+    totalPages: number;
+  }> {
+    const page = Math.max(parseInt(query.page ?? '1'), 1);
+    const take = Math.min(Math.max(parseInt(query.limit ?? '20'), 1), 100);
     const skip = (page - 1) * take;
 
-    return await this.userRepository.find({
+    const [users, total] = await this.userRepository.findAndCount({
       take,
       skip,
     });
+
+    const totalPages = Math.ceil(total / take);
+
+    return {
+      data: users,
+      page,
+      totalPages,
+    };
   }
 
   async findUserById(id: string) {

@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
@@ -9,6 +10,7 @@ import { Skill } from './entities/skill.entity';
 export class SkillsService {
   constructor(
     @InjectRepository(Skill) private skillRepository: Repository<Skill>,
+    private readonly userService: UsersService,
   ) {}
 
   create(createSkillDto: CreateSkillDto) {
@@ -24,16 +26,17 @@ export class SkillsService {
     return `This action returns a #${id} skill`;
   }
 
-  async update(id: string, updateSkillDto: UpdateSkillDto) {
-    const skill = await this.skillRepository.findOne({
+  async update(id: string, updateSkillDto: UpdateSkillDto, userId: string) {
+    const skill = await this.skillRepository.findOneOrFail({
       where: {
         id,
       },
     });
 
-    if (!skill) {
-      throw new NotFoundException('Skill not found!');
-    }
+    const currentUser = await this.userService.findUserById(userId);
+
+    if (currentUser.id !== skill.owner.id)
+      throw new ForbiddenException('Недостаточно прав');
 
     return this.skillRepository.save({
       ...skill,

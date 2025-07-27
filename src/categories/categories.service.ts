@@ -1,4 +1,8 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -39,9 +43,9 @@ export class CategoriesService {
 
   async remove(id: string) {
     //поиск категории по ID и проверку ее существования
-    const category = await this.categoryRepository.findOne({ 
+    const category = await this.categoryRepository.findOne({
       where: { id }, // условие поиска (ищем категорию с указанным ID)
-      relations: ['skills'] //загружаем связанные сущности (все навыки, привязанные к этой категории)
+      relations: ['skills'], //загружаем связанные сущности (все навыки, привязанные к этой категории)
     });
 
     //проверка существования категории
@@ -51,7 +55,9 @@ export class CategoriesService {
 
     // проверяем, есть ли связанные навыки
     if (category.skills && category.skills.length > 0) {
-      throw new ForbiddenException('Cannot delete category with associated skills');
+      throw new ForbiddenException(
+        'Cannot delete category with associated skills',
+      );
     }
 
     // удаляем категорию (каскадное удаление подкатегорий настроено в entity)

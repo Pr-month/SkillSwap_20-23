@@ -8,7 +8,7 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { Gender, Role } from 'src/common/types';
+import { Gender, Role } from '../../common/types';
 import { Skill } from '../../skills/entities/skill.entity';
 import { Category } from '../../categories/entities/category.entity';
 

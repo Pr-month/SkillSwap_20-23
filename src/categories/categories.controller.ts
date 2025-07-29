@@ -1,20 +1,20 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   UseGuards,
 } from '@nestjs/common';
+import { HasRoles } from 'src/auth/decorators/roles.decorator';
+import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Role } from 'src/common/types';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { HasRoles } from '../auth/decorators/roles.decorator';
-import { Role } from '../common/types';
 
 @Controller('categories')
 export class CategoriesController {
@@ -42,11 +42,19 @@ export class CategoriesController {
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+    return this.categoriesService.update(id, updateCategoryDto);
   }
 
-  @Delete(':id')
+  /*@Delete(':id')
   remove(@Param('id') id: string) {
     return this.categoriesService.remove(+id);
+  }*/
+
+  // удаление категории
+  @Delete(':id') // определение метода DELETE и пути с параметром :id
+  @HasRoles(Role.ADMIN) // только для админов
+  @UseGuards(AccessTokenGuard, RolesGuard) // защита эндпоинта JWT-аутентификацией
+  async remove(@Param('id') id: string) {
+    return this.categoriesService.remove(id);
   }
 }

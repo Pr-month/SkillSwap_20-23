@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import {
   Column,
   Entity,
@@ -6,14 +7,18 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
-import { Gender, Role } from '../../common/types';
+import { Exclude } from 'class-transformer';
+import { Gender, Role } from 'src/common/types';
 import { Skill } from '../../skills/entities/skill.entity';
 import { Category } from '../../categories/entities/category.entity';
+
+// @Exclude() // По умолчанию все поля исключены
+// @Expose() // Явно указываем, что поле нужно включать
 
 @Entity('user')
 export class User {
   @PrimaryColumn({ type: 'uuid' })
-  id: string;
+  id: string = uuidv4();
 
   @Column({ type: 'text' })
   name: string;
@@ -22,16 +27,20 @@ export class User {
   email: string;
 
   @Column({ type: 'text' })
+  @Exclude()
   password: string;
 
-  @Column({ type: 'text' })
-  about: string;
+  @Column({ type: 'text', nullable: true })
+  about: string | null = null;
 
-  @Column({ type: 'int' })
-  age: number;
+  @Column({
+    type: 'int',
+    nullable: true,
+  })
+  age: number | null = null;
 
-  @Column({ type: 'text' })
-  city: string;
+  @Column({ type: 'text', nullable: true })
+  city: string | null = null;
 
   @Column({
     type: 'enum',
@@ -54,6 +63,7 @@ export class User {
     length: 255,
     unique: true,
   })
+  @Exclude()
   refreshToken: string;
 
   @OneToMany(() => Skill, (skill) => skill.owner, {

@@ -93,11 +93,11 @@ CREATE TABLE public."user" (
     name text NOT NULL,
     email text NOT NULL,
     password text NOT NULL,
-    about text NOT NULL,
-    age integer NOT NULL,
-    city text NOT NULL,
-    gender public.user_gender_enum NOT NULL,
-    avatar text NOT NULL,
+    about text,
+    age integer,
+    city text,
+    gender public.user_gender_enum,
+    avatar text,
     role public.user_role_enum DEFAULT 'user'::public.user_role_enum NOT NULL,
     "refreshToken" character varying(255) NOT NULL
 );
@@ -155,8 +155,9 @@ COPY public.skill (id, title, description, "ownerId", images, "categoryId") FROM
 --
 
 COPY public."user" (id, name, email, password, about, age, city, gender, avatar, role, "refreshToken") FROM stdin;
-0354a762-8928-427f-81d7-1656f717f39c	John Doe	johndoe@mail.com	$2b$10$pCHdOHoXp7sP0zPWuk05sujC4tDdB5Z1ZqVi7rIPS8KxvBQh9UFmy	John Doe is your average John Doe. 	30	Moscow	male	link/to/JohnDoe.jpg	user	tokenOfSecretSecrets
-92b8a2a7-ab6b-4fa9-915b-d27945865e39	Jane Doe	janedoe@mail.com	$2b$10$KaVaAuk2h7zTvoZMMon7E.Oalv82rifj09Fmr5XHLfofHOX14oKlS	Jane Doe is a token mock female user.	27	St. Petersburg	female	link/to/JaneDoe.jpg	user	suparSecretTokehn
+0354a762-8928-427f-81d7-1656f717f19c	Max Pein	max.pein@mail.com	$2b$12$examplehashstring1234567890abcdef	                    John Doe is your average John Doe. 	    30	    Moscow	            male	    link/to/JohnDoe.jpg	    admin	tokenOfSecretSecrets
+0354a762-8928-427f-81d7-1656f717f39c	John Doe	johndoe@mail.com	$2b$10$pCHdOHoXp7sP0zPWuk05sujC4tDdB5Z1ZqVi7rIPS8KxvBQh9UFmy	John Doe is your average John Doe. 	    30	    Moscow	            male	    link/to/JohnDoe.jpg	    user	tokenOfSecretSecrets
+92b8a2a7-ab6b-4fa9-915b-d27945865e39	Jane Doe	janedoe@mail.com	$2b$10$KaVaAuk2h7zTvoZMMon7E.Oalv82rifj09Fmr5XHLfofHOX14oKlS	Jane Doe is a token mock female user.	27	    St. Petersburg	    female	    link/to/JaneDoe.jpg	    user    suparSecretTokehn
 \.
 
 

@@ -7,6 +7,7 @@ import { configuration } from './config/configuration';
 import { AppDataSource } from './config/data-source';
 import { AuthModule } from './auth/auth.module';
 import { AccessTokenStrategy } from './auth/strategies/access-token.strategy';
+import { UploadModule } from './upload/upload.module';
 import { SkillsModule } from './skills/skills.module';
 import { CategoriesModule } from './categories/categories.module';
 import { WinstonLogger } from './logger/winston-logger';
@@ -33,6 +34,7 @@ import { WinstonLogger } from './logger/winston-logger';
     TypeOrmModule.forRoot(AppDataSource.options),
     UsersModule,
     AuthModule,
+    UploadModule,
     SkillsModule,
     CategoriesModule,
   ],

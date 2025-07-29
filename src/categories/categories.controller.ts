@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
+  Post,
   UseGuards,
 } from '@nestjs/common';
 import { HasRoles } from 'src/auth/decorators/roles.decorator';
@@ -11,6 +13,7 @@ import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from 'src/common/types';
 import { CategoriesService } from './categories.service';
+import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Controller('categories')
@@ -19,6 +22,21 @@ export class CategoriesController {
 
   @HasRoles(Role.ADMIN)
   @UseGuards(AccessTokenGuard, RolesGuard)
+  @Post()
+  create(@Body() createCategoryDto: CreateCategoryDto) {
+    return this.categoriesService.create(createCategoryDto);
+  }
+
+  @Get()
+  findAll() {
+    return this.categoriesService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.categoriesService.findOne(+id);
+  }
+
   @Patch(':id')
   update(
     @Param('id') id: string,

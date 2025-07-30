@@ -11,6 +11,7 @@ import { UploadModule } from './upload/upload.module';
 import { SkillsModule } from './skills/skills.module';
 import { CategoriesModule } from './categories/categories.module';
 import { WinstonLogger } from './logger/winston-logger';
+import { RequestsModule } from './requests/requests.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { WinstonLogger } from './logger/winston-logger';
     UploadModule,
     SkillsModule,
     CategoriesModule,
+    RequestsModule,
   ],
   providers: [
     AccessTokenStrategy,

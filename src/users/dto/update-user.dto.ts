@@ -12,14 +12,17 @@ import {
 import { Gender } from 'src/common/gender.enum';
 
 export class UpdateUserDto {
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   name: string;
 
+  @IsOptional()
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
@@ -27,13 +30,13 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  about?: string | null; // Разрешаем null;
+  about?: string | null;
 
   @IsOptional()
   @IsInt()
   @Min(16)
   @Max(100)
-  age?: number | null; // Разрешаем null
+  age?: number | null;
 
   @IsOptional()
   @IsString()
@@ -47,6 +50,7 @@ export class UpdateUserDto {
   @IsString()
   avatar?: string;
 
+  @IsOptional()
   @IsString()
   refreshToken: string;
 }

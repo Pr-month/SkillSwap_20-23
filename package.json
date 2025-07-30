@@ -22,7 +22,7 @@
     "docker:down": "docker-compose down",
     "docker:pgadmin:console": "docker exec -it pgadmin /bin/bash",
     "docker:database:console": "docker exec -it database /bin/bash",
-    "seed:categories": "ts-node src/scripts/seed-categories.ts"
+    "seed:categories": "ts-node src/scripts/categories.seed.ts"
   },
   "dependencies": {
     "@nestjs/class-transformer": "^0.4.0",

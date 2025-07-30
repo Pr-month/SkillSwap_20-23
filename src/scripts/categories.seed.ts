@@ -45,3 +45,4 @@ seed().catch((e) => {
   console.error('Ошибка при добавлении категорий:', e);
   process.exit(1);
 });
+

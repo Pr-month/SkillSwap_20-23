@@ -3,7 +3,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { configuration } from './config/configuration';
 import { AppDataSource } from './config/data-source';
 import { AuthModule } from './auth/auth.module';
 import { AccessTokenStrategy } from './auth/strategies/access-token.strategy';
@@ -13,22 +12,27 @@ import { CategoriesModule } from './categories/categories.module';
 import { WinstonLogger } from './logger/winston-logger';
 import { RequestsModule } from './requests/requests.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { appConfig } from './config/app.config';
+import { dbConfig } from './config/db.config';
+import { jwtConfig } from './config/jwt.config';
+import { postgresConfig } from './config/db.config';
+import { pgAdminConfig } from './config/db.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       expandVariables: true,
-      load: [configuration],
+      load: [appConfig, dbConfig, jwtConfig, postgresConfig, pgAdminConfig],
       envFilePath: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env',
     }),
     JwtModule.registerAsync({
       global: true, // Делаем модуль глобальным
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get('JWT_ACCESS_SECRET') || 'defaultSecretKey',
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_ACCESS_SECRET'),
         signOptions: {
-          expiresIn: configService.get('JWT_EXPIRATION') || '2h',
+          expiresIn: config.get<string>('JWT_EXPIRATION') || '2h',
         },
       }),
       inject: [ConfigService],

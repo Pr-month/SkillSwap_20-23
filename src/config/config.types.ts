@@ -1,42 +1,8 @@
-export type DatabaseConfig = {
-  type: 'postgres';
-  applicationName: string;
-  host: string;
-  port: number;
-  database: string;
-  username: string;
-  password: string;
-};
+import { ConfigType } from '@nestjs/config';
+import { appConfig } from './app.config';
+import { dbConfig } from './db.config';
+import { jwtConfig } from './jwt.config';
 
-export type PostgresConfig = {
-  user: string;
-  password: string;
-  db: string;
-};
-
-export type PgAdminConfig = {
-  email: string;
-  password: string;
-};
-
-export type JwtConfig = {
-  accessSecret: string;
-  refreshSecret: string;
-  accessExpiration: string;
-  refreshExpiration: string;
-};
-
-export type FileUploadConfig = {
-  destination: string;
-  limit: number;
-};
-
-export type AppConfig = {
-  port: number;
-  env: string;
-  db: DatabaseConfig;
-  postgres: PostgresConfig;
-  pgadmin: PgAdminConfig;
-  jwt: JwtConfig;
-  fileUploads: FileUploadConfig;
-};
+export type IAppConfig = ConfigType<typeof appConfig>;
+export type IDbConfig = ConfigType<typeof dbConfig>;
+export type IJwtConfig = ConfigType<typeof jwtConfig>;

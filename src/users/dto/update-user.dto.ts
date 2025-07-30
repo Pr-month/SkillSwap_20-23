@@ -15,18 +15,18 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name?: string;
 
   @IsOptional()
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  email?: string;
 
   @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
-  password: string;
+  password?: string;
 
   @IsOptional()
   @IsString()
@@ -52,5 +52,5 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  refreshToken: string;
+  refreshToken?: string;
 }

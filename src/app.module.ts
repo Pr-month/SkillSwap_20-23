@@ -12,6 +12,7 @@ import { SkillsModule } from './skills/skills.module';
 import { CategoriesModule } from './categories/categories.module';
 import { WinstonLogger } from './logger/winston-logger';
 import { RequestsModule } from './requests/requests.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { RequestsModule } from './requests/requests.module';
     SkillsModule,
     CategoriesModule,
     RequestsModule,
+    NotificationsModule,
   ],
   providers: [
     AccessTokenStrategy,

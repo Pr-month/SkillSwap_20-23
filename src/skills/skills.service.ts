@@ -6,13 +6,13 @@ import {
   NotFoundException,
   Query,
 } from '@nestjs/common';
-import { CreateSkillDto } from './dto/create-skill.dto';
-import { UpdateSkillDto } from './dto/update-skill.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
-import { Skill } from './entities/skill.entity';
+import { CreateSkillDto } from './dto/create-skill.dto';
 import { FindSkillsQueryDto } from './dto/find--skills.dto';
+import { UpdateSkillDto } from './dto/update-skill.dto';
+import { Skill } from './entities/skill.entity';
 
 @Injectable()
 export class SkillsService {
@@ -126,5 +126,39 @@ export class SkillsService {
         String(error),
       );
     }
+  }
+
+  async addFavorite(userId: string, skillId: string) {
+    const skill = await this.skillRepository.findOneOrFail({
+      where: { id: skillId },
+      relations: ['owner'],
+    });
+
+    const user = await this.userService.findUserById(userId);
+
+    if (user.favoriteSkills?.find((obj) => obj.id === skill.id))
+      throw new BadRequestException('Навык уже выбран избранным');
+
+    return await this.userService.updateUserById(user.id, {
+      ...user,
+      favoriteSkills: user.favoriteSkills
+        ? [...user.favoriteSkills, skill]
+        : [skill],
+    });
+  }
+
+  async removeFavorite(userId: string, skillId: string) {
+    const user = await this.userService.findUserById(userId);
+
+    if (
+      !user.favoriteSkills ||
+      !user.favoriteSkills.find((obj) => obj.id === skillId)
+    )
+      throw new BadRequestException('Выбранного навыка нет в списке избранных');
+
+    return await this.userService.updateUserById(user.id, {
+      ...user,
+      favoriteSkills: user.favoriteSkills.filter((obj) => obj.id !== skillId),
+    });
   }
 }

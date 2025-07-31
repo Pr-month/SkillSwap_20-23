@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException,UnauthorizedException } from '@nestjs/common';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { Request } from './entities/request.entity';
@@ -23,27 +23,39 @@ export class RequestsService {
     //console.log(createRequestDto);
     //return 'This action adds a new request';
 
-    // Получаем навыки из базы
-    const offeredSkill = await this.skillRepository.findOneOrFail({
-      where: { id: createRequestDto.offeredSkillId },
-      relations: ['owner'],
-    });
-
-    const requestedSkill = await this.skillRepository.findOneOrFail({
-      where: { id: createRequestDto.requestedSkillId },
-      relations: ['owner'],
-    });
-
-    // Получаем отправителя и получателя
-    const sender = await this.userRepository.findOneOrFail({
+     // Проверяем существование отправителя
+    const sender = await this.userRepository.findOne({ 
       where: { id: senderId },
     });
-    const receiver = requestedSkill.owner;
+    if (!sender) {
+      throw new NotFoundException(`Sender with ID ${senderId} not found`);
+    }
+
+    // Получаем навыки
+    const [offeredSkill, requestedSkill] = await Promise.all([
+      this.skillRepository.findOne({ 
+        where: { id: createRequestDto.offeredSkillId },
+        relations: ['owner'],
+      }),
+      this.skillRepository.findOne({ 
+        where: { id: createRequestDto.requestedSkillId },
+        relations: ['owner'],
+      }),
+    ]);
+
+    if (!offeredSkill || !requestedSkill) {
+      throw new NotFoundException('One or both skills not found');
+    }
+
+    // Проверяем, что отправитель - владелец предлагаемого навыка
+    if (offeredSkill.owner.id !== senderId) {
+      throw new UnauthorizedException('You can only offer your own skills');
+    }
 
     // Создаем заявку
     const request = this.requestRepository.create({
       sender,
-      receiver,
+      receiver: requestedSkill.owner,
       offeredSkill,
       requestedSkill,
       status: ReqStatus.PENDING,

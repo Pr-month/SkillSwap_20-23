@@ -44,12 +44,6 @@ export class CategoriesController {
   ) {
     return this.categoriesService.update(id, updateCategoryDto);
   }
-
-  /*@Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
-  }*/
-
   // удаление категории
   @Delete(':id') // определение метода DELETE и пути с параметром :id
   @HasRoles(Role.ADMIN) // только для админов

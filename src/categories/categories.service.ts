@@ -2,6 +2,7 @@ import {
   Injectable,
   ForbiddenException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -17,20 +18,27 @@ export class CategoriesService {
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const category = new Category();
-    category.name = createCategoryDto.name;
+    const category = new Category(); //создаем новый экземпляр категории
+    category.name = createCategoryDto.name;// устанавливаем имя категории из DTO
 
+    // проверяем, указан ли parentId в DTO
     if (createCategoryDto.parentId) {
+      // поиск родительской категории в базе данных
       const parent = await this.categoryRepository.findOne({
         where: { id: createCategoryDto.parentId },
       });
-      if (parent) {
-        category.parent = parent;
+      // если родительская категория не найдена - выбрасываем исключение
+      if (!parent) {
+        throw new NotFoundException(
+          `Parent category with ID ${createCategoryDto.parentId} not found`,
+        );
       }
+      category.parent = parent; // если родитель найден - устанавливаем связь
     }
 
-    return await this.categoryRepository.save(category);
+    return await this.categoryRepository.save(category); // сохраняем категорию в базу данных и возвращаем результат
   }
+
 
   async findAll(): Promise<Category[]> {
     return await this.categoryRepository.find({
@@ -47,6 +55,10 @@ export class CategoriesService {
     const category = await this.categoryRepository.findOneOrFail({
       where: { id },
     });
+    // проверка на попытку сделать категорию родителем самой себя
+    if (updateCategoryDto.parentId && updateCategoryDto.parentId === id) {
+    throw new BadRequestException('Category cannot be parent of itself');
+  }
     const newCategory = { ...category, ...updateCategoryDto };
     const updatedCategory = (await this.categoryRepository.save(
       newCategory,

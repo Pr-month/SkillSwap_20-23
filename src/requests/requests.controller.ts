@@ -14,8 +14,9 @@ import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { AuthenticatedRequest } from '../auth/auth.types';
 import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
-
-
+import { HasRoles } from '../auth/decorators/roles.decorator';
+import { Role } from '../common/types';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 
 @Controller('requests')
@@ -41,8 +42,13 @@ export class RequestsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRequestDto: UpdateRequestDto) {
-    return this.requestsService.update(id, updateRequestDto);
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @HasRoles(Role.ADMIN, Role.USER) // Только админ или пользователь
+  update(
+    @Param('id') id: string, 
+    @Body() updateRequestDto: UpdateRequestDto,
+    @Req() req: AuthenticatedRequest ) {
+    return this.requestsService.update(id, updateRequestDto, req.user );
   }
 
   @Delete(':id')

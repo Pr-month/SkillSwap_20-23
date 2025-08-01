@@ -7,6 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Skill } from '../skills/entities/skill.entity';
 import { User } from '../users/entities/user.entity';
 import { ReqStatus } from '../common/requests-status.enum';
+import { JwtPayload } from '../auth/auth.types';
+import { Role } from 'src/common/types';
 
 @Injectable()
 export class RequestsService {
@@ -70,10 +72,7 @@ export class RequestsService {
     return this.requestRepository.findOne({ where: { id } });
   }
 
-  async update(id: string, updateRequestDto: UpdateRequestDto) {
-    //console.log(updateRequestDto);
-    //return `This action updates a #${id} request`;
-
+  async update(id: string, updateRequestDto: UpdateRequestDto, user: JwtPayload) {
     // Находим запрос
     const request = await this.requestRepository.findOne({
       where: { id },
@@ -83,6 +82,12 @@ export class RequestsService {
     if (!request) {
       throw new NotFoundException(`Request with ID ${id} not found`);
     }
+
+    // Проверяем права доступа
+    if (user.role !== Role.ADMIN && user.sub !== request.receiver.id) {
+      throw new UnauthorizedException('You can only update your own received requests');
+    }
+
     // Обновляем только разрешенные поля
     if (updateRequestDto.status !== undefined) {
       request.status = updateRequestDto.status;

@@ -12,6 +12,8 @@ import { SkillsModule } from './skills/skills.module';
 import { CategoriesModule } from './categories/categories.module';
 import { WinstonLogger } from './logger/winston-logger';
 import { RequestsModule } from './requests/requests.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -31,6 +33,14 @@ import { RequestsModule } from './requests/requests.module';
         },
       }),
       inject: [ConfigService],
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      exclude: ['/api*', '/upload*'],
+      serveStaticOptions: {
+        index: false,
+      },
+      serveRoot: '/public',
     }),
     TypeOrmModule.forRoot(AppDataSource.options),
     UsersModule,

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException,UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { Request } from './entities/request.entity';
@@ -23,34 +27,30 @@ export class RequestsService {
 
   async create(createRequestDto: CreateRequestDto, senderId: string) {
     // Проверяем существование отправителя
-    const sender = await this.userRepository.findOne({ 
+    const sender = await this.userRepository.findOne({
       where: { id: senderId },
     });
     if (!sender) {
       throw new NotFoundException(`Sender with ID ${senderId} not found`);
     }
-
     // Получаем навыки
     const [offeredSkill, requestedSkill] = await Promise.all([
-      this.skillRepository.findOne({ 
+      this.skillRepository.findOne({
         where: { id: createRequestDto.offeredSkillId },
         relations: ['owner'],
       }),
-      this.skillRepository.findOne({ 
+      this.skillRepository.findOne({
         where: { id: createRequestDto.requestedSkillId },
         relations: ['owner'],
       }),
     ]);
-
     if (!offeredSkill || !requestedSkill) {
       throw new NotFoundException('One or both skills not found');
     }
-
     // Проверяем, что отправитель - владелец предлагаемого навыка
     if (offeredSkill.owner.id !== senderId) {
       throw new UnauthorizedException('You can only offer your own skills');
     }
-
     // Создаем заявку
     const request = this.requestRepository.create({
       sender,
@@ -60,7 +60,6 @@ export class RequestsService {
       status: ReqStatus.PENDING,
       isRead: false,
     });
-
     return this.requestRepository.save(request);
   }
 
@@ -72,30 +71,36 @@ export class RequestsService {
     return this.requestRepository.findOne({ where: { id } });
   }
 
-  async update(id: string, updateRequestDto: UpdateRequestDto, user: JwtPayload) {
+  async update(
+    id: string,
+    updateRequestDto: UpdateRequestDto,
+    user: JwtPayload,
+  ) {
     // Находим запрос
     const request = await this.requestRepository.findOne({
       where: { id },
       relations: ['sender', 'receiver', 'offeredSkill', 'requestedSkill'],
     });
-
     if (!request) {
       throw new NotFoundException(`Request with ID ${id} not found`);
     }
-
     // Проверяем права доступа
     if (user.role !== Role.ADMIN && user.sub !== request.receiver.id) {
-      throw new UnauthorizedException('You can only update your own received requests');
+      throw new UnauthorizedException(
+        'You can only update your own received requests',
+      );
     }
-
     // Обновляем только разрешенные поля
     if (updateRequestDto.status !== undefined) {
       request.status = updateRequestDto.status;
+      // Автоматически помечаем как прочитанное при изменении статуса
+      if (
+        updateRequestDto.status === ReqStatus.ACCEPTED ||
+        updateRequestDto.status === ReqStatus.REJECTED
+      ) {
+        request.isRead = true;
+      }
     }
-    if (updateRequestDto.isRead !== undefined) {
-      request.isRead = updateRequestDto.isRead;
-    }
-
     // Сохраняем обновленный запрос
     return this.requestRepository.save(request);
   }

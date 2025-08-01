@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   NotFoundException,
   BadRequestException,
+  ConflictException
 } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -16,8 +17,41 @@ export class CategoriesService {
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
   ) {}
+/**
+ * Проверяет уникальность имени категории в рамках родительской категории
+ * @param name - Проверяемое имя категории
+ * @param parentId - ID родительской категории (null для корневых категорий)
+ * @param excludeId - ID категории, которую следует исключить из проверки (актуально при обновлении)
+ * @throws ConflictException - Если категория с таким именем уже существует
+ */
+  private async checkCategoryNameUnique(
+    name: string,
+    parentId: string | null,
+    excludeId?: string,
+  ): Promise<void> {
+    const existingCategory = await this.categoryRepository.findOne({
+      where: {
+        name,
+        parent: parentId ? { id: parentId } : IsNull(),
+      },
+    });
+
+    if (existingCategory && existingCategory.id !== excludeId) {
+      throw new ConflictException(
+        `Category with name '${name}' already exists${
+          parentId ? ' in this parent category' : ''
+        }`,
+      );
+    }
+  }
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
+     // Проверяем уникальность имени
+    await this.checkCategoryNameUnique(
+      createCategoryDto.name,
+      createCategoryDto.parentId || null,
+    );
+
     const category = new Category(); //создаем новый экземпляр категории
     category.name = createCategoryDto.name;// устанавливаем имя категории из DTO
 

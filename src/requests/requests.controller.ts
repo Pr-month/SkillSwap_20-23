@@ -8,7 +8,6 @@ import {
   Delete,
   Req,
   UseGuards,
-  UnauthorizedException
 } from '@nestjs/common';
 import { RequestsService } from './requests.service';
 import { CreateRequestDto } from './dto/create-request.dto';

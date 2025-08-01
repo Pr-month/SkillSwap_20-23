@@ -5,4 +5,5 @@ export const jwtConfig = registerAs('JWT', () => ({
   refreshSecret: process.env.JWT_REFRESH_SECRET || 'test',
   accessExpiration: process.env.JWT_EXPIRATION || '3600s',
   refreshExpiration: process.env.REFRESH_TOKEN_EXPIRATION || '2h',
+  hashSaltRounds: parseInt(process.env.HASH_SALT_ROUNDS || '10', 10),
 }));

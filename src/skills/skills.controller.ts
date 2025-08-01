@@ -4,18 +4,18 @@ import {
   Delete,
   Get,
   Param,
-  Request,
-  UseGuards,
   Patch,
   Post,
   Query,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
-import { CreateSkillDto } from './dto/create-skill.dto';
-import { UpdateSkillDto } from './dto/update-skill.dto';
-import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 import { AuthenticatedRequest } from 'src/auth/auth.types';
-import { SkillsService } from './skills.service';
+import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
+import { CreateSkillDto } from './dto/create-skill.dto';
 import { FindSkillsQueryDto } from './dto/find--skills.dto';
+import { UpdateSkillDto } from './dto/update-skill.dto';
+import { SkillsService } from './skills.service';
 
 @Controller('skills')
 export class SkillsController {
@@ -48,6 +48,21 @@ export class SkillsController {
     @Request() req: AuthenticatedRequest,
   ) {
     return this.skillsService.update(id, updateSkillDto, req.user.sub);
+  }
+
+  @Post(':id/favorite')
+  @UseGuards(AccessTokenGuard)
+  addFavorite(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
+    return this.skillsService.addFavorite(req.user.sub, id);
+  }
+
+  @Delete(':id/favorite')
+  @UseGuards(AccessTokenGuard)
+  removeFavorite(
+    @Param('id') id: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.skillsService.removeFavorite(req.user.sub, id);
   }
 
   @Delete(':id')

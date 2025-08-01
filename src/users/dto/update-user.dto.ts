@@ -1,15 +1,17 @@
+import { Type } from 'class-transformer';
 import {
+  IsArray,
+  IsDate,
   IsEmail,
+  IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MinLength,
-  IsOptional,
-  IsEnum,
-  IsInt,
-  Min,
-  Max,
+  ValidateNested,
 } from 'class-validator';
 import { Gender } from 'src/common/gender.enum';
+import { Skill } from 'src/skills/entities/skill.entity';
 
 export class UpdateUserDto {
   @IsString()
@@ -30,10 +32,8 @@ export class UpdateUserDto {
   about?: string | null; // Разрешаем null;
 
   @IsOptional()
-  @IsInt()
-  @Min(16)
-  @Max(100)
-  age?: number | null; // Разрешаем null
+  @IsDate()
+  birthDate?: Date | null; // Разрешаем null
 
   @IsOptional()
   @IsString()
@@ -49,4 +49,10 @@ export class UpdateUserDto {
 
   @IsString()
   refreshToken: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Skill)
+  favoriteSkills?: Skill[];
 }

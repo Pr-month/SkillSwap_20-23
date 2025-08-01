@@ -20,10 +20,7 @@ export class RequestsService {
   ) {}
 
   async create(createRequestDto: CreateRequestDto, senderId: string) {
-    //console.log(createRequestDto);
-    //return 'This action adds a new request';
-
-     // Проверяем существование отправителя
+    // Проверяем существование отправителя
     const sender = await this.userRepository.findOne({ 
       where: { id: senderId },
     });

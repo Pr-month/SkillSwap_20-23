@@ -28,10 +28,6 @@ export class RequestsController {
   async create(
     @Body() createRequestDto: CreateRequestDto,
     @Req() req: AuthenticatedRequest,) {
-    //проверяем наличие и валидность данных 
-      if (!req.user?.sub) {
-      throw new UnauthorizedException('Invalid user data in token');
-      }
     return this.requestsService.create(createRequestDto, req.user.sub);
   }
   

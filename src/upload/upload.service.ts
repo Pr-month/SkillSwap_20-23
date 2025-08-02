@@ -7,7 +7,6 @@ export class UploadService {
       throw new BadRequestException('no file uploaded');
     }
     const normalizedPath = file.path.replace(/\\/g, '/');
-    console.log(file);
     return {
       message: 'File uploaded successfully',
       filePath: `${fileUrl}/${normalizedPath}`,

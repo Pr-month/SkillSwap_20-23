@@ -24,7 +24,7 @@ export class Request {
 
   @OneToOne(() => User)
   @JoinColumn()
-  reciever: User;
+  receiver: User;
 
   @Column({
     type: 'enum',

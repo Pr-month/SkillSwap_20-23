@@ -18,10 +18,9 @@ import { HasRoles } from '../auth/decorators/roles.decorator';
 import { Role } from '../common/types';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
-
 @Controller('requests')
 export class RequestsController {
-  constructor(private readonly requestsService: RequestsService) {}
+    constructor(private readonly requestsService: RequestsService) { }
 
   @Post()
   @UseGuards(AccessTokenGuard)
@@ -52,7 +51,8 @@ export class RequestsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.requestsService.remove(id);
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  remove(@Req() req: AuthenticatedRequest, @Param('id') requestId: string) {
+    return this.requestsService.remove(req.user.sub, requestId);
   }
 }

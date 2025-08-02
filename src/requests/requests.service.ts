@@ -1,5 +1,8 @@
 import {
+  BadRequestException,
+  ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -23,7 +26,7 @@ export class RequestsService {
     private skillRepository: Repository<Skill>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async create(createRequestDto: CreateRequestDto, senderId: string) {
     // Проверяем существование отправителя
@@ -105,7 +108,33 @@ export class RequestsService {
     return this.requestRepository.save(request);
   }
 
-  remove(id: string) {
-    return this.requestRepository.delete(id);
+  async remove(userId: string, requestId: string) {
+    try {
+      const user = await this.userRepository.findOneOrFail({ where: { id: userId } });
+      const request = await this.requestRepository.findOneOrFail({
+        where: { id: requestId },
+        relations: ['sender'],
+      });
+
+      if (!request.sender) throw new BadRequestException('Reques has no sender');
+
+      if (user.id === request.sender.id || user.role == Role.ADMIN)
+        return await this.requestRepository.remove(request);
+      else {
+        throw new ForbiddenException(
+          'You do not have permission to delete this request',
+        );
+      }
+
+    } catch (error) {
+      if (
+        error instanceof ForbiddenException ||
+        error instanceof BadRequestException
+      ) throw error;
+      throw new InternalServerErrorException(
+        'Failed to delete request',
+        String(error),
+      );
+    }
   }
 }

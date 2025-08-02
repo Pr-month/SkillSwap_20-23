@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { Exclude } from 'class-transformer';
 import {
   Column,
   Entity,
@@ -7,7 +7,8 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
-import { Exclude } from 'class-transformer';
+import { v4 as uuidv4 } from 'uuid';
+import { Category } from '../../categories/entities/category.entity';
 import { Gender, Role } from '../../common/types';
 import { Skill } from '../../skills/entities/skill.entity';
 import { Category } from '../../categories/entities/category.entity';
@@ -35,10 +36,10 @@ export class User {
   about: string | null = null;
 
   @Column({
-    type: 'int',
+    type: 'date',
     nullable: true,
   })
-  age: number | null = null;
+  birthDate: Date | null = null;
 
   @Column({ type: 'text', nullable: true })
   city: string | null = null;

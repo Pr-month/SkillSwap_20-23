@@ -6,8 +6,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { plainToInstance } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
+import { plainToInstance } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { QueryParamsDto } from './dto/query-param.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -50,8 +50,10 @@ export class UsersService {
   async updateUserById(id: string, updateUserDto: UpdateUserDto) {
     try {
       const user = await this.userRepository.findOneOrFail({ where: { id } });
-      const mergedUser = this.userRepository.merge(user, updateUserDto);
-      const savedUser = await this.userRepository.save(mergedUser);
+      const savedUser = await this.userRepository.save({
+        ...user,
+        ...updateUserDto,
+      });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, refreshToken, ...updatedUser } = savedUser;
 

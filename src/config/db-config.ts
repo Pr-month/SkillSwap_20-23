@@ -2,8 +2,6 @@ import * as dotenv from 'dotenv';
 import { DataSourceOptions } from 'typeorm';
 dotenv.config();
 
-dotenv.config();
-
 export const dbConfig: DataSourceOptions = {
   type: 'postgres',
   applicationName: 'skillswap',

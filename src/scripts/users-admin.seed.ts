@@ -1,6 +1,6 @@
 import { AppDataSource } from '../config/data-source';
 import { User } from '../users/entities/user.entity';
-import { AdminUsersData } from './users.data';
+import { AdminUsersData, AdminUsersPassword } from './users.data';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../common/types';
 
@@ -20,7 +20,7 @@ async function seed() {
     const user = await userRepo.save(
       userRepo.create({
         ...AdminUsersData,
-        password: await bcrypt.hash('admin123', 10),
+        password: await bcrypt.hash(AdminUsersPassword, 10),
       }),
     );
 

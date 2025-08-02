@@ -11,6 +11,8 @@ import { SkillsModule } from './skills/skills.module';
 import { CategoriesModule } from './categories/categories.module';
 import { WinstonLogger } from './logger/winston-logger';
 import { RequestsModule } from './requests/requests.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { NotificationsModule } from './notifications/notifications.module';
 import { appConfig } from './config/app.config';
 import { dbConfig } from './config/db.config';
@@ -37,6 +39,14 @@ import { IJwtConfig } from './config/config.types';
           expiresIn: config.accessExpiration,
         },
       }),
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      exclude: ['/api*', '/upload*'],
+      serveStaticOptions: {
+        index: false,
+      },
+      serveRoot: '/public',
     }),
     TypeOrmModule.forRoot(AppDataSource.options),
     UsersModule,

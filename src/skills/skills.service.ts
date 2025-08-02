@@ -87,6 +87,8 @@ export class SkillsService {
       },
     });
 
+    console.log('test test');
+
     const currentUser = await this.userService.findUserById(userId);
 
     if (currentUser.id !== skill.owner.id)

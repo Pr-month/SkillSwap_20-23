@@ -99,31 +99,17 @@ export class SkillsService {
   }
 
   async remove(userId: string, skillId: string) {
-    try {
-      const user = await this.userService.findUserById(userId);
-      const skill = await this.skillRepository.findOneOrFail({
-        where: { id: skillId },
-        relations: ['owner'], // Загружаем связь owner
-      });
-
-      if (!skill.owner) throw new BadRequestException('Skill has no owner');
-
-      if (user.id === skill.owner.id)
-        return await this.skillRepository.remove(skill);
-      else {
-        throw new ForbiddenException(
-          'You do not have permission to delete this skill',
-        );
-      }
-    } catch (error) {
-      if (
-        error instanceof ForbiddenException ||
-        error instanceof BadRequestException
-      )
-        throw error;
-      throw new InternalServerErrorException(
-        'Failed to delete skill',
-        String(error),
+    const user = await this.userService.findUserById(userId);
+    const skill = await this.skillRepository.findOneOrFail({
+      where: { id: skillId },
+      relations: ['owner'], // Загружаем связь owner
+    });
+    if (!skill.owner) throw new BadRequestException('Skill has no owner');
+    if (user.id === skill.owner.id)
+      return await this.skillRepository.remove(skill);
+    else {
+      throw new ForbiddenException(
+        'You do not have permission to delete this skill',
       );
     }
   }

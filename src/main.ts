@@ -4,6 +4,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionFilter } from './common/all-exception.filter';
 import { WinstonLogger } from './logger/winston-logger';
+import { ConfigService } from '@nestjs/config';
+import { IAppConfig } from './config/config.types';
 
 async function bootstrap() {
   dotenv.config();
@@ -12,6 +14,15 @@ async function bootstrap() {
     logger: new WinstonLogger(),
   });
 
+  const configService = app.get(ConfigService);
+  const appConfig = configService.get<IAppConfig>('APP')  || {
+    port: 3000,
+    env: 'development',
+    fileUploads: {
+      destination: './public/uploads',
+      limit: 2097152,
+    },
+  };
   const logger = app.get(WinstonLogger);
 
   app.useLogger(logger);
@@ -25,14 +36,14 @@ async function bootstrap() {
   );
 
   logger.log(
-    `Application started on port ${process.env.PORT || 3000}`,
+    `Application started on port ${appConfig.port}`,
     'Bootstrap',
   ); //логирование порта приложения
   logger.log(
-    `Environment: ${process.env.NODE_ENV || 'development'}`,
+    `Environment: ${appConfig.env}`,
     'Bootstrap',
   ); //логирование окружения
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(appConfig.port);
 }
 
 // ЗАТЫЧКА ЛИНТИНГА

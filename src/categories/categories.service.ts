@@ -3,7 +3,7 @@ import {
   ForbiddenException,
   NotFoundException,
   BadRequestException,
-  ConflictException
+  ConflictException,
 } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -17,13 +17,13 @@ export class CategoriesService {
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
   ) {}
-/**
- * Проверяет уникальность имени категории в рамках родительской категории
- * @param name - Проверяемое имя категории
- * @param parentId - ID родительской категории (null для корневых категорий)
- * @param excludeId - ID категории, которую следует исключить из проверки (актуально при обновлении)
- * @throws ConflictException - Если категория с таким именем уже существует
- */
+  /**
+   * Проверяет уникальность имени категории в рамках родительской категории
+   * @param name - Проверяемое имя категории
+   * @param parentId - ID родительской категории (null для корневых категорий)
+   * @param excludeId - ID категории, которую следует исключить из проверки (актуально при обновлении)
+   * @throws ConflictException - Если категория с таким именем уже существует
+   */
   private async checkCategoryNameUnique(
     name: string,
     parentId: string | null,
@@ -46,14 +46,14 @@ export class CategoriesService {
   }
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-     // Проверяем уникальность имени
+    // Проверяем уникальность имени
     await this.checkCategoryNameUnique(
       createCategoryDto.name,
       createCategoryDto.parentId || null,
     );
 
     const category = new Category(); //создаем новый экземпляр категории
-    category.name = createCategoryDto.name;// устанавливаем имя категории из DTO
+    category.name = createCategoryDto.name; // устанавливаем имя категории из DTO
 
     // проверяем, указан ли parentId в DTO
     if (createCategoryDto.parentId) {
@@ -73,7 +73,6 @@ export class CategoriesService {
     return await this.categoryRepository.save(category); // сохраняем категорию в базу данных и возвращаем результат
   }
 
-
   async findAll(): Promise<Category[]> {
     return await this.categoryRepository.find({
       where: { parent: IsNull() },
@@ -91,8 +90,8 @@ export class CategoriesService {
     });
     // проверка на попытку сделать категорию родителем самой себя
     if (updateCategoryDto.parentId && updateCategoryDto.parentId === id) {
-    throw new BadRequestException('Category cannot be parent of itself');
-  }
+      throw new BadRequestException('Category cannot be parent of itself');
+    }
     const newCategory = { ...category, ...updateCategoryDto };
     const updatedCategory = (await this.categoryRepository.save(
       newCategory,

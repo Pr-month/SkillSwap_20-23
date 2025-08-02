@@ -14,22 +14,25 @@ import { Gender } from 'src/common/gender.enum';
 import { Skill } from 'src/skills/entities/skill.entity';
 
 export class UpdateUserDto {
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name?: string;
 
+  @IsOptional()
   @IsEmail()
   @IsNotEmpty()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(6)
-  password: string;
+  email?: string;
 
   @IsOptional()
   @IsString()
-  about?: string | null; // Разрешаем null;
+  @IsNotEmpty()
+  @MinLength(6)
+  password?: string;
+
+  @IsOptional()
+  @IsString()
+  about?: string | null;
 
   @IsOptional()
   @IsDate()
@@ -47,6 +50,7 @@ export class UpdateUserDto {
   @IsString()
   avatar?: string;
 
+  @IsOptional()
   @IsString()
   refreshToken: string;
 

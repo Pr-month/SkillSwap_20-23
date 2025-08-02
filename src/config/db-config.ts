@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import { DataSourceOptions } from 'typeorm';
-
 dotenv.config();
 
 export const dbConfig: DataSourceOptions = {
@@ -13,3 +12,5 @@ export const dbConfig: DataSourceOptions = {
   // password: process.env.DB_PASSWORD || 'your_password',
   password: process.env.DB_PASSWORD || 'skillswapuserpassword',
 };
+
+// .env fix from https://github.com/Pr-month/SkillSwap_20-23/blob/week3-fenyadim/src/config/db-config.ts

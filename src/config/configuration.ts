@@ -3,6 +3,8 @@ import { dbConfig } from './db.config';
 import { jwtConfig } from './jwt.config';
 import { postgresConfig } from './db.config';
 import { pgAdminConfig } from './db.config';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 // Этот файл теперь будет просто объединять все конфигурации
 // Можно оставить его для обратной совместимости или удалить, если не нужен

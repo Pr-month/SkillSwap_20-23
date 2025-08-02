@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import { DataSourceOptions } from 'typeorm';
-import * as dotenv from 'dotenv';
 dotenv.config();
 
 dotenv.config();

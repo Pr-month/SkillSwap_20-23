@@ -1,5 +1,7 @@
 import { registerAs } from '@nestjs/config';
 import { dbConfig } from './db-config';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 export const configuration = registerAs('APP_CONFIG', () => ({
   // Приложение

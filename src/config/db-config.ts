@@ -1,4 +1,6 @@
 import { DataSourceOptions } from 'typeorm';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 export const dbConfig: DataSourceOptions = {
   type: 'postgres',
@@ -9,3 +11,5 @@ export const dbConfig: DataSourceOptions = {
   username: process.env.DB_USER || 'skillswapuser',
   password: process.env.DB_PASSWORD || 'skillswapuserpassword',
 };
+
+// .env fix from https://github.com/Pr-month/SkillSwap_20-23/blob/week3-fenyadim/src/config/db-config.ts

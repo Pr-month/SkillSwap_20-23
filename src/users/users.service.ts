@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   ConflictException,
+  HttpException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -34,6 +36,10 @@ export class UsersService {
     });
 
     const totalPages = Math.ceil(total / take);
+
+    if (page > totalPages) throw new HttpException(
+        'Страница не найдена', HttpStatus.NOT_FOUND,
+    );
 
     return {
       data: users,

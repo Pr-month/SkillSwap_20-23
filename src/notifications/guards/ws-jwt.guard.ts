@@ -5,6 +5,7 @@ import { Socket } from 'socket.io';
 import { SocketWithUser } from './types';
 import { WsException } from '@nestjs/websockets';
 import { JwtPayload } from 'src/auth/auth.types';
+import { IJwtConfig } from 'src/config/config.types';
 
 @Injectable()
 export class JwtWsGuard {
@@ -15,6 +16,7 @@ export class JwtWsGuard {
   ) {}
 
   verify(client: Socket): SocketWithUser {
+    const jwtConfig = this.configService.get<IJwtConfig>('JWT');
     const token = client.handshake.query?.token;
 
     if (!token) {
@@ -27,9 +29,7 @@ export class JwtWsGuard {
 
     try {
       const user: JwtPayload = this.jwtService.verify(token, {
-        secret:
-          this.configService.get<string>('JWT_ACCESS_SECRET') ||
-          'defaultSecretKey',
+        secret: jwtConfig?.accessSecret || 'superSecretValue',
       });
       (client as SocketWithUser).data = {
         user,

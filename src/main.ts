@@ -4,6 +4,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionFilter } from './common/all-exception.filter';
 import { WinstonLogger } from './logger/winston-logger';
+import { ConfigService } from '@nestjs/config';
+import { IAppConfig } from './config/config.types';
 
 async function bootstrap() {
   dotenv.config();
@@ -12,6 +14,15 @@ async function bootstrap() {
     logger: new WinstonLogger(),
   });
 
+  const configService = app.get(ConfigService);
+  const appConfig = configService.get<IAppConfig>('APP') || {
+    port: 3000,
+    env: 'development',
+    fileUploads: {
+      destination: './public/uploads',
+      limit: 2097152,
+    },
+  };
   const logger = app.get(WinstonLogger);
 
   app.useLogger(logger);
@@ -24,17 +35,20 @@ async function bootstrap() {
     }),
   );
 
+  logger.log(`Environment: ${appConfig.env}`, 'Bootstrap'); //логирование окружения
+  logger.log(`Starting server on port ${appConfig.port}...`, 'Bootstrap');
+
+  await app.listen(appConfig.port);
+
   logger.log(
-    `Application started on port ${process.env.PORT || 3000}`,
+    `Server successfully started and listening on http://localhost:${appConfig.port}`,
     'Bootstrap',
-  ); //логирование порта приложения
-  logger.log(
-    `Environment: ${process.env.NODE_ENV || 'development'}`,
-    'Bootstrap',
-  ); //логирование окружения
-  await app.listen(process.env.PORT ?? 3000);
+  );
 }
 
 // ЗАТЫЧКА ЛИНТИНГА
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-bootstrap();
+
+bootstrap().catch((error) => {
+  console.error('Error starting application:', error);
+  process.exit(1);
+});

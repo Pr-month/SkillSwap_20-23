@@ -3,7 +3,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -14,6 +13,9 @@ import { Repository } from 'typeorm';
 import { JwtPayload } from './auth.types';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { IJwtConfig } from '../config/config.types';
+import { Inject } from '@nestjs/common';
+import { jwtConfig } from '../config/jwt.config';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +23,8 @@ export class AuthService {
     @InjectRepository(User) private userRepository: Repository<User>,
     private userService: UsersService,
     private jwtService: JwtService,
-    private configService: ConfigService,
+    @Inject(jwtConfig.KEY)
+    private readonly jwtSettings: IJwtConfig,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -33,7 +36,10 @@ export class AuthService {
       throw new ConflictException('User with this email already exists!');
     }
 
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    const hashedPassword = await bcrypt.hash(
+      registerDto.password,
+      this.jwtSettings.hashSaltRounds,
+    );
 
     const user = this.userRepository.create({
       ...registerDto,
@@ -42,7 +48,10 @@ export class AuthService {
 
     const tokens = await this._getTokens(user);
 
-    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    const hashedRefreshToken = await bcrypt.hash(
+      tokens.refreshToken,
+      this.jwtSettings.hashSaltRounds,
+    );
     await this.userRepository.save({
       ...user,
       refreshToken: hashedRefreshToken,
@@ -74,7 +83,10 @@ export class AuthService {
 
     const tokens = await this._getTokens(user);
 
-    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    const hashedRefreshToken = await bcrypt.hash(
+      tokens.refreshToken,
+      this.jwtSettings.hashSaltRounds,
+    );
     await this.userRepository.update(user.id, {
       refreshToken: hashedRefreshToken,
     });
@@ -105,7 +117,10 @@ export class AuthService {
       throw new UnauthorizedException('Access denied!');
     }
 
-    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    const hashedRefreshToken = await bcrypt.hash(
+      tokens.refreshToken,
+      this.jwtSettings.hashSaltRounds,
+    );
 
     await this.userService.updateUserById(user.id, {
       ...user,
@@ -136,13 +151,13 @@ export class AuthService {
     };
 
     const accessToken = await this.jwtService.signAsync(payload, {
-      secret: this.configService.get('JWT_ACCESS_SECRET'),
-      expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION') || '15m',
+      secret: this.jwtSettings.accessSecret,
+      expiresIn: this.jwtSettings.accessExpiration,
     });
 
     const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: this.configService.get('JWT_REFRESH_SECRET'),
-      expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION'),
+      secret: this.jwtSettings.refreshSecret,
+      expiresIn: this.jwtSettings.refreshExpiration,
     });
 
     return { accessToken, refreshToken };

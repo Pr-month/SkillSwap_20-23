@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Category } from '../../categories/entities/category.entity';
 import { Gender, Role } from '../../common/types';
 import { Skill } from '../../skills/entities/skill.entity';
+import { Request } from '../../requests/entities/request.entity';
 
 // @Exclude() // По умолчанию все поля исключены
 // @Expose() // Явно указываем, что поле нужно включать
@@ -70,6 +71,13 @@ export class User {
     cascade: true,
   })
   skills?: Skill[];
+
+  // Добавляем связи с заявками
+  @OneToMany(() => Request, (request) => request.sender)
+  sentRequests?: Request[];
+
+  @OneToMany(() => Request, (request) => request.receiver)
+  receivedRequests?: Request[];
 
   @ManyToMany(() => Skill, { eager: true })
   @JoinTable()

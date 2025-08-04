@@ -1,7 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Category } from '../../categories/entities/category.entity';
 import { User } from '../../users/entities/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  OneToMany,
+} from 'typeorm';
+import { Request } from '../../requests/entities/request.entity';
 
 @Entity('skill')
 export class Skill {
@@ -30,6 +38,13 @@ export class Skill {
   })
   @JoinColumn({ name: 'ownerId' })
   owner: User;
+
+  // Добавляем связи с заявками
+  @OneToMany(() => Request, (request) => request.offeredSkill)
+  offeredInRequests?: Request[];
+
+  @OneToMany(() => Request, (request) => request.requestedSkill)
+  requestedInRequests?: Request[];
 
   @ManyToOne(() => Category, (category) => category.id, {
     nullable: false,

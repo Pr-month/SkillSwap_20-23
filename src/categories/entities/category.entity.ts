@@ -5,9 +5,11 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Index,
 } from 'typeorm';
 
 @Entity('category')
+@Index(['name', 'parent'], { unique: true }) // Уникальность имени в рамках одного родителя
 export class Category {
   @PrimaryGeneratedColumn('uuid')
   id: string;

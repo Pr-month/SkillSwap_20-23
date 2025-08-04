@@ -11,4 +11,11 @@ export class notificationPayload {
   type: string;
   skillTitle: string;
   sender: string;
+  reciever: string;
+}
+
+export class sendMessageToUserPayload {
+  text: string;
+  sender: string;
+  reciever: string;
 }

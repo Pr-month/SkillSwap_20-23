@@ -1,41 +1,53 @@
 import {
   WebSocketGateway,
   SubscribeMessage,
-  MessageBody,
+  WebSocketServer,
+  OnGatewayDisconnect,
+  OnGatewayConnection,
 } from '@nestjs/websockets';
 import { NotificationsService } from './notifications.service';
-import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { JwtWsGuard } from './guards/ws-jwt.guard';
+import { notificationPayload, SocketWithUser } from './guards/types';
 
 @WebSocketGateway()
-export class NotificationsGateway {
-  constructor(private readonly notificationsService: NotificationsService) {}
+export class NotificationsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
+  constructor(
+    private readonly notificationsService: NotificationsService,
+    private readonly jwtGuard: JwtWsGuard,
+  ) {}
 
-  @SubscribeMessage('createNotification')
-  create(@MessageBody() createNotificationDto: CreateNotificationDto) {
-    return this.notificationsService.create(createNotificationDto);
+  @WebSocketServer()
+  server: any;
+
+  async handleConnection(client: SocketWithUser) {
+    try {
+      this.jwtGuard.verify(client);
+      await client.join(client.id);
+      console.log('Client connected:', client.data.user);
+    } catch (error) {
+      client.disconnect();
+      throw error;
+    }
   }
 
-  @SubscribeMessage('findAllNotifications')
-  findAll() {
-    return this.notificationsService.findAll();
+  async handleDisconnect(client: SocketWithUser) {
+    await client.leave(client.id);
+    console.log('Client disconnected:', client.id);
   }
 
-  @SubscribeMessage('findOneNotification')
-  findOne(@MessageBody() id: number) {
-    return this.notificationsService.findOne(id);
+  notifyUser(id: string, client: SocketWithUser, payload: notificationPayload) {
+    const payloadMessage = `${payload.type}\n Поступило уведомление от ${payload.sender} о навыке ${payload.skillTitle}!`;
+    client.to(id).emit('notificateNewRequest', payloadMessage);
   }
 
-  @SubscribeMessage('updateNotification')
-  update(@MessageBody() updateNotificationDto: UpdateNotificationDto) {
-    return this.notificationsService.update(
-      updateNotificationDto.id,
-      updateNotificationDto,
-    );
-  }
-
-  @SubscribeMessage('removeNotification')
-  remove(@MessageBody() id: number) {
-    return this.notificationsService.remove(id);
+  @SubscribeMessage('msgToServer')
+  handleMessage(client: SocketWithUser, payload: string): string {
+    return 'Message received: ' + payload;
   }
 }
+
+// TO DO
+// При создании заказа отправляем уведомление:
+// this.requestsGateway.notifyNewRequest(id владельца навыка, `Поступила новая заявка от ${отправитель}`);

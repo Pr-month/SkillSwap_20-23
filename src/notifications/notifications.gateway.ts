@@ -24,6 +24,7 @@ export class NotificationsGateway
 
   @SubscribeMessage('Message')
   onNewMessage(@MessageBody() body: any) {
+    // This here is for testing the functionality
     console.log(body);
   }
 
@@ -43,7 +44,11 @@ export class NotificationsGateway
     console.log('Client disconnected:', client.id);
   }
 
-  notifyUser(id: string, client: SocketWithUser, payload: notificationPayload) {
+  notifyNewRequest(
+    id: string,
+    client: SocketWithUser,
+    payload: notificationPayload,
+  ) {
     const payloadMessage = `${payload.type}\n Поступило уведомление от ${payload.sender} о навыке ${payload.skillTitle}!`;
     client.to(id).emit('notificateNewRequest', payloadMessage);
   }

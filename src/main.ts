@@ -15,7 +15,7 @@ async function bootstrap() {
   });
 
   const configService = app.get(ConfigService);
-  const appConfig = configService.get<IAppConfig>('APP')  || {
+  const appConfig = configService.get<IAppConfig>('APP') || {
     port: 3000,
     env: 'development',
     fileUploads: {
@@ -35,14 +35,8 @@ async function bootstrap() {
     }),
   );
 
-  logger.log(
-    `Application started on port ${appConfig.port}`,
-    'Bootstrap',
-  ); //логирование порта приложения
-  logger.log(
-    `Environment: ${appConfig.env}`,
-    'Bootstrap',
-  ); //логирование окружения
+  logger.log(`Application started on port ${appConfig.port}`, 'Bootstrap'); //логирование порта приложения
+  logger.log(`Environment: ${appConfig.env}`, 'Bootstrap'); //логирование окружения
   await app.listen(appConfig.port);
 }
 

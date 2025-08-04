@@ -20,19 +20,32 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Controller('requests')
 export class RequestsController {
-    constructor(private readonly requestsService: RequestsService) { }
+  constructor(private readonly requestsService: RequestsService) {}
 
   @Post()
   @UseGuards(AccessTokenGuard)
   async create(
     @Body() createRequestDto: CreateRequestDto,
-    @Req() req: AuthenticatedRequest,) {
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.requestsService.create(createRequestDto, req.user.sub);
   }
-  
+
   @Get()
   findAll() {
     return this.requestsService.findAll();
+  }
+
+  @Get('incoming')
+  @UseGuards(AccessTokenGuard)
+  findIncoming(@Req() req: AuthenticatedRequest) {
+    return this.requestsService.findIncoming(req.user.sub);
+  }
+
+  @Get('outgoing')
+  @UseGuards(AccessTokenGuard)
+  findOutgoing(@Req() req: AuthenticatedRequest) {
+    return this.requestsService.findOutgoing(req.user.sub);
   }
 
   @Get(':id')
@@ -44,10 +57,11 @@ export class RequestsController {
   @UseGuards(AccessTokenGuard, RolesGuard)
   @HasRoles(Role.ADMIN, Role.USER) // Только админ или пользователь
   update(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Body() updateRequestDto: UpdateRequestDto,
-    @Req() req: AuthenticatedRequest ) {
-    return this.requestsService.update(id, updateRequestDto, req.user );
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.requestsService.update(id, updateRequestDto, req.user);
   }
 
   @Delete(':id')

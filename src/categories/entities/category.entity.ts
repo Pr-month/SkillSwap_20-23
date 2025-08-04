@@ -5,7 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  Index
+  Index,
 } from 'typeorm';
 
 @Entity('category')

@@ -9,7 +9,7 @@ import {
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { Request } from './entities/request.entity';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Skill } from '../skills/entities/skill.entity';
 import { User } from '../users/entities/user.entity';
@@ -26,7 +26,7 @@ export class RequestsService {
     private skillRepository: Repository<Skill>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async create(createRequestDto: CreateRequestDto, senderId: string) {
     // Проверяем существование отправителя
@@ -70,6 +70,32 @@ export class RequestsService {
     return this.requestRepository.find();
   }
 
+  async findIncoming(userId: string) {
+    return this.requestRepository.find({
+      where: {
+        receiver: { id: userId },
+        status: In([ReqStatus.PENDING, ReqStatus.INPROGRESS]),
+      },
+      relations: ['sender', 'offeredSkill', 'requestedSkill'],
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
+  async findOutgoing(userId: string) {
+    return this.requestRepository.find({
+      where: {
+        sender: { id: userId },
+        status: In([ReqStatus.PENDING, ReqStatus.INPROGRESS]),
+      },
+      relations: ['receiver', 'offeredSkill', 'requestedSkill'],
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
   findOne(id: string) {
     return this.requestRepository.findOne({ where: { id } });
   }
@@ -110,13 +136,16 @@ export class RequestsService {
 
   async remove(userId: string, requestId: string) {
     try {
-      const user = await this.userRepository.findOneOrFail({ where: { id: userId } });
+      const user = await this.userRepository.findOneOrFail({
+        where: { id: userId },
+      });
       const request = await this.requestRepository.findOneOrFail({
         where: { id: requestId },
         relations: ['sender'],
       });
 
-      if (!request.sender) throw new BadRequestException('Reques has no sender');
+      if (!request.sender)
+        throw new BadRequestException('Reques has no sender');
 
       if (user.id === request.sender.id || user.role == Role.ADMIN)
         return await this.requestRepository.remove(request);
@@ -125,12 +154,12 @@ export class RequestsService {
           'You do not have permission to delete this request',
         );
       }
-
     } catch (error) {
       if (
         error instanceof ForbiddenException ||
         error instanceof BadRequestException
-      ) throw error;
+      )
+        throw error;
       throw new InternalServerErrorException(
         'Failed to delete request',
         String(error),

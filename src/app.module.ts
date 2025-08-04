@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataSourceOptions } from 'typeorm';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
-import { AppDataSource } from './config/data-source';
 import { AuthModule } from './auth/auth.module';
 import { AccessTokenStrategy } from './auth/strategies/access-token.strategy';
 import { UploadModule } from './upload/upload.module';
@@ -48,7 +48,11 @@ import { IJwtConfig } from './config/config.types';
       },
       serveRoot: '/public',
     }),
-    TypeOrmModule.forRoot(AppDataSource.options),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [dbConfig.KEY],
+      useFactory: (config: DataSourceOptions) => config,
+    }),
     UsersModule,
     AuthModule,
     UploadModule,

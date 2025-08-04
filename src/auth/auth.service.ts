@@ -13,7 +13,6 @@ import { Repository } from 'typeorm';
 import { JwtPayload } from './auth.types';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { Role } from 'src/common/types';
 import { IJwtConfig } from '../config/config.types';
 import { Inject } from '@nestjs/common';
 import { jwtConfig } from '../config/jwt.config';

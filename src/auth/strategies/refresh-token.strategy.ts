@@ -13,11 +13,12 @@ export class RefreshTokenStrategy extends PassportStrategy(
 ) {
   constructor(
     @Inject(jwtConfig.KEY)
-    private readonly jwtSettings: IJwtConfig,) {
+    private readonly jwtSettings: IJwtConfig,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey:jwtSettings.refreshSecret,
+      secretOrKey: jwtSettings.refreshSecret,
       passReqToCallback: true,
     });
   }

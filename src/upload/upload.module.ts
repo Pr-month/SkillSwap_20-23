@@ -5,6 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { diskStorage } from 'multer';
 import { Request } from 'express';
+import { extname } from 'path';
 
 export interface IFileUploadeConfig {
   destination: string;
@@ -32,8 +33,12 @@ export interface IFileUploadeConfig {
               file: Express.Multer.File,
               cb: (error: Error | null, filename: string) => void,
             ): void => {
-              const filename = `${Date.now()}${file.originalname}`;
-              cb(null, filename);
+              const ext = extname(file.originalname);
+              const baseName = file.originalname
+                .replace(ext, '')
+                .replace(/[^a-zA-Z0-9-_]/g, '_');
+              const uniqueName = `${Date.now()}${baseName}${ext}`;
+              cb(null, uniqueName);
             },
           }),
         };

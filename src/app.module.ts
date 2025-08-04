@@ -2,8 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { configuration } from './config/configuration';
+import { ConfigModule } from '@nestjs/config';
 import { AppDataSource } from './config/data-source';
 import { AuthModule } from './auth/auth.module';
 import { AccessTokenStrategy } from './auth/strategies/access-token.strategy';
@@ -12,26 +11,42 @@ import { SkillsModule } from './skills/skills.module';
 import { CategoriesModule } from './categories/categories.module';
 import { WinstonLogger } from './logger/winston-logger';
 import { RequestsModule } from './requests/requests.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { NotificationsModule } from './notifications/notifications.module';
+import { appConfig } from './config/app.config';
+import { dbConfig } from './config/db.config';
+import { jwtConfig } from './config/jwt.config';
+import { postgresConfig } from './config/db.config';
+import { pgAdminConfig } from './config/db.config';
+import { IJwtConfig } from './config/config.types';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       expandVariables: true,
-      load: [configuration],
+      load: [appConfig, dbConfig, jwtConfig, postgresConfig, pgAdminConfig],
       envFilePath: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env',
     }),
     JwtModule.registerAsync({
       global: true, // Делаем модуль глобальным
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get('JWT_ACCESS_SECRET') || 'defaultSecretKey',
+      inject: [jwtConfig.KEY],
+      useFactory: (config: IJwtConfig) => ({
+        secret: config.accessSecret,
         signOptions: {
-          expiresIn: configService.get('JWT_EXPIRATION') || '2h',
+          expiresIn: config.accessExpiration,
         },
       }),
-      inject: [ConfigService],
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      exclude: ['/api*', '/upload*'],
+      serveStaticOptions: {
+        index: false,
+      },
+      serveRoot: '/public',
     }),
     TypeOrmModule.forRoot(AppDataSource.options),
     UsersModule,

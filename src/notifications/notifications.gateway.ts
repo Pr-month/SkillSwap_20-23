@@ -4,6 +4,7 @@ import {
   WebSocketServer,
   OnGatewayDisconnect,
   OnGatewayConnection,
+  MessageBody,
 } from '@nestjs/websockets';
 import { NotificationsService } from './notifications.service';
 import { JwtWsGuard } from './guards/ws-jwt.guard';
@@ -20,6 +21,11 @@ export class NotificationsGateway
 
   @WebSocketServer()
   server: any;
+
+  @SubscribeMessage('Message')
+  onNewMessage(@MessageBody() body: any) {
+    console.log(body);
+  }
 
   async handleConnection(client: SocketWithUser) {
     try {

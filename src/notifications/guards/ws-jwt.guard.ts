@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
@@ -11,13 +11,13 @@ import { IJwtConfig } from 'src/config/config.types';
 export class JwtWsGuard {
   constructor(
     private jwtService: JwtService,
-    @Inject('APP_CONFIG')
     private readonly configService: ConfigService,
   ) {}
 
   verify(client: Socket): SocketWithUser {
     const jwtConfig = this.configService.get<IJwtConfig>('JWT');
     const token = client.handshake.query?.token;
+    console.log(token);
 
     if (!token) {
       throw new WsException('Token is required');

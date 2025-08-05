@@ -8,20 +8,19 @@ import {
 } from '@nestjs/websockets';
 import { NotificationsService } from './notifications.service';
 import { JwtWsGuard } from './guards/ws-jwt.guard';
-import {
-  notificationPayload,
-  sendMessageToUserPayload,
-  SocketWithUser,
-} from './guards/types';
+import { sendMessageToUserPayload, SocketWithUser } from './guards/types';
 import { Server } from 'socket.io';
 import { OnModuleInit } from '@nestjs/common';
 
-@WebSocketGateway(3000, {
-  cors: {
-    origin: '*',
-    credentials: true,
+@WebSocketGateway(
+  Number(process.env.WS_PORT) || Number(process.env.PORT) || 3000,
+  {
+    cors: {
+      origin: '*',
+      credentials: true,
+    },
   },
-})
+)
 export class NotificationsGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
 {
@@ -57,13 +56,17 @@ export class NotificationsGateway
     });
   }
 
+  afterInit(server: Server) {
+    this.notificationsService.socket = server;
+  }
+  /*
   notifyNewRequest(client: any, payload: notificationPayload) {
     const payloadMessage = `${payload.type}\n Поступило уведомление для ${payload.reciever} от ${payload.sender} о навыке ${payload.skillTitle}!`;
     this.server
       .to(payload.reciever)
       .emit('notificateNewRequest', payloadMessage);
   }
-
+  */
   notifyNewMessage(client: any, payload: sendMessageToUserPayload) {
     const payloadMessage = `Поступило письмо для ${payload.reciever} от ${payload.sender}\n${payload.text}!`;
     this.server.to(payload.reciever).emit('sendMessageToUser', payloadMessage);
@@ -73,7 +76,7 @@ export class NotificationsGateway
   handleMessage(client: SocketWithUser, payload: string): string {
     return 'Message received: ' + payload;
   }
-
+  /*
   @SubscribeMessage('testNotifications')
   onNewNotification(client: any, @MessageBody() body: any) {
     // This here is for testing the functionality of notifications
@@ -85,6 +88,7 @@ export class NotificationsGateway
       reciever: '0354a762-8928-427f-81d7-1656f717f39c', // Для теста сюда нужно задать user.ID пользователя
     });
   }
+    */
 
   @SubscribeMessage('sendMessageToUser')
   onNewMessage(client: any, @MessageBody() body: any) {
@@ -97,7 +101,3 @@ export class NotificationsGateway
     });
   }
 }
-
-// TO DO
-// При создании заказа отправляем уведомление:
-// this.requestsGateway.notifyNewRequest(id владельца навыка, `Поступила новая заявка от ${отправитель}`);

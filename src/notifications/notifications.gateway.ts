@@ -16,7 +16,12 @@ import {
 import { Server } from 'socket.io';
 import { OnModuleInit } from '@nestjs/common';
 
-@WebSocketGateway()
+@WebSocketGateway(3000, {
+  cors: {
+    origin: '*',
+    credentials: true,
+  },
+})
 export class NotificationsGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
 {

@@ -13,6 +13,7 @@ import { CreateSkillDto } from './dto/create-skill.dto';
 import { FindSkillsQueryDto } from './dto/find--skills.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
+import * as fs from 'fs';
 
 @Injectable()
 export class SkillsService {
@@ -108,6 +109,18 @@ export class SkillsService {
     });
   }
 
+  deleteImages(imagesArray: string[]) {
+    if (imagesArray.length == 0) {
+      return console.log('Нечего удалять!');
+    }
+    for (const image of imagesArray) {
+      fs.unlink(image, (err) => {
+        if (err) console.log('Не удалось удалить картинку');
+        else console.log(`Картинка удалена: ${image}`);
+      });
+    }
+  }
+
   async remove(userId: string, skillId: string) {
     const user = await this.userService.findUserById(userId);
     const skill = await this.skillRepository.findOneOrFail({
@@ -115,9 +128,10 @@ export class SkillsService {
       relations: ['owner'], // Загружаем связь owner
     });
     if (!skill.owner) throw new BadRequestException('Skill has no owner');
-    if (user.id === skill.owner.id)
+    if (user.id === skill.owner.id) {
+      this.deleteImages(skill.images);
       return await this.skillRepository.remove(skill);
-    else {
+    } else {
       throw new ForbiddenException(
         'You do not have permission to delete this skill',
       );

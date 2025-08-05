@@ -6,6 +6,7 @@ import { AllExceptionFilter } from './common/all-exception.filter';
 import { WinstonLogger } from './logger/winston-logger';
 import { ConfigService } from '@nestjs/config';
 import { IAppConfig } from './config/config.types';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   dotenv.config();
@@ -23,6 +24,16 @@ async function bootstrap() {
       limit: 2097152,
     },
   };
+
+  const configSwagger = new DocumentBuilder()
+    .setTitle('API SkillSwap')
+    .setDescription('Документация API')
+    .setVersion('1.0')
+    .build();
+
+  const documentSwagger = SwaggerModule.createDocument(app, configSwagger);
+
+  SwaggerModule.setup('api/docs', app, documentSwagger);
   const logger = app.get(WinstonLogger);
 
   app.useLogger(logger);

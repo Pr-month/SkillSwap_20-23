@@ -19,9 +19,8 @@ export interface IFileUploadeConfig {
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const fileUploadConfig = config.get<IFileUploadeConfig>(
-          'APP_CONFIG.fileUploads',
-        );
+        const fileUploadConfig =
+          config.get<IFileUploadeConfig>('APP.fileUploads');
         return {
           limits: {
             fileSize: fileUploadConfig?.limit,

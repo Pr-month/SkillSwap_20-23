@@ -36,6 +36,18 @@ export class RequestsController {
     return this.requestsService.findAll();
   }
 
+  @Get('incoming')
+  @UseGuards(AccessTokenGuard)
+  findIncoming(@Req() req: AuthenticatedRequest) {
+    return this.requestsService.findIncoming(req.user.sub);
+  }
+
+  @Get('outgoing')
+  @UseGuards(AccessTokenGuard)
+  findOutgoing(@Req() req: AuthenticatedRequest) {
+    return this.requestsService.findOutgoing(req.user.sub);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.requestsService.findOne(id);

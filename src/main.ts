@@ -35,11 +35,20 @@ async function bootstrap() {
     }),
   );
 
-  logger.log(`Application started on port ${appConfig.port}`, 'Bootstrap'); //логирование порта приложения
   logger.log(`Environment: ${appConfig.env}`, 'Bootstrap'); //логирование окружения
+  logger.log(`Starting server on port ${appConfig.port}...`, 'Bootstrap');
+
   await app.listen(appConfig.port);
+
+  logger.log(
+    `Server successfully started and listening on http://localhost:${appConfig.port}`,
+    'Bootstrap',
+  );
 }
 
 // ЗАТЫЧКА ЛИНТИНГА
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-bootstrap();
+
+bootstrap().catch((error) => {
+  console.error('Error starting application:', error);
+  process.exit(1);
+});

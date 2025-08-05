@@ -9,7 +9,7 @@ import {
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { Request } from './entities/request.entity';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Skill } from '../skills/entities/skill.entity';
 import { User } from '../users/entities/user.entity';
@@ -68,6 +68,32 @@ export class RequestsService {
 
   findAll() {
     return this.requestRepository.find();
+  }
+
+  async findIncoming(userId: string) {
+    return this.requestRepository.find({
+      where: {
+        receiver: { id: userId },
+        status: In([ReqStatus.PENDING, ReqStatus.INPROGRESS]),
+      },
+      relations: ['sender', 'offeredSkill', 'requestedSkill'],
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
+  async findOutgoing(userId: string) {
+    return this.requestRepository.find({
+      where: {
+        sender: { id: userId },
+        status: In([ReqStatus.PENDING, ReqStatus.INPROGRESS]),
+      },
+      relations: ['receiver', 'offeredSkill', 'requestedSkill'],
+      order: {
+        createdAt: 'DESC',
+      },
+    });
   }
 
   findOne(id: string) {

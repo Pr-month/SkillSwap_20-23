@@ -67,9 +67,17 @@ export class SkillsService {
     try {
       const user = await this.userService.findUserById(userId);
 
+      const category = await this.skillRepository.manager.findOneOrFail(
+        'Category',
+        {
+          where: { id: createSkillDto.categoryId },
+        },
+      );
+
       const newSkill = this.skillRepository.create({
         ...createSkillDto,
         owner: { id: user.id },
+        category,
       });
 
       return await this.skillRepository.save(newSkill);

@@ -128,16 +128,16 @@ describe('RolesGuard', () => {
     return {
       // метод для работы с HTTP-контекстом
       switchToHttp: () => ({
-        getRequest: () => ({ user }) as { user?: MockUser }, // возвращаем запрос с пользователем
-        getResponse: () => ({} as Response),   // пустой объект ответа
-        getNext: () => jest.fn() as jest.Mock    // Мок-функция next()
+        getRequest: () => ({ user }), // возвращаем запрос с пользователем
+        getResponse: () => ({}),      // пустой объект ответа
+        getNext: () => jest.fn()      // Мок-функция next()
       }),
       // методы для работы с обработчиками
-      getHandler: () => jest.fn() as jest.Mock,  // Мок обработчика
-      getClass: () => jest.fn() as jest.Mock,      // Мок класса
+      getHandler: () => jest.fn(),     // Мок обработчика
+      getClass: () => jest.fn(),       // Мок класса
       //методы ArgumentsHost
       getArgs: () => [],               // пустой массив аргументов
-      getArgByIndex: (_index: number) => ({}),// пустой объект по индексу
+      getArgByIndex: (index: number) => ({}), // пустой объект по индексу
       // методы для RPC-контекста
       switchToRpc: () => ({
         getContext: () => ({}),        // пустой контекст

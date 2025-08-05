@@ -12,15 +12,12 @@ import { sendMessageToUserPayload, SocketWithUser } from './guards/types';
 import { Server } from 'socket.io';
 import { OnModuleInit } from '@nestjs/common';
 
-@WebSocketGateway(
-  Number(process.env.WS_PORT) || Number(process.env.PORT) || 3000,
-  {
-    cors: {
-      origin: '*',
-      credentials: true,
-    },
+@WebSocketGateway(Number(process.env.WS_PORT) || Number(process.env.PORT), {
+  cors: {
+    origin: '*',
+    credentials: true,
   },
-)
+})
 export class NotificationsGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
 {

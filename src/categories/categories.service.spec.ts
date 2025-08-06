@@ -14,7 +14,6 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 
 describe('CategoriesService', () => {
   let service: CategoriesService;
-  let categoryRepository: Repository<Category>;
 
   // Мок репозитория категорий
   const mockCategoryRepository = {
@@ -38,9 +37,6 @@ describe('CategoriesService', () => {
     }).compile();
 
     service = module.get<CategoriesService>(CategoriesService);
-    categoryRepository = module.get<Repository<Category>>(
-      getRepositoryToken(Category),
-    );
   });
 
   afterEach(() => {

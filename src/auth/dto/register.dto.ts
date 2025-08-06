@@ -34,11 +34,13 @@ export class RegisterDto {
 
   @IsEnum(Gender)
   @IsNotEmpty()
-  gender: Gender;
+  @IsOptional()
+  gender?: Gender;
 
   @IsString()
   @IsNotEmpty()
-  avatar: string;
+  @IsOptional()
+  avatar?: string;
 
   @IsString()
   @IsOptional()

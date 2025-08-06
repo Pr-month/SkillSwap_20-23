@@ -10,8 +10,8 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { Gender } from 'src/common/gender.enum';
-import { Skill } from 'src/skills/entities/skill.entity';
+import { Gender } from '../../common/gender.enum';
+import { Skill } from '../../skills/entities/skill.entity';
 
 export class UpdateUserDto {
   @IsOptional()

@@ -88,17 +88,24 @@ export class CategoriesService {
     const category = await this.categoryRepository.findOneOrFail({
       where: { id },
     });
+  
     // проверка на попытку сделать категорию родителем самой себя
     if (updateCategoryDto.parentId && updateCategoryDto.parentId === id) {
       throw new BadRequestException('Category cannot be parent of itself');
     }
-    const newCategory = { ...category, ...updateCategoryDto };
-    const updatedCategory = (await this.categoryRepository.save(
-      newCategory,
-    )) as Category;
 
-    return updatedCategory;
-  }
+    // Проверяем уникальность имени, если оно изменилось
+    if (updateCategoryDto.name && updateCategoryDto.name !== category.name) {
+      await this.checkCategoryNameUnique(
+        updateCategoryDto.name,
+        updateCategoryDto.parentId || category.parent?.id || null,
+        id
+      );
+    }
+
+    const updatedCategory = { ...category, ...updateCategoryDto };
+      return await this.categoryRepository.save(updatedCategory);
+}
 
   async remove(id: string) {
     //поиск категории по ID и проверку ее существования

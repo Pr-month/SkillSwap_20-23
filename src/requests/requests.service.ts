@@ -15,7 +15,7 @@ import { Skill } from '../skills/entities/skill.entity';
 import { User } from '../users/entities/user.entity';
 import { ReqStatus } from '../common/requests-status.enum';
 import { JwtPayload } from '../auth/auth.types';
-import { Role } from 'src/common/types';
+import { Role } from '../common/types';
 
 @Injectable()
 export class RequestsService {

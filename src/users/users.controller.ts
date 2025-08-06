@@ -30,7 +30,6 @@ export class UsersController {
   @UseGuards(AccessTokenGuard)
   @Get('me')
   getMe(@Request() req: AuthenticatedRequest) {
-    console.log(req.user);
     return this.usersService.findUserById(req.user.sub);
   }
 

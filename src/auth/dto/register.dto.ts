@@ -44,6 +44,10 @@ export class RegisterDto {
   @IsOptional()
   city?: string;
 
+  @IsString()
+  @IsOptional()
+  about?: string;
+
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

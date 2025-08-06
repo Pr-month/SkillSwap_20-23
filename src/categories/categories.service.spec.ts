@@ -53,14 +53,7 @@ describe('CategoriesService', () => {
   describe('create', () => {
     it('должен успешно создавать корневую категорию', async () => {
       const createDto: CreateCategoryDto = { name: 'Test Category' };
-      const savedCategory = {
-        id: '1',
-        name: 'Test Category',
-        parent: undefined, // Используем undefined вместо null
-        children: undefined,
-        skills: undefined,
-      };
-
+      
       // Моделируем создание новой категории в сервисе
       const newCategory = new Category();
       newCategory.name = createDto.name;

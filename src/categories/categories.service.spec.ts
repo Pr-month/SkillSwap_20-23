@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository, IsNull } from 'typeorm';
+import { IsNull } from 'typeorm';
 import {
   ConflictException,
   NotFoundException,

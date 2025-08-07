@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository, EntityNotFoundError } from 'typeorm';
+import { EntityNotFoundError } from 'typeorm';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -23,7 +23,6 @@ jest.mock('bcrypt', () => ({
 
 describe('UsersService', () => {
   let service: UsersService;
-  let repository: Repository<User>;
 
   const mockUser: User = {
     id: 'test-user-id',
@@ -62,7 +61,6 @@ describe('UsersService', () => {
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    repository = module.get<Repository<User>>(getRepositoryToken(User));
 
     // Reset all mocks
     jest.clearAllMocks();

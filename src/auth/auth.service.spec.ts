@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UnauthorizedException } from '@nestjs/common';
@@ -21,9 +21,6 @@ jest.mock('bcrypt', () => ({
 
 describe('AuthService', () => {
   let service: AuthService;
-  let usersService: UsersService;
-  let jwtService: JwtService;
-  let userRepository: Repository<User>;
 
   const mockJwtConfig = {
     accessSecret: 'test-access-secret',
@@ -87,9 +84,6 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    usersService = module.get<UsersService>(UsersService);
-    jwtService = module.get<JwtService>(JwtService);
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
 
     // Reset all mocks
     jest.clearAllMocks();
@@ -109,11 +103,11 @@ describe('AuthService', () => {
       const hashedRefreshToken = 'hashedRefreshToken';
       const accessToken = 'accessToken';
       const refreshToken = 'refreshToken';
-      const createdUser = {
+      const createdUser: User = {
         ...mockUser,
         ...registerDto,
         password: hashedPassword,
-      };
+      } as User;
 
       (bcrypt.hash as jest.Mock)
         .mockResolvedValueOnce(hashedPassword)
@@ -157,11 +151,11 @@ describe('AuthService', () => {
       };
       const hashedPassword = 'hashedPassword123';
       const hashedRefreshToken = 'hashedRefreshToken';
-      const createdUser = {
+      const createdUser: User = {
         ...mockUser,
         ...registerDtoWithOptional,
         password: hashedPassword,
-      };
+      } as User;
 
       (bcrypt.hash as jest.Mock)
         .mockResolvedValueOnce(hashedPassword)
@@ -452,7 +446,7 @@ describe('AuthService', () => {
     });
 
     it('should handle user without role', async () => {
-      const userWithoutRole = { ...mockUser, role: undefined };
+      const userWithoutRole: Partial<User> = { ...mockUser, role: undefined };
       const accessToken = 'accessToken';
       const refreshToken = 'refreshToken';
 
@@ -460,7 +454,7 @@ describe('AuthService', () => {
         .mockResolvedValueOnce(accessToken)
         .mockResolvedValueOnce(refreshToken);
 
-      const result = await service._getTokens(userWithoutRole as any);
+      const result = await service._getTokens(userWithoutRole as User);
 
       expect(mockJwtService.signAsync).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -559,13 +553,15 @@ describe('AuthService', () => {
 
     it('should handle concurrent token generation', async () => {
       // Mock implementation that returns different values based on the payload
-      mockJwtService.signAsync.mockImplementation((payload, options) => {
-        if (options.secret === mockJwtConfig.accessSecret) {
-          return Promise.resolve(`access-${payload.sub}`);
-        } else {
-          return Promise.resolve(`refresh-${payload.sub}`);
-        }
-      });
+      mockJwtService.signAsync.mockImplementation(
+        (payload: JwtPayload, options: { secret: string }) => {
+          if (options.secret === mockJwtConfig.accessSecret) {
+            return Promise.resolve(`access-${payload.sub}`);
+          } else {
+            return Promise.resolve(`refresh-${payload.sub}`);
+          }
+        },
+      );
 
       // Simulate concurrent token generation
       const [result1, result2] = await Promise.all([

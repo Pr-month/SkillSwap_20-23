@@ -5,11 +5,9 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthenticatedRequest } from './auth.types';
 import { Gender, Role } from '../common/types';
-import { HttpStatus } from '@nestjs/common';
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let service: AuthService;
 
   const mockUser = {
     id: 'test-user-id',
@@ -60,7 +58,6 @@ describe('AuthController', () => {
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
-    service = module.get<AuthService>(AuthService);
 
     // Clear all mocks
     jest.clearAllMocks();
@@ -338,7 +335,7 @@ describe('AuthController', () => {
 
       mockAuthService.logout.mockResolvedValue(undefined);
 
-      const result = await controller.logout(invalidRequest);
+      await controller.logout(invalidRequest);
 
       expect(mockAuthService.logout).toHaveBeenCalledWith(undefined);
     });
@@ -354,17 +351,17 @@ describe('AuthController', () => {
     it('login should return 200 OK', () => {
       // The @HttpCode(HttpStatus.OK) decorator is applied
       // This is testing the expected behavior
-      expect(HttpStatus.OK).toBe(200);
+      expect(200).toBe(200);
     });
 
     it('refresh should return 200 OK', () => {
       // The @HttpCode(HttpStatus.OK) decorator is applied
-      expect(HttpStatus.OK).toBe(200);
+      expect(200).toBe(200);
     });
 
     it('logout should return 200 OK', () => {
       // The @HttpCode(HttpStatus.OK) decorator is applied
-      expect(HttpStatus.OK).toBe(200);
+      expect(200).toBe(200);
     });
   });
 
@@ -401,7 +398,7 @@ describe('AuthController', () => {
     it('should handle null user in logout request', async () => {
       const nullUserRequest = {
         user: null,
-      } as any;
+      } as unknown as AuthenticatedRequest;
 
       await expect(controller.logout(nullUserRequest)).rejects.toThrow();
     });

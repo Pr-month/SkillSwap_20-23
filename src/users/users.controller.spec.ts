@@ -6,11 +6,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdatePasswordDto } from './dto/password-update.dto';
 import { AuthenticatedRequest } from '../auth/auth.types';
 import { Gender, Role } from '../common/types';
-import { HttpStatus } from '@nestjs/common';
 
 describe('UsersController', () => {
   let controller: UsersController;
-  let service: UsersService;
 
   const mockUser = {
     id: 'test-user-id',
@@ -57,7 +55,6 @@ describe('UsersController', () => {
     }).compile();
 
     controller = module.get<UsersController>(UsersController);
-    service = module.get<UsersService>(UsersService);
 
     // Clear all mocks
     jest.clearAllMocks();

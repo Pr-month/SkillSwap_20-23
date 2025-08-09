@@ -39,6 +39,11 @@ export class UsersController {
     return this.usersService.findUserById(id);
   }
 
+  @Get('by-skill/:id')
+  async findBySkill(@Param('id') skillId: string) {
+    return this.usersService.findUserBySkillId(skillId);
+  }
+
   @UseGuards(AccessTokenGuard)
   @Patch('me')
   async updateMe(

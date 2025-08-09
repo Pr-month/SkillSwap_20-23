@@ -1,29 +1,39 @@
 import {
   BadRequestException,
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
   Query,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as fs from 'fs';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { FindSkillsQueryDto } from './dto/find--skills.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
-import * as fs from 'fs';
 
 @Injectable()
 export class SkillsService {
   constructor(
     @InjectRepository(Skill) private skillRepository: Repository<Skill>,
+    @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
   ) {}
 
   async findOne(skillId: string): Promise<Skill> {
     return await this.skillRepository.findOneOrFail({ where: { id: skillId } });
+  }
+
+  async findOneWithCategory(skillId: string): Promise<Skill> {
+    return await this.skillRepository.findOneOrFail({
+      where: { id: skillId },
+      relations: ['category'],
+    });
   }
 
   async findAll(@Query() query: FindSkillsQueryDto) {

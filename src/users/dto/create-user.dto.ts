@@ -8,7 +8,7 @@ import {
   IsUrl,
   IsUUID,
 } from 'class-validator';
-import { Gender } from 'src/common/gender.enum';
+import { Gender } from '../../common/gender.enum';
 import { User } from '../entities/user.entity';
 
 export class CreateUserDto extends PartialType(User) {
@@ -34,7 +34,7 @@ export class CreateUserDto extends PartialType(User) {
 
   @IsOptional()
   @IsEnum(Gender)
-  gender: Gender;
+  gender?: Gender;
 
   @IsString()
   @IsOptional()
@@ -42,7 +42,7 @@ export class CreateUserDto extends PartialType(User) {
 
   @IsOptional()
   @IsUrl()
-  avatar: string;
+  avatar?: string;
 
   @IsOptional()
   @IsString()

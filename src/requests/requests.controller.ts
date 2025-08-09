@@ -13,7 +13,7 @@ import { RequestsService } from './requests.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { AuthenticatedRequest } from '../auth/auth.types';
-import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { HasRoles } from '../auth/decorators/roles.decorator';
 import { Role } from '../common/types';
 import { RolesGuard } from '../auth/guards/roles.guard';

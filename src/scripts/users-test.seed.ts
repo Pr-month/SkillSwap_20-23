@@ -11,10 +11,12 @@ async function seed() {
     const password = await bcrypt.hash('test123', 10);
 
     for (const user of TestUsersData) {
-      userRepo.create({
-        ...user,
-        password: password,
-      });
+      await userRepo.save(
+        userRepo.create({
+          ...user,
+          password: password,
+        }),
+      );
     }
 
     console.log('Пользователи успешно добавлены в базу данных');

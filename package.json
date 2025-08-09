@@ -23,7 +23,8 @@
     "docker:pgadmin:console": "docker exec -it pgadmin /bin/bash",
     "docker:database:console": "docker exec -it database /bin/bash",
     "seed:categories": "ts-node -r tsconfig-paths/register src/scripts/categories.seed.ts",
-    "seed:users": "ts-node -r tsconfig-paths/register src/scripts/users-admin.seed.ts"
+    "seed:admin": "ts-node -r tsconfig-paths/register src/scripts/users-admin.seed.ts",
+    "seed:users": "ts-node -r tsconfig-paths/register src/scripts/users-test.seed.ts"
   },
   "dependencies": {
     "@nestjs/class-transformer": "^0.4.0",

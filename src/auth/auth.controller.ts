@@ -91,7 +91,7 @@ export class AuthController {
   @Post('refresh')
   @UseGuards(RefreshTokenGuard)
   @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Обновление токенов',
     description:
@@ -113,7 +113,7 @@ export class AuthController {
   @Post('logout')
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Выход из системы',
     description: 'Завершает сессию пользователя и аннулирует refresh токен',

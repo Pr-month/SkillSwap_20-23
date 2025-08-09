@@ -64,6 +64,7 @@ export class User {
     type: 'varchar',
     length: 255,
     unique: true,
+    nullable: true,
   })
   @Exclude()
   refreshToken: string;

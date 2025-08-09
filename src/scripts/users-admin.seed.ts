@@ -9,7 +9,7 @@ async function seed() {
   const userRepo = AppDataSource.getRepository(User);
 
   try {
-    const existingAdmin = await userRepo.findOneOrFail({
+    const existingAdmin = await userRepo.findOne({
       where: { role: Role.ADMIN },
     });
     if (existingAdmin) {

@@ -1,4 +1,4 @@
-import { JwtPayload } from 'src/auth/auth.types';
+import { JwtPayload } from '../../auth/auth.types';
 import { Socket } from 'socket.io';
 
 export interface SocketWithUser extends Socket {

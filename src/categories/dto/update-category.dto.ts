@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateCategoryDto } from './create-category.dto';
 import { Category } from '../entities/category.entity';
-import { Skill } from 'src/skills/entities/skill.entity';
+import { Skill } from '../../skills/entities/skill.entity';
 import {
   IsArray,
   IsNotEmpty,

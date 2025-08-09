@@ -8,7 +8,7 @@ import {
   IsUrl,
   IsUUID,
 } from 'class-validator';
-import { Gender } from 'src/common/gender.enum';
+import { Gender } from '../../common/gender.enum';
 import { User } from '../entities/user.entity';
 
 export class CreateUserDto extends PartialType(User) {

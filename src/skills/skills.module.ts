@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from 'src/users/users.module';
 import { Skill } from './entities/skill.entity';
@@ -8,9 +8,10 @@ import { SkillsService } from './skills.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Skill]), // Регистрация репозитория Skill
-    UsersModule,
+    forwardRef(() => UsersModule),
   ],
   controllers: [SkillsController],
   providers: [SkillsService],
+  exports: [SkillsService],
 })
 export class SkillsModule {}

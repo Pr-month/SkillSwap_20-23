@@ -1,8 +1,10 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -10,6 +12,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
+import { SkillsService } from 'src/skills/skills.service';
 import { Repository } from 'typeorm';
 import { QueryParamsDto } from './dto/query-param.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -19,6 +22,8 @@ import { User } from './entities/user.entity';
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    @Inject(forwardRef(() => SkillsService))
+    private skillsService: SkillsService,
   ) {}
 
   async findAll(query: QueryParamsDto): Promise<{
@@ -50,6 +55,17 @@ export class UsersService {
   async findUserById(id: string) {
     const user = await this.userRepository.findOneOrFail({ where: { id } });
     return plainToInstance(User, user);
+  }
+
+  async findUserBySkillId(skillId: string) {
+    const skill = await this.skillsService.findOneWithCategory(skillId);
+
+    return await this.userRepository.find({
+      where: {
+        wantToLearn: { id: skill.category.id },
+      },
+      take: 10,
+    });
   }
 
   async updateUserById(id: string, updateUserDto: UpdateUserDto) {

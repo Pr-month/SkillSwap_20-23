@@ -1,4 +1,4 @@
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 import { Skill } from '../../skills/entities/skill.entity';
 import {
   Column,
@@ -8,7 +8,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ReqStatus } from 'src/common/requests-status.enum';
+import { ReqStatus } from '../../common/requests-status.enum';
 
 @Entity('request')
 export class Request {

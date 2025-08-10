@@ -1,4 +1,4 @@
-import { Role } from 'src/common/types';
+import { Role } from '../common/types';
 
 export interface JwtPayload {
   sub: string; //ID пользователя

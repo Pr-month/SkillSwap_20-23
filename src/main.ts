@@ -1,12 +1,12 @@
-import * as dotenv from 'dotenv';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { AllExceptionFilter } from './common/all-exception.filter';
-import { WinstonLogger } from './logger/winston-logger';
 import { ConfigService } from '@nestjs/config';
-import { IAppConfig } from './config/config.types';
+import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as dotenv from 'dotenv';
+import { AppModule } from './app.module';
+import { AllExceptionFilter } from './common/all-exception.filter';
+import { IAppConfig } from './config/config.types';
+import { WinstonLogger } from './logger/winston-logger';
 
 async function bootstrap() {
   dotenv.config();
@@ -29,6 +29,17 @@ async function bootstrap() {
     .setTitle('API SkillSwap')
     .setDescription('Документация API')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Введите JWT токен',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
     .build();
 
   const documentSwagger = SwaggerModule.createDocument(app, configSwagger);

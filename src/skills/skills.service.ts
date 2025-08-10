@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -13,17 +15,24 @@ import { CreateSkillDto } from './dto/create-skill.dto';
 import { FindSkillsQueryDto } from './dto/find--skills.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
-import * as fs from 'fs';
 
 @Injectable()
 export class SkillsService {
   constructor(
     @InjectRepository(Skill) private skillRepository: Repository<Skill>,
+    @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
   ) {}
 
   async findOne(skillId: string): Promise<Skill> {
     return await this.skillRepository.findOneOrFail({ where: { id: skillId } });
+  }
+
+  async findOneWithCategory(skillId: string): Promise<Skill> {
+    return await this.skillRepository.findOneOrFail({
+      where: { id: skillId },
+      relations: ['category'],
+    });
   }
 
   async findAll(@Query() query: FindSkillsQueryDto) {
@@ -109,17 +118,17 @@ export class SkillsService {
     });
   }
 
-  deleteImages(imagesArray: string[]) {
-    if (imagesArray.length == 0) {
-      return console.log('Нечего удалять!');
-    }
-    for (const image of imagesArray) {
-      fs.unlink(image, (err) => {
-        if (err) console.log('Не удалось удалить картинку');
-        else console.log(`Картинка удалена: ${image}`);
-      });
-    }
-  }
+  // deleteImages(imagesArray: string[]) {
+  //   if (imagesArray.length == 0) {
+  //     return console.log('Нечего удалять!');
+  //   }
+  //   for (const image of imagesArray) {
+  //     fs.unlink(image, (err) => {
+  //       if (err) console.log('Не удалось удалить картинку');
+  //       else console.log(`Картинка удалена: ${image}`);
+  //     });
+  //   }
+  // }
 
   async remove(userId: string, skillId: string) {
     const user = await this.userService.findUserById(userId);
@@ -129,7 +138,7 @@ export class SkillsService {
     });
     if (!skill.owner) throw new BadRequestException('Skill has no owner');
     if (user.id === skill.owner.id) {
-      this.deleteImages(skill.images);
+      // this.deleteImages(skill.images);
       return await this.skillRepository.remove(skill);
     } else {
       throw new ForbiddenException(

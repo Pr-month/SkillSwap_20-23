@@ -1,14 +1,12 @@
 import {
   WebSocketGateway,
-  SubscribeMessage,
   WebSocketServer,
   OnGatewayDisconnect,
   OnGatewayConnection,
-  MessageBody,
 } from '@nestjs/websockets';
 import { NotificationsService } from './notifications.service';
 import { JwtWsGuard } from './guards/ws-jwt.guard';
-import { sendMessageToUserPayload, SocketWithUser } from './guards/types';
+import { SocketWithUser } from './guards/types';
 import { Server } from 'socket.io';
 import { OnModuleInit } from '@nestjs/common';
 
@@ -55,10 +53,5 @@ export class NotificationsGateway
 
   afterInit(server: Server) {
     this.notificationsService.socket = server;
-  }
-
-  notifyNewMessage(client: any, payload: sendMessageToUserPayload) {
-    const payloadMessage = `Поступило письмо для ${payload.reciever} от ${payload.sender}\n${payload.text}!`;
-    this.server.to(payload.reciever).emit('sendMessageToUser', payloadMessage);
   }
 }

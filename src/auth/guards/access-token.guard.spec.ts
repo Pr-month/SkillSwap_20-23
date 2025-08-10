@@ -21,7 +21,7 @@ describe('AccessTokenGuard', () => {
         ConfigModule.forRoot({
           load: [jwtConfig], // настройка ConfigModule с загрузкой конфигурации JWT
         }),
-        PassportModule.register({ defaultStrategy: 'jwt' }),// регистрация PassportModule с стратегией по умолчанию
+        PassportModule.register({ defaultStrategy: 'jwt' }), // регистрация PassportModule с стратегией по умолчанию
         // настройка JwtModule с тестовым секретом
         JwtModule.register({
           secret: testSecret,
@@ -67,8 +67,8 @@ describe('AccessTokenGuard', () => {
   // тестируем метод canActivate
   describe('canActivate', () => {
     // тест: должен пропустить запрос с валидным токеном
-    it('должен пропустить запрос с валидным токеном', async () => {   
-      const token = jwtService.sign({ sub: '123', email: 'test@test.com' });// генерируем валидный токен
+    it('должен пропустить запрос с валидным токеном', async () => {
+      const token = jwtService.sign({ sub: '123', email: 'test@test.com' }); // генерируем валидный токен
       // создаем мок контекста с заголовком Authorization
       const mockContext = createMockContext({
         authorization: `Bearer ${token}`,

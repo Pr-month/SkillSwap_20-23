@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { ReqStatus } from 'src/common/requests-status.enum';
 import { Request } from 'src/requests/entities/request.entity';
+import { sendMessageToUserPayload } from './guards/types';
 
 @Injectable()
 export class NotificationsService {
@@ -34,5 +35,10 @@ export class NotificationsService {
     this.socket
       .to(request.sender.id)
       .emit('notifyRequest', notificationMessage);
+  }
+
+  notifyNewMessage(client: any, payload: sendMessageToUserPayload) {
+    const payloadMessage = `Поступило письмо для ${payload.reciever} от ${payload.sender}\n${payload.text}!`;
+    this.socket.to(payload.reciever).emit('sendMessageToUser', payloadMessage);
   }
 }

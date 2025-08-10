@@ -88,7 +88,7 @@ export class CategoriesService {
     const category = await this.categoryRepository.findOneOrFail({
       where: { id },
     });
-  
+
     // проверка на попытку сделать категорию родителем самой себя
     if (updateCategoryDto.parentId && updateCategoryDto.parentId === id) {
       throw new BadRequestException('Category cannot be parent of itself');
@@ -99,13 +99,13 @@ export class CategoriesService {
       await this.checkCategoryNameUnique(
         updateCategoryDto.name,
         updateCategoryDto.parentId || category.parent?.id || null,
-        id
+        id,
       );
     }
 
     const updatedCategory = { ...category, ...updateCategoryDto };
-      return await this.categoryRepository.save(updatedCategory);
-}
+    return await this.categoryRepository.save(updatedCategory);
+  }
 
   async remove(id: string) {
     //поиск категории по ID и проверку ее существования

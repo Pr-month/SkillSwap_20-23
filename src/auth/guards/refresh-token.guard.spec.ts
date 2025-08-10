@@ -22,7 +22,7 @@ describe('RefreshTokenGuard', () => {
         ConfigModule.forRoot({
           load: [jwtConfig],
         }),
-        PassportModule.register({ defaultStrategy: 'jwt-refresh' }),// регистрация PassportModule с refresh стратегией
+        PassportModule.register({ defaultStrategy: 'jwt-refresh' }), // регистрация PassportModule с refresh стратегией
         // настройка JwtModule с тестовым секретом для refresh токенов
         JwtModule.register({
           secret: testRefreshSecret,
@@ -72,12 +72,12 @@ describe('RefreshTokenGuard', () => {
     // Тест: должен пропустить запрос с валидным refresh токеном
     it('должен пропустить запрос с валидным refresh токеном', async () => {
       // генерируем валидный refresh токен с дополнительным полем refreshToken
-      const token = jwtService.sign({ 
-        sub: '123', 
+      const token = jwtService.sign({
+        sub: '123',
         email: 'test@test.com',
-        refreshToken: 'valid-refresh-token' 
+        refreshToken: 'valid-refresh-token',
       });
-      
+
       // создаем Мок контекста с заголовком Authorization
       const mockContext = createMockContext({
         authorization: `Bearer ${token}`,
@@ -124,15 +124,15 @@ describe('RefreshTokenGuard', () => {
     it('должен выбросить ошибку, если refresh токен просрочен', async () => {
       // генерируем просроченный refresh токен
       const expiredToken = jwt.sign(
-        { 
-          sub: '123', 
+        {
+          sub: '123',
           email: 'test@test.com',
-          refreshToken: 'expired-refresh-token' 
+          refreshToken: 'expired-refresh-token',
         },
         testRefreshSecret,
         { expiresIn: '-1s' }, // токен с истекшим сроком
       );
-      
+
       const mockContext = createMockContext({
         authorization: `Bearer ${expiredToken}`,
       });
@@ -145,12 +145,12 @@ describe('RefreshTokenGuard', () => {
     // дополнительный тест для проверки доступа к request объекту
     // (важно для refresh токенов, так как стратегия использует passReqToCallback)
     it('должен иметь доступ к request объекту', async () => {
-      const token = jwtService.sign({ 
-        sub: '123', 
+      const token = jwtService.sign({
+        sub: '123',
         email: 'test@test.com',
-        refreshToken: 'valid-refresh-token' 
+        refreshToken: 'valid-refresh-token',
       });
-      
+
       // создаем расширенный мок request объекта
       const mockRequest = {
         headers: {
@@ -160,7 +160,7 @@ describe('RefreshTokenGuard', () => {
           refreshToken: 'valid-refresh-token',
         },
       };
-      
+
       const mockContext = {
         switchToHttp: () => ({
           getRequest: () => mockRequest,

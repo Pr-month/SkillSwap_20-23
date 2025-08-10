@@ -46,10 +46,11 @@ export class User {
   @Column({
     type: 'enum',
     enum: Gender,
+    nullable: true,
   })
   gender: Gender;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   avatar: string;
 
   @Column({
@@ -63,6 +64,7 @@ export class User {
     type: 'varchar',
     length: 255,
     unique: true,
+    nullable: true,
   })
   @Exclude()
   refreshToken: string;

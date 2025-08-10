@@ -14,7 +14,7 @@ export const dbConfig = registerAs(
     synchronize: process.env.SYNCHRONIZE === 'true',
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
     migrations: [__dirname + '/../migrations/*{.ts,.js}'],
-  })
+  }),
 );
 
 export const pgAdminConfig = registerAs('PG_ADMIN', () => ({

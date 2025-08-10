@@ -60,7 +60,8 @@ export class RegisterDto {
   })
   @IsEnum(Gender)
   @IsNotEmpty()
-  gender: Gender;
+  @IsOptional()
+  gender?: Gender;
 
   @ApiProperty({
     description: 'URL аватара пользователя',
@@ -68,7 +69,8 @@ export class RegisterDto {
   })
   @IsString()
   @IsNotEmpty()
-  avatar: string;
+  @IsOptional()
+  avatar?: string;
 
   @ApiProperty({
     description: 'Город проживания пользователя',
@@ -78,6 +80,15 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   city?: string;
+
+  @ApiProperty({
+    description: 'Информация о пользователе',
+    example: 'Это описание Иванова Ивана из Москвы.',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  about?: string;
 
   @ApiProperty({
     description: 'Категории навыков, которые пользователь хочет изучить',

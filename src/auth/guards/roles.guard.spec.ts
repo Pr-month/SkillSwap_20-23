@@ -41,7 +41,7 @@ describe('RolesGuard', () => {
       expect(guard.canActivate(mockContext)).toBe(true);
     });
 
-    // Тест 2: Доступ разрешен для ADMIN, указываем, что требуется роль ADMIN
+    // Тест 2: доступ разрешен для ADMIN, указываем, что требуется роль ADMIN
     it('должен разрешить доступ для ADMIN, когда требуется ADMIN', () => {
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN]);
       // создаем контекст с пользователем-ADMIN
@@ -62,14 +62,14 @@ describe('RolesGuard', () => {
       expect(guard.canActivate(mockContext)).toBe(false);
     });
 
-    // Тест 4: Доступ запрещен для неаутентифицированного пользователя
+    // Тест 4: доступ запрещен для неаутентифицированного пользователя
     it('должен запретить доступ, если пользователь не аутентифицирован', () => {
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN]);
       const mockContext = createMockContext(); // контекст без пользователя
       expect(guard.canActivate(mockContext)).toBe(false);
     });
 
-    // Тест 5: Доступ разрешен при наличии одной из требуемых ролей, требуются ADMIN или USER
+    // Тест 5: доступ разрешен при наличии одной из требуемых ролей, требуются ADMIN или USER
     it('должен разрешить доступ, если пользователь имеет одну из требуемых ролей', () => {  
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN, Role.USER]);
       const mockContext = createMockContext({
@@ -96,25 +96,26 @@ describe('RolesGuard', () => {
         sub: '123', 
         role: [Role.USER] // пользователь имеет только USER
       });
-
       // временная модификация guard для теста исключения
-      const originalCanActivate = guard.canActivate.bind(guard);
-      guard.canActivate = (context) => {
-        const result = originalCanActivate(context);
-        if (!result) throw new ForbiddenException();
+      const callGuard = () => {
+        const result = guard.canActivate(mockContext);
+        if (!result) {
+          throw new ForbiddenException();
+        }
         return result;
       };
-      
-      expect(() => guard.canActivate(mockContext)).toThrow(ForbiddenException);
+      expect(callGuard).toThrow(ForbiddenException);
     });
   });
-
   // вспомогательная функция для создания mock ExecutionContext
-  function createMockContext(user?: any): ExecutionContext {
+  function createMockContext(user?: {
+    sub: string;
+    role: Role[];
+  }): ExecutionContext {
     return {
       switchToHttp: () => ({
         getRequest: () => ({
-          user // пользователь передается напрямую в request
+          user
         }),
       }),
       getHandler: () => {},

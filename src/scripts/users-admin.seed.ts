@@ -10,7 +10,7 @@ async function seed() {
 
   try {
     const existingAdmin = await userRepo.findOne({
-      where: { role: Role.ADMIN },
+      where: { email: AdminUsersData.email, role: Role.ADMIN },
     });
     if (existingAdmin) {
       console.log('Администратор уже существует');

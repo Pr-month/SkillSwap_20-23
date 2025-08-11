@@ -15,7 +15,8 @@ import { Skill } from '../skills/entities/skill.entity';
 import { User } from '../users/entities/user.entity';
 import { ReqStatus } from '../common/requests-status.enum';
 import { JwtPayload } from '../auth/auth.types';
-import { Role } from '../common/types';
+import { Role } from 'src/common/types';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class RequestsService {
@@ -26,6 +27,7 @@ export class RequestsService {
     private skillRepository: Repository<Skill>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(createRequestDto: CreateRequestDto, senderId: string) {
@@ -63,6 +65,10 @@ export class RequestsService {
       status: ReqStatus.PENDING,
       isRead: false,
     });
+
+    // Отправляем уведомление о заявке
+    this.notificationsService.notifyNewRequest(request);
+
     return this.requestRepository.save(request);
   }
 
@@ -130,6 +136,9 @@ export class RequestsService {
         request.isRead = true;
       }
     }
+    // Уведомляем о запросе
+    this.notificationsService.notifyUpdateRequest(request);
+
     // Сохраняем обновленный запрос
     return this.requestRepository.save(request);
   }

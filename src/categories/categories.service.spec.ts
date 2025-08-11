@@ -49,7 +49,7 @@ describe('CategoriesService', () => {
   describe('create', () => {
     it('должен успешно создавать корневую категорию', async () => {
       const createDto: CreateCategoryDto = { name: 'Test Category' };
-      
+
       // Моделируем создание новой категории в сервисе
       const newCategory = new Category();
       newCategory.name = createDto.name;
@@ -200,20 +200,20 @@ describe('CategoriesService', () => {
 
     it('должен выбрасывать ConflictException если новое имя не уникально', async () => {
       const updateDto: UpdateCategoryDto = { name: 'Existing Name' };
-      const existingCategory = { 
-        id: '1', 
+      const existingCategory = {
+        id: '1',
         name: 'Original Name',
-        parent: null
+        parent: null,
       };
-      const conflictingCategory = { 
-        id: '2', 
+      const conflictingCategory = {
+        id: '2',
         name: 'Existing Name',
-        parent: null
+        parent: null,
       };
 
       mockCategoryRepository.findOneOrFail.mockResolvedValue(existingCategory);
       mockCategoryRepository.findOne.mockResolvedValue(conflictingCategory);
-  
+
       // Не мокаем save, так как исключение должно быть выброшено до него
       mockCategoryRepository.save.mockImplementation(() => Promise.resolve());
 

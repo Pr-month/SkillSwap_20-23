@@ -9,10 +9,10 @@ async function seed() {
   const userRepo = AppDataSource.getRepository(User);
 
   try {
-    const existingAdmin = await userRepo.findOneOrFail({
-      where: { role: Role.ADMIN },
+    const existingAdmin = await userRepo.findOne({
+      where: { email: AdminUsersData.email, role: Role.ADMIN },
     });
-    if (existingAdmin) {
+    if (existingAdmin && existingAdmin.email === AdminUsersData.email) {
       console.log('Администратор уже существует');
       return;
     }

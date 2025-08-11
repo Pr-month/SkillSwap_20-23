@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
-import { SkillsModule } from 'src/skills/skills.module';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { SkillsModule } from '../skills/skills.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]), // Регистрация репозитория User

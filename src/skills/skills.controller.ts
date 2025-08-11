@@ -10,8 +10,8 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { AuthenticatedRequest } from 'src/auth/auth.types';
-import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
+import { AuthenticatedRequest } from '../auth/auth.types';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { FindSkillsQueryDto } from './dto/find--skills.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';

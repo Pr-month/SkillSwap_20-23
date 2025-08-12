@@ -11,8 +11,8 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { AuthenticatedRequest } from 'src/auth/auth.types';
-import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
+import { AuthenticatedRequest } from '../auth/auth.types';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { UpdatePasswordDto } from './dto/password-update.dto';
 import { QueryParamsDto } from './dto/query-param.dto';
 import { UpdateUserDto } from './dto/update-user.dto';

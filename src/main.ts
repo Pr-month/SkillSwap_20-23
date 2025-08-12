@@ -69,7 +69,6 @@ async function bootstrap() {
 }
 
 // ЗАТЫЧКА ЛИНТИНГА
-
 bootstrap().catch((error) => {
   console.error('Error starting application:', error);
   process.exit(1);

@@ -119,17 +119,17 @@ export class SkillsService {
     });
   }
 
-  deleteImages(imagesArray: string[]) {
-    if (imagesArray.length == 0) {
-      return console.log('Нечего удалять!');
-    }
-    for (const image of imagesArray) {
-      fs.unlink(image, (err) => {
-        if (err) console.log('Не удалось удалить картинку');
-        else console.log(`Картинка удалена: ${image}`);
-      });
-    }
-  }
+  // deleteImages(imagesArray: string[]) {
+  //   if (imagesArray.length == 0) {
+  //     return console.log('Нечего удалять!');
+  //   }
+  //   for (const image of imagesArray) {
+  //     fs.unlink(image, (err) => {
+  //       if (err) console.log('Не удалось удалить картинку');
+  //       else console.log(`Картинка удалена: ${image}`);
+  //     });
+  //   }
+  // }
 
   async remove(userId: string, skillId: string) {
     const user = await this.userService.findUserById(userId);
@@ -139,7 +139,7 @@ export class SkillsService {
     });
     if (!skill.owner) throw new BadRequestException('Skill has no owner');
     if (user.id === skill.owner.id) {
-      this.deleteImages(skill.images);
+      // this.deleteImages(skill.images);
       return await this.skillRepository.remove(skill);
     } else {
       throw new ForbiddenException(

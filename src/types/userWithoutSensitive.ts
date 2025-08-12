@@ -1,5 +1,5 @@
-import { Gender } from 'src/common/gender.enum';
-import { Role } from 'src/common/types';
+import { Gender } from '../common/gender.enum';
+import { Role } from '../common/types';
 
 export interface IUserWithoutSensitive {
   id: string;

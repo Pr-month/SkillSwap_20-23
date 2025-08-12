@@ -27,7 +27,11 @@ import { IJwtConfig } from './config/config.types';
       isGlobal: true,
       expandVariables: true,
       load: [appConfig, dbConfig, jwtConfig, postgresConfig, pgAdminConfig],
-      envFilePath: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env',
+      envFilePath:
+        process.env.NODE_ENV === 'production'
+          ? '.env.prod'
+          : `.env.${process.env.NODE_ENV || 'development'}`,
+      // envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
     JwtModule.registerAsync({
       global: true, // Делаем модуль глобальным

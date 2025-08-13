@@ -7,6 +7,7 @@ import {
   IsString,
   IsUrl,
   IsUUID,
+  MinLength,
 } from 'class-validator';
 import { Gender } from '../../common/gender.enum';
 import { User } from '../entities/user.entity';
@@ -24,6 +25,7 @@ export class CreateUserDto extends PartialType(User) {
   email: string;
 
   @IsString()
+  @MinLength(8)
   password: string;
 
   @IsOptional()

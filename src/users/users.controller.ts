@@ -40,7 +40,7 @@ export class UsersController {
 
   @Get('by-skill/:id')
   async findBySkill(@Param('id') skillId: string) {
-    return this.usersService.findUsersBySkillId(skillId);
+    return this.usersService.findUserBySkillId(skillId);
   }
 
   @UseGuards(AccessTokenGuard)

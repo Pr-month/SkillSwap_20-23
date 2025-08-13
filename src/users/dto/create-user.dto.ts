@@ -10,6 +10,8 @@ import {
 } from 'class-validator';
 import { Gender } from '../../common/gender.enum';
 import { User } from '../entities/user.entity';
+import { Category } from 'src/categories/entities/category.entity';
+import { Type } from 'class-transformer';
 
 export class CreateUserDto extends PartialType(User) {
   @IsUUID()
@@ -47,4 +49,8 @@ export class CreateUserDto extends PartialType(User) {
   @IsOptional()
   @IsString()
   refreshToken?: string;
+
+  @IsOptional()
+  @Type(() => Category)
+  wantToLearn?: Category[];
 }

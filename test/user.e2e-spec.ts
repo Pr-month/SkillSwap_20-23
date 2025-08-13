@@ -1,25 +1,48 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { TestUsersData } from '../src/scripts/users.data';
+import { AllExceptionFilter } from '../src/common/all-exception.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { AppDataSource } from '../src/config/data-source';
 
-describe('AppController (e2e)', () => {
+describe('User module (e2e)', () => {
   let app: INestApplication<App>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    await AppDataSource.initialize();
+    await AppDataSource.runMigrations();
+
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleRef.createNestApplication<NestExpressApplication>();
+    app.useGlobalFilters(new AllExceptionFilter());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: false,
+        forbidNonWhitelisted: false,
+        transform: false,
+      }),
+    );
+    await app.init();
+    /*
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
+    */
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
+    await AppDataSource.destroy();
     await app.close();
   });
 
@@ -28,9 +51,32 @@ describe('AppController (e2e)', () => {
   let someEmail: string;
   let someUser: object;
   let jwtToken: string;
-  const oldPassword = 'test123';
+  const oldPassword = 'oldPassword123';
+
+  it('GET /users/ should return 404 if there are no users.', async () => {
+    await request(app.getHttpServer()).get('/users/').expect(404);
+  });
+
+  it('Pre-test data seeding', async () => {
+    // Сидирование данными
+    for (const user of TestUsersData) {
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ ...user, password: oldPassword })
+        .expect(201);
+    }
+  });
 
   it('GET /users/ should return a list of users.', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/users/')
+      .expect(200);
+    expect(response.body.data).toEqual(
+      expect.arrayContaining([expect.objectContaining(TestUsersData[0])]),
+    );
+  });
+
+  it('GET /users/ populates data for following tests.', async () => {
     const response = await request(app.getHttpServer())
       .get('/users/')
       .expect(200);
@@ -77,14 +123,14 @@ describe('AppController (e2e)', () => {
     expect(response.body).toEqual(
       expect.objectContaining({
         about: 'Testing patching about data for this user',
-        ...someUser,
+        id: someID,
       }),
     );
   });
 
   it('PATCH /users/me/password should change the password of a current user.', async () => {
     // create new password
-    const newPassword = 'testingPasswordChange';
+    const newPassword = 'newPassword';
     await request(app.getHttpServer())
       .patch(`/users/me/password`)
       .set('Authorization', `Bearer ${jwtToken}`)

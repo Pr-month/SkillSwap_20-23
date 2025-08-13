@@ -47,7 +47,7 @@ export class UsersService {
       throw new HttpException('Страница не найдена', HttpStatus.NOT_FOUND);
 
     return {
-      data: users,
+      data: plainToInstance(User, users),
       page,
       totalPages,
     };
@@ -59,9 +59,7 @@ export class UsersService {
   }
 
   // OLD VERSION
-  // ТАкой вопрос. А почему мы ищя пользователя по скилу ищем категорию скила?
-  /*
-  async findUserBySkillId(skillId: string) {
+  async findUsersBySkillId(skillId: string) {
     const skill = await this.skillsService.findOneWithCategory(skillId);
 
     return await this.userRepository.find({
@@ -71,7 +69,7 @@ export class UsersService {
       take: 10,
     });
   }
-    */
+
   // Я предлагаю упростить вот так.
   async findUserBySkillId(skillId: string) {
     const skillOwner = await this.userRepository.findOne({

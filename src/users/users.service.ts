@@ -7,6 +7,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -57,6 +58,9 @@ export class UsersService {
     return plainToInstance(User, user);
   }
 
+  // OLD VERSION
+  // ТАкой вопрос. А почему мы ищя пользователя по скилу ищем категорию скила?
+  /*
   async findUserBySkillId(skillId: string) {
     const skill = await this.skillsService.findOneWithCategory(skillId);
 
@@ -66,6 +70,20 @@ export class UsersService {
       },
       take: 10,
     });
+  }
+    */
+  // Я предлагаю упростить вот так.
+  async findUserBySkillId(skillId: string) {
+    const skillOwner = await this.userRepository.findOne({
+      where: {
+        skills: { id: skillId },
+      },
+    });
+
+    if (!skillOwner) {
+      throw new NotFoundException('Не удалось найти владельца навыка...');
+    }
+    return skillOwner;
   }
 
   async updateUserById(id: string, updateUserDto: UpdateUserDto) {

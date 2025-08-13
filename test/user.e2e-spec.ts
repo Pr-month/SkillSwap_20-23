@@ -79,9 +79,9 @@ describe('User module (e2e)', () => {
     app.useGlobalFilters(new AllExceptionFilter());
     app.useGlobalPipes(
       new ValidationPipe({
-        whitelist: false,
-        forbidNonWhitelisted: false,
-        transform: false,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
       }),
     );
     await app.init();

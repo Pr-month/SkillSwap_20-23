@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
@@ -16,17 +14,58 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppDataSource } from '../src/config/data-source';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { User } from '../src/users/entities/user.entity';
-import { Skill } from '../src/skills/entities/skill.entity';
+// import { Skill } from '../src/skills/entities/skill.entity';
 import { Category } from '../src/categories/entities/category.entity';
 import { Role } from '../src/common/types';
 import { Categories } from '../src/scripts/categories.data';
+import { Skill } from 'src/skills/entities/skill.entity';
+
+// Making DTOs
+export interface SomeUserDTO {
+  email: string;
+  name: string;
+  role: Role;
+}
+
+export interface Tokens {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface AuthResponse {
+  body: {
+    user: User;
+    tokens: Tokens;
+  };
+}
+
+export interface CategoriesResponse {
+  body: Category[];
+}
+
+export interface SkillResponse {
+  body: Skill;
+}
+
+export interface FindAllUsersResponse {
+  body: { data: User[]; page: number; totalPages: number };
+}
 
 describe('User module (e2e)', () => {
   let app: INestApplication<App>;
   let userRepo: Repository<ObjectLiteral>;
   let categoryRepo: Repository<ObjectLiteral>;
-  let skillRepo: Repository<ObjectLiteral>;
   let userPassword: string;
+  let someID: string;
+  let someName: string;
+  let someEmail: string;
+  let someUser: SomeUserDTO;
+  let jwtToken: string;
 
   beforeAll(async () => {
     await AppDataSource.initialize();
@@ -48,7 +87,6 @@ describe('User module (e2e)', () => {
     await app.init();
     userRepo = AppDataSource.getRepository(User);
     categoryRepo = AppDataSource.getRepository(Category);
-    skillRepo = AppDataSource.getRepository(Skill);
 
     try {
       const existingAdmin = await userRepo.findOne({
@@ -95,15 +133,12 @@ describe('User module (e2e)', () => {
         return;
       }
 
-      // создаем все категории с использованием Promise.all для оптимизации
       await Promise.all(
         Categories.map(async (categoryData) => {
-          // Создаем родительскую категорию
           const parentCategory = await categoryRepo.save(
             categoryRepo.create({ name: categoryData.name }),
           );
 
-          // создаем дочерние категории для текущего родителя
           await Promise.all(
             categoryData.children.map((childName) =>
               categoryRepo.save(
@@ -118,7 +153,6 @@ describe('User module (e2e)', () => {
       );
 
       console.log('Тестовая БД успешна заполнена необходимыми значениями.');
-      //await AppDataSource.destroy();
     } catch (error) {
       console.error('Ошибка при подготовке к тестам:', error);
     }
@@ -129,28 +163,8 @@ describe('User module (e2e)', () => {
     await app.close();
   });
 
-  let someID: string;
-  let someName: string;
-  let someEmail: string;
-  let someUser: object;
-  let jwtToken: string;
-
-  /*it('GET /users/ should return 404 if there are no users.', async () => {
-    await request(app.getHttpServer()).get('/users/').expect(404);
-  });*/
-
-  /*it('Pre-test data seeding', async () => {
-    // Сидирование данными
-    for (const user of TestUsersData) {
-      await request(app.getHttpServer())
-        .post('/auth/register')
-        .send({ ...user, password: oldPassword })
-        .expect(201);
-    }
-  });*/
-
   it('GET /users/ should return a list of users.', async () => {
-    const response = await request(app.getHttpServer())
+    const response: FindAllUsersResponse = await request(app.getHttpServer())
       .get('/users/')
       .expect(200);
     expect(response.body.data).toEqual(
@@ -159,7 +173,7 @@ describe('User module (e2e)', () => {
   });
 
   it('GET /users/ populates data for following tests.', async () => {
-    const response = await request(app.getHttpServer())
+    const response: FindAllUsersResponse = await request(app.getHttpServer())
       .get('/users/')
       .expect(200);
     expect(response.body.data).toEqual(
@@ -173,7 +187,7 @@ describe('User module (e2e)', () => {
     someName = response.body.data[i].name;
     someEmail = response.body.data[i].email;
     someUser = { name: someName, email: someEmail, role: Role.USER };
-    
+
     expect(TestUsersData).toEqual(
       expect.arrayContaining([expect.objectContaining(someUser)]),
     );
@@ -187,7 +201,7 @@ describe('User module (e2e)', () => {
   });
 
   it('GET /users/me should return the current user.', async () => {
-    const authResponse = await request(app.getHttpServer())
+    const authResponse: AuthResponse = await request(app.getHttpServer())
       .post('/auth/login')
       .send({ email: someEmail, password: userPassword });
     const authUser = authResponse.body.user;
@@ -225,7 +239,7 @@ describe('User module (e2e)', () => {
       .expect(204);
 
     // test new password
-    const authResponse = await request(app.getHttpServer())
+    const authResponse: AuthResponse = await request(app.getHttpServer())
       .post('/auth/login')
       .send({ email: someEmail, password: newPassword })
       .expect(200);
@@ -235,11 +249,13 @@ describe('User module (e2e)', () => {
   });
 
   it('GET /users/by-skill/:id should return a user.', async () => {
-    const categoriesResponse = await request(app.getHttpServer())
+    const categoriesResponse: CategoriesResponse = await request(
+      app.getHttpServer(),
+    )
       .get('/categories')
       .expect(200);
     const someCategoryID = categoriesResponse.body[0].id;
-    const skillResponse = await request(app.getHttpServer())
+    const skillResponse: SkillResponse = await request(app.getHttpServer())
       .post(`/skills`)
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({

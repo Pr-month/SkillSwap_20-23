@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { ReqStatus } from 'src/common/requests-status.enum';
-import { Request } from 'src/requests/entities/request.entity';
+import { ReqStatus } from '../common/requests-status.enum';
+import { Request } from '../requests/entities/request.entity';
 import { sendMessageToUserPayload } from './guards/types';
 
 @Injectable()

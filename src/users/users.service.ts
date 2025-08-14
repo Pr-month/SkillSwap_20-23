@@ -54,7 +54,12 @@ export class UsersService {
   }
 
   async findUserById(id: string) {
-    const user = await this.userRepository.findOneOrFail({ where: { id } });
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user || user.id !== id) {
+      throw new BadRequestException(
+        `Не удается найти пользователя по указанному ID ${id}`,
+      );
+    }
     return plainToInstance(User, user);
   }
 

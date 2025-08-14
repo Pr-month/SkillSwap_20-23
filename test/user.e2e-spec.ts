@@ -172,6 +172,14 @@ describe('User module (e2e)', () => {
     );
   });
 
+  it('GET /users/ should return have a page and total pages returned .', async () => {
+    const response: FindAllUsersResponse = await request(app.getHttpServer())
+      .get('/users/')
+      .expect(200);
+    expect(response.body.page).toBeGreaterThanOrEqual(1);
+    expect(response.body.totalPages).toBeGreaterThanOrEqual(1);
+  });
+
   it('GET /users/ populates data for following tests.', async () => {
     const response: FindAllUsersResponse = await request(app.getHttpServer())
       .get('/users/')
@@ -200,6 +208,25 @@ describe('User module (e2e)', () => {
     expect(response.body).toEqual(expect.objectContaining(someUser));
   });
 
+  it('GET /users/:id should not return a user with password.', async () => {
+    const response = await request(app.getHttpServer())
+      .get(`/users/${someID}`)
+      .expect(200);
+    expect(response.body).toEqual(expect.objectContaining(someUser));
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    expect(response.body.password).toBeUndefined();
+  });
+
+  it('GET /users/:id should not return a user by a wrong id.', async () => {
+    await request(app.getHttpServer())
+      .get(`/users/12345678-1234-1234-1234-012345678910`)
+      .expect(400);
+  });
+
+  it('GET /users/:id should throw 500 when ID is not a valid UUID.', async () => {
+    await request(app.getHttpServer()).get(`/users/notArealID`).expect(500);
+  });
+
   it('GET /users/me should return the current user.', async () => {
     const authResponse: AuthResponse = await request(app.getHttpServer())
       .post('/auth/login')
@@ -209,10 +236,21 @@ describe('User module (e2e)', () => {
     jwtToken = authResponse.body.tokens.accessToken;
 
     const response = await request(app.getHttpServer())
-      .get(`/users/${someID}`)
+      .get(`/users/me`)
       .set('Authorization', `Bearer ${jwtToken}`)
       .expect(200);
     expect(response.body).toEqual(expect.objectContaining(someUser));
+  });
+
+  it('GET /users/me should not return the current user with a fake jwt token.', async () => {
+    await request(app.getHttpServer())
+      .get(`/users/me`)
+      .set('Authorization', `Bearer fake.jwttoken.token`)
+      .expect(401);
+  });
+
+  it('GET /users/me should not return the current user without a jwt token.', async () => {
+    await request(app.getHttpServer()).get(`/users/me`).expect(401);
   });
 
   it('PATCH /users/me should change user data of a current user.', async () => {
@@ -227,6 +265,21 @@ describe('User module (e2e)', () => {
         id: someID,
       }),
     );
+  });
+
+  it('PATCH /users/me should change user password of a current user.', async () => {
+    await request(app.getHttpServer())
+      .patch(`/users/me`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({ password: 'Got you!' })
+      .expect(400);
+  });
+
+  it('PATCH /users/me should not change user data without jwtToken.', async () => {
+    await request(app.getHttpServer())
+      .patch(`/users/me`)
+      .send({ about: 'Testing patching about data for this user' })
+      .expect(401);
   });
 
   it('PATCH /users/me/password should change the password of a current user.', async () => {

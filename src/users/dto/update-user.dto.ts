@@ -26,12 +26,6 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  @MinLength(6)
-  password?: string;
-
-  @IsOptional()
-  @IsString()
   about?: string | null;
 
   @IsOptional()

@@ -1,13 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+// import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import * as path from 'path';
 import * as fs from 'fs';
 import { MulterExceptionFilter } from '../src/upload/utils/multer-exception.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
+
+interface SuccessResponseBody {
+  message: string;
+  filePath: string;
+}
 
 describe('UploadController (e2e)', () => {
-  let app: INestApplication;
+  // let app: INestApplication;
+  let app: NestExpressApplication;
 
   const fixturesDir = path.join(process.cwd(), 'test', 'fixtures');
   const imagePath = path.join(fixturesDir, 'test-image.jpg');
@@ -29,7 +36,7 @@ describe('UploadController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    // app.useGlobalFilters(new MulterExceptionFilter());
+    app.useGlobalFilters(new MulterExceptionFilter());
     await app.init();
   });
 
@@ -40,17 +47,20 @@ describe('UploadController (e2e)', () => {
     if (fs.existsSync(textFilePath)) fs.unlinkSync(textFilePath);
   });
 
-  //   it('POST /files - должен загружать валидное изображение', async () => {
-  //     expect(fs.existsSync(imagePath)).toBe(true);
+  it('POST /files - должен загружать валидное изображение', async () => {
+    expect(fs.existsSync(imagePath)).toBe(true);
 
-  //     const response = await request(app.getHttpServer())
-  //       .post('/files')
-  //       .attach('file', imagePath)
-  //       .expect(201);
+    const response = await request(app.getHttpServer())
+      .post('/files')
+      .attach('file', imagePath)
+      .expect(201);
 
-  //     expect(response.body).toHaveProperty('filePath');
-  //     expect(typeof response.body.filePath).toBe('string');
-  //   });
+    const body = response.body as SuccessResponseBody;
+
+    expect(typeof body.message).toBe('string');
+    expect(body).toHaveProperty('filePath');
+    expect(typeof body.filePath).toBe('string');
+  });
 
   it('POST /files - должен отклонять файлы, не являющиеся изображениями', async () => {
     const response = await request(app.getHttpServer())
@@ -58,32 +68,41 @@ describe('UploadController (e2e)', () => {
       .attach('file', textFilePath)
       .expect(400);
 
-    expect(response.body).toHaveProperty('message');
-    expect(response.body.message).toMatch('разрешены только файлы изображений');
+    const body = response.body as SuccessResponseBody;
+
+    expect(body).toHaveProperty('message');
+    expect(body.message).toMatch(
+      'Файл не загружен, или загружен не в том формате',
+    );
   });
 
-  //   it('POST /files - должен отклонять запрос без файла', async () => {
-  //     const response = await request(app.getHttpServer())
-  //       .post('/files')
-  //       .expect(400);
-  //     console.log('Response body:', response.body);
-  //     // expect(response.body).toHaveProperty('message');
-  //     // expect(response.body.message).toMatch('no file uploaded');
-  //   });
+  it('POST /files - должен отклонять запрос без файла', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/files')
+      .expect(400);
+    const body = response.body as SuccessResponseBody;
 
-  //   it('POST /files - должен отклонять слишком большой файл', async () => {
-  //     const largeFilePath = path.join(fixturesDir, 'large-file.jpg');
-  //     const largeBuffer = Buffer.alloc(3 * 1024 * 1024, 0); // 3MB
-  //     fs.writeFileSync(largeFilePath, largeBuffer);
+    expect(body).toHaveProperty('message');
+    expect(body.message).toMatch(
+      'Файл не загружен, или загружен не в том формате',
+    );
+  });
 
-  //     const response = await request(app.getHttpServer())
-  //       .post('/files')
-  //       .attach('file', largeFilePath)
-  //       .expect(413);
+  it('POST /files - должен отклонять слишком большой файл', async () => {
+    const largeFilePath = path.join(fixturesDir, 'large-file.jpg');
+    const largeBuffer = Buffer.alloc(3 * 1024 * 1024, 0); // 3MB
+    fs.writeFileSync(largeFilePath, largeBuffer);
 
-  //     expect(response.body).toHaveProperty('message');
-  //     expect(response.body.message).toMatch('File too large');
+    const response = await request(app.getHttpServer())
+      .post('/files')
+      .attach('file', largeFilePath)
+      .expect(413);
 
-  //     fs.unlinkSync(largeFilePath);
-  //   });
+    const body = response.body as SuccessResponseBody;
+
+    expect(body).toHaveProperty('message');
+    expect(body.message).toMatch('File too large');
+
+    fs.unlinkSync(largeFilePath);
+  });
 });

@@ -7,7 +7,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  MinLength,
   ValidateNested,
 } from 'class-validator';
 import { Gender } from '../../common/gender.enum';
@@ -23,12 +22,6 @@ export class UpdateUserDto {
   @IsEmail()
   @IsNotEmpty()
   email?: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(6)
-  password?: string;
 
   @IsOptional()
   @IsString()

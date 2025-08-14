@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { diskStorage } from 'multer';
 import { Request } from 'express';
 import { extname } from 'path';
+import { imageFileFilter } from './utils/image-file-filter';
 
 export interface IFileUploadeConfig {
   destination: string;
@@ -40,6 +41,7 @@ export interface IFileUploadeConfig {
               cb(null, uniqueName);
             },
           }),
+          fileFilter: imageFileFilter,
         };
       },
     }),

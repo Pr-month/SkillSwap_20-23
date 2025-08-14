@@ -7,6 +7,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -46,18 +47,24 @@ export class UsersService {
       throw new HttpException('Страница не найдена', HttpStatus.NOT_FOUND);
 
     return {
-      data: users,
+      data: plainToInstance(User, users),
       page,
       totalPages,
     };
   }
 
   async findUserById(id: string) {
-    const user = await this.userRepository.findOneOrFail({ where: { id } });
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user || user.id !== id) {
+      throw new BadRequestException(
+        `Не удается найти пользователя по указанному ID ${id}`,
+      );
+    }
     return plainToInstance(User, user);
   }
 
-  async findUserBySkillId(skillId: string) {
+  // староеназвание findUserSkillId
+  async findSimilarSkillOwnersBySkillId(skillId: string) {
     const skill = await this.skillsService.findOneWithCategory(skillId);
 
     const users = await this.userRepository.find({
@@ -72,6 +79,19 @@ export class UsersService {
       const { password, refreshToken, ...other } = user;
       return other;
     });
+  }
+
+  async findUserBySkillId(skillId: string) {
+    const skillOwner = await this.userRepository.findOne({
+      where: {
+        skills: { id: skillId },
+      },
+    });
+
+    if (!skillOwner) {
+      throw new NotFoundException('Не удалось найти владельца навыка...');
+    }
+    return skillOwner;
   }
 
   async updateUserById(id: string, updateUserDto: UpdateUserDto) {

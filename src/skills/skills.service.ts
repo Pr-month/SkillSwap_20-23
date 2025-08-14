@@ -9,6 +9,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+//import * as fs from 'fs';
+import { UsersService } from '../users/users.service';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { CreateSkillDto } from './dto/create-skill.dto';

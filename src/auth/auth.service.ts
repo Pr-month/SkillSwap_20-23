@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -12,11 +12,14 @@ import { Role } from '../common/types';
 import { IJwtConfig } from '../config/config.types';
 import { Inject } from '@nestjs/common';
 import { jwtConfig } from '../config/jwt.config';
+import { Category } from '../categories/entities/category.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
     private userService: UsersService,
     private jwtService: JwtService,
     @Inject(jwtConfig.KEY)
@@ -29,8 +32,28 @@ export class AuthService {
       this.jwtSettings.hashSaltRounds,
     );
 
+    const { wantToLearn, ...userData } = registerDto;
+
+    let wantToLearnCategories: Category[];
+    if (wantToLearn) {
+      wantToLearnCategories = await Promise.all(
+        wantToLearn.map(async (catId) => {
+          const foundRepository = await this.categoryRepository.findOne({
+            where: { id: catId },
+          });
+          if (!foundRepository) {
+            throw new BadRequestException('Категория не была найдена')
+          }
+          return foundRepository;
+        }),
+      );
+    } else {
+      wantToLearnCategories = [];
+    }
+
     const user = this.userRepository.create({
-      ...registerDto,
+      ...userData,
+      wantToLearn: wantToLearnCategories,
       password: hashedPassword,
     });
 

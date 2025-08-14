@@ -17,15 +17,17 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "npm run seed:users && echo 'Launchng tests' && cross-env NODE_ENV=test jest --detectOpenHandles --config ./test/jest-e2e.json",
+    "test:e2e": "npm run seed:test && echo 'Launchng tests' && cross-env NODE_ENV=test jest --config ./test/jest-e2e.json",
     "test:e2e-dksolo": "npm run seed:users && echo 'Launchng tests' && jest --config ./test/jest-e2e.json && npm run de-seed:users",
     "docker:run": "docker-compose up -d --build --force-recreate",
     "docker:down": "docker-compose down",
     "docker:pgadmin:console": "docker exec -it pgadmin /bin/bash",
     "docker:database:console": "docker exec -it database /bin/bash",
+    "seed": "npm run seed:categories && npm run seed:admin",
+    "seed:test": "npm run seed && npm run seed:test:users",
     "seed:categories": "ts-node -r tsconfig-paths/register src/scripts/categories.seed.ts",
     "seed:admin": "ts-node -r tsconfig-paths/register src/scripts/users-admin.seed.ts",
-    "seed:users": "ts-node -r tsconfig-paths/register src/scripts/users-test.seed.ts",
+    "seed:test:users": "ts-node -r tsconfig-paths/register src/scripts/users-test.seed.ts"
     "de-seed:users": "ts-node -r tsconfig-paths/register src/scripts/users-test.remove.seed.ts"
   },
   "dependencies": {

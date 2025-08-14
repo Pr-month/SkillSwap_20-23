@@ -12,10 +12,9 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { Category } from '../../categories/entities/category.entity';
+import { UUID } from 'typeorm/driver/mongodb/bson.typings';
 import { Gender } from '../../common/types';
 import { Skill } from '../../skills/entities/skill.entity';
-import { UUID } from 'typeorm/driver/mongodb/bson.typings';
 
 export class RegisterDto {
   @ApiProperty({

@@ -16,6 +16,8 @@ import { CreateRequestDto } from './dto/create-request.dto';
 import { ReqStatus } from '../common/requests-status.enum';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Role } from 'src/common/types';
+import { Gender } from 'src/common/gender.enum';
+import { v4 as uuidv4 } from 'uuid';
 
 describe('RequestsService', () => {
   let service: RequestsService;
@@ -23,6 +25,30 @@ describe('RequestsService', () => {
   let skillRepository: Repository<Skill>;
   let userRepository: Repository<User>;
   let notificationsService: NotificationsService;
+
+  // Фабричная функция для создания тестового пользователя
+  function createTestUser(overrides: Partial<User> = {}): User {
+    const defaults: User = {
+      id: uuidv4(),
+      name: 'Test User',
+      email: 'test@example.com',
+      password: 'hashed-password',
+      about: null,
+      birthDate: null,
+      city: null,
+      gender: Gender.MALE,
+      avatar: '',
+      role: Role.USER,
+      refreshToken: 'refresh-token',
+      skills: [],
+      sentRequests: [],
+      receivedRequests: [],
+      favoriteSkills: [],
+      wantToLearn: []
+    };
+
+    return { ...defaults, ...overrides };
+  }
 
   // настройка тестового модуля перед каждым тестом
   beforeEach(async () => {
@@ -77,18 +103,19 @@ describe('RequestsService', () => {
         requestedSkillId: 'requested-skill-id',
       };
 
-      const sender = { id: 'sender-id' } as User;
+      const sender = createTestUser({ id: 'sender-id' });
+      const receiver = createTestUser({ id: 'receiver-id' });
       const offeredSkill = {
         id: 'offered-skill-id',
         owner: sender,
       } as Skill;
       const requestedSkill = {
         id: 'requested-skill-id',
-        owner: { id: 'receiver-id' } as User,
+        owner: receiver,
       } as Skill;
       const expectedRequest = {
         sender,
-        receiver: requestedSkill.owner,
+        receiver,
         offeredSkill,
         requestedSkill,
         status: ReqStatus.PENDING,
@@ -125,7 +152,7 @@ describe('RequestsService', () => {
     });
 
     it('ошибка, если один из навыков не найден', async () => {
-      const sender = { id: 'sender-id' } as User;
+      const sender = createTestUser({ id: 'sender-id' });
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(sender);
       // мокируем, что один из навыков не найден
       jest
@@ -145,10 +172,11 @@ describe('RequestsService', () => {
     });
 
     it('ошибка, если пользователь пытается предложить чужой навык', async () => {
-      const sender = { id: 'sender-id' } as User;
+      const sender = createTestUser({ id: 'sender-id' });
+      const otherUser = createTestUser({ id: 'other-user-id' });
       const offeredSkill = {
         id: 'offered-skill-id',
-        owner: { id: 'other-user-id' } as User,
+        owner: otherUser,
       } as Skill;
       const requestedSkill = { id: 'requested-skill-id' } as Skill;
 
@@ -170,7 +198,6 @@ describe('RequestsService', () => {
       ).rejects.toThrow(UnauthorizedException);
     });
   });
-
   // тесты для метода findIncoming()
   describe('findIncoming()', () => {
     it('возвращает входящие заявки', async () => {
@@ -319,7 +346,7 @@ describe('RequestsService', () => {
       await expect(
         service.update(request.id, updateDto, {
           sub: 'admin-id',
-          role: 'admin',
+          role: Role.ADMIN,
         } as any),
       ).resolves.toBeDefined();
     });
@@ -332,10 +359,10 @@ describe('RequestsService', () => {
       const requestId = 'request-id';
   
       // создаем мок пользователя и заявки, где пользователь - отправитель
-      const user = { id: userId } as User;
+      const user = createTestUser({ id: userId });
       const request = {
         id: requestId,
-        sender: { id: userId },
+        sender: user,
       } as Request;
 
       // мокируем методы репозиториев

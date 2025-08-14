@@ -18,6 +18,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { Role } from 'src/common/types';
 import { Gender } from 'src/common/gender.enum';
 import { v4 as uuidv4 } from 'uuid';
+import { JwtPayload } from '../auth/auth.types';
 
 describe('RequestsService', () => {
   let service: RequestsService;
@@ -268,90 +269,107 @@ describe('RequestsService', () => {
   });
 
   // тесты для метода update()
-  describe('update()', () => {
-    it('успешное обновление статуса заявки', async () => {
-      const requestId = 'request-id';
-      const receiverId = 'receiver-id';
-      const updateDto = { status: ReqStatus.ACCEPTED };
-      const existingRequest = {
-        id: requestId,
-        status: ReqStatus.PENDING,
-        isRead: false,
-        receiver: { id: receiverId },
-      } as Request;
-      const updatedRequest = {
-        ...existingRequest,
-        status: ReqStatus.ACCEPTED,
-        isRead: true,
-      } as Request;
+describe('update()', () => {
+  it('успешное обновление статуса заявки', async () => {
+    const requestId = 'request-id';
+    const receiverId = 'receiver-id';
+    const updateDto = { status: ReqStatus.ACCEPTED };
+    const existingRequest = {
+      id: requestId,
+      status: ReqStatus.PENDING,
+      isRead: false,
+      receiver: { id: receiverId },
+    } as Request;
+    const updatedRequest = {
+      ...existingRequest,
+      status: ReqStatus.ACCEPTED,
+      isRead: true,
+    } as Request;
 
-      // мокируем методы репозиториев
-      jest
-        .spyOn(requestRepository, 'findOne')
-        .mockResolvedValue(existingRequest);
-      jest.spyOn(requestRepository, 'save').mockResolvedValue(updatedRequest);
+    // мокируем методы репозиториев
+    jest
+      .spyOn(requestRepository, 'findOne')
+      .mockResolvedValue(existingRequest);
+    jest.spyOn(requestRepository, 'save').mockResolvedValue(updatedRequest);
 
-      // вызываем метод обновления
-      const result = await service.update(requestId, updateDto, {
-        sub: receiverId,
-        role: Role.USER ,
-      } as any);
+    // создаем корректный JwtPayload
+    const jwtPayload: JwtPayload = {
+      sub: receiverId,
+      role: Role.USER,
+      email: 'test@example.com'
+    };
 
-      // проверяем результаты
-      expect(result.status).toBe(ReqStatus.ACCEPTED);
-      expect(result.isRead).toBe(true);
-      // проверяем вызов уведомления
-      expect(notificationsService.notifyUpdateRequest).toHaveBeenCalledWith(
-        updatedRequest,
-      );
-    });
+    // вызываем метод обновления
+    const result = await service.update(requestId, updateDto, jwtPayload);
 
-    it('ошибка, если заявка не найдена', async () => {
-      jest.spyOn(requestRepository, 'findOne').mockResolvedValue(null);
-
-      await expect(
-        service.update('non-existent-id', {}, {} as any),
-      ).rejects.toThrow(NotFoundException);
-    });
-
-    it('ошибка, если пользователь не получатель и не админ', async () => {
-      const request = {
-        id: 'request-id',
-        receiver: { id: 'receiver-id' },
-      } as Request;
-
-      jest.spyOn(requestRepository, 'findOne').mockResolvedValue(request);
-
-      // пытаемся обновить от имени другого пользователя
-      await expect(
-        service.update(request.id, {}, { sub: 'other-user-id' } as any),
-      ).rejects.toThrow(UnauthorizedException);
-    });
-
-    it('админ может обновлять любую заявку', async () => {
-      const request = {
-        id: 'request-id',
-        receiver: { id: 'receiver-id' },
-        status: ReqStatus.PENDING,
-      } as Request;
-      const updateDto = { status: ReqStatus.ACCEPTED };
-
-      jest.spyOn(requestRepository, 'findOne').mockResolvedValue(request);
-      jest.spyOn(requestRepository, 'save').mockResolvedValue({
-        ...request,
-        status: ReqStatus.ACCEPTED,
-      } as Request);
-
-      // проверяем, что админ может обновить
-      await expect(
-        service.update(request.id, updateDto, {
-          sub: 'admin-id',
-          role: Role.ADMIN,
-        } as any),
-      ).resolves.toBeDefined();
-    });
+    // проверяем результаты
+    expect(result.status).toBe(ReqStatus.ACCEPTED);
+    expect(result.isRead).toBe(true);
+    // проверяем вызов уведомления
+    expect(notificationsService.notifyUpdateRequest).toHaveBeenCalledWith(
+      updatedRequest,
+    );
   });
 
+  it('ошибка, если заявка не найдена', async () => {
+    jest.spyOn(requestRepository, 'findOne').mockResolvedValue(null);
+
+    const jwtPayload: JwtPayload = {
+      sub: 'some-user-id',
+      email: 'user@example.com',
+      role: Role.USER
+    };
+
+    await expect(
+      service.update('non-existent-id', {}, jwtPayload),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('ошибка, если пользователь не получатель и не админ', async () => {
+    const request = {
+      id: 'request-id',
+      receiver: { id: 'receiver-id' },
+    } as Request;
+
+    jest.spyOn(requestRepository, 'findOne').mockResolvedValue(request);
+
+    const jwtPayload: JwtPayload = {
+      sub: 'other-user-id',
+      email: 'other@example.com'
+    };
+
+    // пытаемся обновить от имени другого пользователя
+    await expect(
+      service.update(request.id, {}, jwtPayload),
+    ).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('админ может обновлять любую заявку', async () => {
+    const request = {
+      id: 'request-id',
+      receiver: { id: 'receiver-id' },
+      status: ReqStatus.PENDING,
+    } as Request;
+    const updateDto = { status: ReqStatus.ACCEPTED };
+
+    jest.spyOn(requestRepository, 'findOne').mockResolvedValue(request);
+    jest.spyOn(requestRepository, 'save').mockResolvedValue({
+      ...request,
+      status: ReqStatus.ACCEPTED,
+    } as Request);
+
+    const adminPayload: JwtPayload = {
+      sub: 'admin-id',
+      role: Role.ADMIN,
+      email: 'admin@example.com'
+    };
+
+    // проверяем, что админ может обновить
+    await expect(
+      service.update(request.id, updateDto, adminPayload),
+    ).resolves.toBeDefined();
+  });
+});
   // тесты для метода remove()
   describe('remove()', () => {
     it('отправитель может удалить свою заявку', async () => {

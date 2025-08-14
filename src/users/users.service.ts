@@ -12,8 +12,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
-import { SkillsService } from '../skills/skills.service';
 import { Repository } from 'typeorm';
+import { SkillsService } from '../skills/skills.service';
 import { QueryParamsDto } from './dto/query-param.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -60,11 +60,17 @@ export class UsersService {
   async findUserBySkillId(skillId: string) {
     const skill = await this.skillsService.findOneWithCategory(skillId);
 
-    return await this.userRepository.find({
+    const users = await this.userRepository.find({
       where: {
         wantToLearn: { id: skill.category.id },
       },
       take: 10,
+    });
+
+    return users.map((user) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, refreshToken, ...other } = user;
+      return other;
     });
   }
 

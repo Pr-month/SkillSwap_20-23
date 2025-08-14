@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { MulterError } from 'multer';
 
 export const imageFileFilter = (
   req: Express.Request,
@@ -6,16 +6,13 @@ export const imageFileFilter = (
   callback: (error: Error | null, acceptFile: boolean) => void,
 ): void => {
   const allowedMimes = ['image/jpeg', 'image/png', 'image/gif'];
-
   if (!allowedMimes.includes(file.mimetype)) {
-    return callback(
-      new HttpException(
-        'Разрешены только изображения!',
-        HttpStatus.BAD_REQUEST,
-      ),
-      false,
+    const errorMessage = new MulterError(
+      'LIMIT_UNEXPECTED_FILE',
+      file.fieldname,
     );
+    console.log(errorMessage);
+    return callback(null, false);
   }
-
   callback(null, true);
 };

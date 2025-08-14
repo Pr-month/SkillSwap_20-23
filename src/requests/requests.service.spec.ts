@@ -200,6 +200,7 @@ describe('RequestsService', () => {
       ).rejects.toThrow(UnauthorizedException);
     });
   });
+
   // тесты для метода findIncoming()
   describe('findIncoming()', () => {
     it('возвращает входящие заявки', async () => {
@@ -247,6 +248,7 @@ describe('RequestsService', () => {
       const result = await service.findOutgoing(userId);
 
       expect(result).toEqual(expectedRequests);
+
       // проверяем параметры запроса к БД
       expect(requestRepository.find).toHaveBeenCalledWith({
         where: {
@@ -367,6 +369,7 @@ describe('RequestsService', () => {
       ).resolves.toBeDefined();
     });
   });
+  
   // тесты для метода remove()
   describe('remove()', () => {
     it('отправитель может удалить свою заявку', async () => {

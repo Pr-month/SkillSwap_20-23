@@ -8,10 +8,11 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { Category } from '../../categories/entities/category.entity';
+import { UUID } from 'typeorm/driver/mongodb/bson.typings';
 import { Gender } from '../../common/types';
 import { Skill } from '../../skills/entities/skill.entity';
 
@@ -90,16 +91,26 @@ export class RegisterDto {
   @IsOptional()
   about?: string;
 
+  // @ApiProperty({
+  //   description: 'Категории навыков, которые пользователь хочет изучить',
+  //   type: [Category],
+  //   required: false,
+  // })
+  // @IsOptional()
+  // @IsArray()
+  // @ValidateNested({ each: true })
+  // @Type(() => Category)
+  // wantToLearn?: Category[];
+
   @ApiProperty({
     description: 'Категории навыков, которые пользователь хочет изучить',
-    type: [Category],
+    type: [UUID],
     required: false,
   })
   @IsOptional()
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => Category)
-  wantToLearn?: Category[];
+  @IsUUID('all', { each: true })
+  wantToLearn?: string[];
 
   @ApiProperty({
     description: 'Навыки пользователя',

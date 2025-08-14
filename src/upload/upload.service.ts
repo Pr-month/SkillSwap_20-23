@@ -1,11 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UploadService {
   handleFileUpload(fileUrl: string, file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('no file uploaded');
-    }
     const normalizedPath = file.path.replace(/\\/g, '/');
     return {
       message: 'File uploaded successfully',

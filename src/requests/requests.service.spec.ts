@@ -15,6 +15,7 @@ import {
 import { CreateRequestDto } from './dto/create-request.dto';
 import { ReqStatus } from '../common/requests-status.enum';
 import { NotificationsService } from '../notifications/notifications.service';
+import { Role } from 'src/common/types';
 
 describe('RequestsService', () => {
   let service: RequestsService;
@@ -266,7 +267,7 @@ describe('RequestsService', () => {
       // вызываем метод обновления
       const result = await service.update(requestId, updateDto, {
         sub: receiverId,
-        role: 'user',
+        role: Role.USER ,
       } as any);
 
       // проверяем результаты

@@ -12,7 +12,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
-import { FindSkillsQueryDto } from './dto/find--skills.dto';
+import { FindSkillsQueryDto } from './dto/find-skills.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
 

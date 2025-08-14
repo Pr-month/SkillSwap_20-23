@@ -43,6 +43,11 @@ export class UsersController {
     return this.usersService.findUserBySkillId(skillId);
   }
 
+  @Get('similar-skill/:id')
+  async findSimilarSkillOwnersById(@Param('id') skillId: string) {
+    return this.usersService.findSimilarSkillOwnersBySkillId(skillId);
+  }
+
   @UseGuards(AccessTokenGuard)
   @Patch('me')
   async updateMe(

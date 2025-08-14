@@ -12,13 +12,12 @@ import {
 import { AllExceptionFilter } from '../src/common/all-exception.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppDataSource } from '../src/config/data-source';
-import { ObjectLiteral, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from '../src/users/entities/user.entity';
-// import { Skill } from '../src/skills/entities/skill.entity';
 import { Category } from '../src/categories/entities/category.entity';
 import { Role } from '../src/common/types';
 import { Categories } from '../src/scripts/categories.data';
-import { Skill } from 'src/skills/entities/skill.entity';
+import { Skill } from '../src/skills/entities/skill.entity';
 
 // Making DTOs
 export interface SomeUserDTO {
@@ -56,17 +55,28 @@ export interface FindAllUsersResponse {
   body: { data: User[]; page: number; totalPages: number };
 }
 
+export interface SimilarSkillResponse {
+  body: User[];
+}
+
 describe('User module (e2e)', () => {
   let app: INestApplication<App>;
-  let userRepo: Repository<ObjectLiteral>;
-  let categoryRepo: Repository<ObjectLiteral>;
+
+  let userRepo: Repository<User>;
+  let categoryRepo: Repository<Category>;
+  let skillRepo: Repository<Skill>;
+
+  let testUsers: User[];
   let userPassword: string;
   let someID: string;
   let someName: string;
   let someEmail: string;
   let someUser: SomeUserDTO;
+  let someSkillID: string;
+  let someCategoryID: string;
   let jwtToken: string;
-  const forgedJwtToken = 'forgedJwtToken';
+  const forgedJwtToken =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMzM3IiwiZW1haWwiOiJOaWNrU3RlYWxzQGludEJhZC5keSIsInJvbGUiOiJhZG1pbiJ9.h4hviYe0jmfkgWoakFmnJnQKo85x-oZMNZu5-b4c_0g';
 
   beforeAll(async () => {
     await AppDataSource.initialize();
@@ -88,6 +98,7 @@ describe('User module (e2e)', () => {
     await app.init();
     userRepo = AppDataSource.getRepository(User);
     categoryRepo = AppDataSource.getRepository(Category);
+    skillRepo = AppDataSource.getRepository(Skill);
 
     try {
       const existingAdmin = await userRepo.findOne({
@@ -98,34 +109,14 @@ describe('User module (e2e)', () => {
         return;
       }
 
-      const user = await userRepo.save(
+      const admin = await userRepo.save(
         userRepo.create({
           ...AdminUsersData,
           password: await bcrypt.hash(AdminUsersPassword, 10),
         }),
       );
 
-      await userRepo.save(user);
-      userPassword = 'userPassword123';
-      const userPasswordEncrypted = await bcrypt.hash(userPassword, 10);
-
-      for (const user of TestUsersData) {
-        const thisUser = await userRepo.findOne({
-          where: { email: user.email },
-        });
-
-        if (thisUser && thisUser.email === user.email) {
-          console.log(`Пользователь уже существует! ${thisUser.email}`);
-          return;
-        }
-
-        await userRepo.save(
-          userRepo.create({
-            ...user,
-            password: userPasswordEncrypted,
-          }),
-        );
-      }
+      await userRepo.save(admin);
 
       // проверяем, есть ли уже данные в таблице
       const existing = await categoryRepo.count();
@@ -152,6 +143,51 @@ describe('User module (e2e)', () => {
           );
         }),
       );
+
+      const createdCategories = await categoryRepo.find();
+      const someCategory = createdCategories[0];
+      someCategoryID = createdCategories[0].id;
+
+      userPassword = 'userPassword123';
+      const userPasswordEncrypted = await bcrypt.hash(userPassword, 10);
+
+      for (const user of TestUsersData) {
+        const thisUser = await userRepo.findOne({
+          where: { email: user.email },
+        });
+
+        if (thisUser && thisUser.email === user.email) {
+          console.log(`Пользователь уже существует! ${thisUser.email}`);
+          return;
+        }
+
+        await userRepo.save(
+          userRepo.create({
+            ...user,
+            password: userPasswordEncrypted,
+            wantToLearn: [someCategory],
+          }),
+        );
+      }
+
+      //Creating skills to every user
+      testUsers = await userRepo.findBy({
+        role: Role.USER,
+      });
+      for (const user of testUsers) {
+        await skillRepo.save(
+          skillRepo.create({
+            title: `${user.name} skill.`,
+            description: `${user.name} skill is ${user.name}'s best skill!`,
+            images: ['images.jpg'],
+            owner: user,
+            category: someCategory,
+          }),
+        );
+      }
+      testUsers = await userRepo.findBy({
+        role: Role.USER,
+      });
 
       console.log('Тестовая БД успешна заполнена необходимыми значениями.');
     } catch (error) {
@@ -347,12 +383,6 @@ describe('User module (e2e)', () => {
   });
 
   it('GET /users/by-skill/:id should return a user.', async () => {
-    const categoriesResponse: CategoriesResponse = await request(
-      app.getHttpServer(),
-    )
-      .get('/categories')
-      .expect(200);
-    const someCategoryID = categoriesResponse.body[0].id;
     const skillResponse: SkillResponse = await request(app.getHttpServer())
       .post(`/skills`)
       .set('Authorization', `Bearer ${jwtToken}`)
@@ -369,11 +399,26 @@ describe('User module (e2e)', () => {
         description: 'New Skill Description',
       }),
     );
-    const someSkillID = skillResponse.body.id;
+    someSkillID = skillResponse.body.id;
     const response = await request(app.getHttpServer())
       .get(`/users/by-skill/${someSkillID}`)
       .expect(200);
     expect(response.body).toEqual(expect.objectContaining(someUser));
+  });
+
+  it('GET users/similar-skill/:id should return a list of users with similar skills.', async () => {
+    const similarSkillResponse: SimilarSkillResponse = await request(
+      app.getHttpServer(),
+    )
+      .get(`/users/similar-skill/${someSkillID}`)
+      .expect(200);
+    testUsers.forEach((user) => {
+      expect(similarSkillResponse.body).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: user.name, email: user.email }),
+        ]),
+      );
+    });
   });
 
   afterAll(async () => {

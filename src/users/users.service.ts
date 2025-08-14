@@ -63,8 +63,8 @@ export class UsersService {
     return plainToInstance(User, user);
   }
 
-  // OLD VERSION
-  async findUsersBySkillId(skillId: string) {
+  // староеназвание findUserSkillId
+  async findSimilarSkillOwnersBySkillId(skillId: string) {
     const skill = await this.skillsService.findOneWithCategory(skillId);
 
     return await this.userRepository.find({
@@ -75,7 +75,6 @@ export class UsersService {
     });
   }
 
-  // Я предлагаю упростить вот так.
   async findUserBySkillId(skillId: string) {
     const skillOwner = await this.userRepository.findOne({
       where: {

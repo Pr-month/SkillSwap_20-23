@@ -22,13 +22,13 @@ import { JwtPayload } from '../auth/auth.types';
 
 describe('RequestsService', () => {
   let service: RequestsService;
-  let requestRepository: Repository<Request>;
-  let skillRepository: Repository<Skill>;
-  let userRepository: Repository<User>;
-  let notificationsService: NotificationsService;
+  let requestRepository: jest.Mocked<Repository<Request>>;
+  let skillRepository: jest.Mocked<Repository<Skill>>;
+  let userRepository: jest.Mocked<Repository<User>>;
+  let notificationsService: jest.Mocked<NotificationsService>;
 
   // Фабричная функция для создания тестового пользователя
-  function createTestUser(overrides: Partial<User> = {}): User {
+  const createTestUser = (overrides: Partial<User> = {}): User => {
     const defaults: User = {
       id: uuidv4(),
       name: 'Test User',
@@ -49,7 +49,7 @@ describe('RequestsService', () => {
     };
 
     return { ...defaults, ...overrides };
-  }
+  };
 
   // настройка тестового модуля перед каждым тестом
   beforeEach(async () => {
@@ -82,13 +82,10 @@ describe('RequestsService', () => {
 
     // получаем экземпляры сервисов и репозиториев
     service = module.get<RequestsService>(RequestsService);
-    requestRepository = module.get<Repository<Request>>(
-      getRepositoryToken(Request),
-    );
-    skillRepository = module.get<Repository<Skill>>(getRepositoryToken(Skill));
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
-    notificationsService =
-      module.get<NotificationsService>(NotificationsService);
+    requestRepository = module.get(getRepositoryToken(Request)) as jest.Mocked<Repository<Request>>;
+    skillRepository = module.get(getRepositoryToken(Skill)) as jest.Mocked<Repository<Skill>>;
+    userRepository = module.get(getRepositoryToken(User)) as jest.Mocked<Repository<User>>;
+    notificationsService = module.get<NotificationsService>(NotificationsService) as jest.Mocked<NotificationsService>;
   });
 
   // базовый тест на создание сервиса
@@ -128,8 +125,8 @@ describe('RequestsService', () => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(sender);
       jest
         .spyOn(skillRepository, 'findOne')
-        .mockResolvedValueOnce(offeredSkill as Skill)
-        .mockResolvedValueOnce(requestedSkill as Skill);
+        .mockResolvedValueOnce(offeredSkill)
+        .mockResolvedValueOnce(requestedSkill);
       jest.spyOn(requestRepository, 'create').mockReturnValue(expectedRequest);
       jest.spyOn(requestRepository, 'save').mockResolvedValue(expectedRequest);
 
@@ -288,7 +285,7 @@ describe('RequestsService', () => {
       // мокируем методы репозиториев
       jest
         .spyOn(requestRepository, 'findOne')
-        .mockResolvedValue(existingRequest as Request);
+        .mockResolvedValue(existingRequest);
       jest.spyOn(requestRepository, 'save').mockResolvedValue(updatedRequest);
 
       // создаем корректный JwtPayload
@@ -369,7 +366,7 @@ describe('RequestsService', () => {
       ).resolves.toBeDefined();
     });
   });
-  
+
   // тесты для метода remove()
   describe('remove()', () => {
     it('отправитель может удалить свою заявку', async () => {

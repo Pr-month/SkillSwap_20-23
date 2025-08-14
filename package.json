@@ -27,7 +27,7 @@
     "seed:test": "npm run seed && npm run seed:test:users",
     "seed:categories": "ts-node -r tsconfig-paths/register src/scripts/categories.seed.ts",
     "seed:admin": "ts-node -r tsconfig-paths/register src/scripts/users-admin.seed.ts",
-    "seed:test:users": "ts-node -r tsconfig-paths/register src/scripts/users-test.seed.ts"
+    "seed:test:users": "ts-node -r tsconfig-paths/register src/scripts/users-test.seed.ts",
     "de-seed:users": "ts-node -r tsconfig-paths/register src/scripts/users-test.remove.seed.ts"
   },
   "dependencies": {

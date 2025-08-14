@@ -1,23 +1,22 @@
 import {
+  BadRequestException,
   Controller,
   Post,
-  UseInterceptors,
-  UploadedFile,
-  UseFilters,
   Req,
-  BadRequestException,
+  UploadedFile,
+  UseInterceptors
 } from '@nestjs/common';
-import { UploadService } from './upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Request } from 'express';
-import { imageFileFilter } from './utils/image-file-filter';
 import {
-  ApiConsumes,
   ApiBody,
-  ApiTags,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
+import { Request } from 'express';
+import { UploadService } from './upload.service';
+import { imageFileFilter } from './utils/image-file-filter';
 
 @ApiTags('uploads')
 @Controller('files')

@@ -66,6 +66,7 @@ describe('User module (e2e)', () => {
   let someEmail: string;
   let someUser: SomeUserDTO;
   let jwtToken: string;
+  const forgedJwtToken = 'forgedJwtToken';
 
   beforeAll(async () => {
     await AppDataSource.initialize();
@@ -245,7 +246,7 @@ describe('User module (e2e)', () => {
   it('GET /users/me should not return the current user with a fake jwt token.', async () => {
     await request(app.getHttpServer())
       .get(`/users/me`)
-      .set('Authorization', `Bearer fake.jwttoken.token`)
+      .set('Authorization', `Bearer ${forgedJwtToken}`)
       .expect(401);
   });
 
@@ -267,7 +268,7 @@ describe('User module (e2e)', () => {
     );
   });
 
-  it('PATCH /users/me should change user password of a current user.', async () => {
+  it('PATCH /users/me should not change user password of a current user.', async () => {
     await request(app.getHttpServer())
       .patch(`/users/me`)
       .set('Authorization', `Bearer ${jwtToken}`)
@@ -279,6 +280,50 @@ describe('User module (e2e)', () => {
     await request(app.getHttpServer())
       .patch(`/users/me`)
       .send({ about: 'Testing patching about data for this user' })
+      .expect(401);
+  });
+
+  it('PATCH /users/me/password should not change the password of a current user if the password is the same.', async () => {
+    await request(app.getHttpServer())
+      .patch(`/users/me/password`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({ currentPassword: userPassword, newPassword: userPassword })
+      .expect(409);
+  });
+
+  it('PATCH /users/me/password should not change the password of a current user if the password is too short.', async () => {
+    const shortPassword = 'short';
+    await request(app.getHttpServer())
+      .patch(`/users/me/password`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({ currentPassword: userPassword, newPassword: shortPassword })
+      .expect(400);
+  });
+
+  it('PATCH /users/me/password should not change the password of a current user if the current password is wrong.', async () => {
+    const wrongCurrentPassword = 'thisIsNotTheCorrectCurrentPassword';
+    const newPassword = 'newPassword';
+    await request(app.getHttpServer())
+      .patch(`/users/me/password`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({ currentPassword: wrongCurrentPassword, newPassword: newPassword })
+      .expect(401);
+  });
+
+  it('PATCH /users/me/password should not change the password of a current user if the jwt token is missing.', async () => {
+    const newPassword = 'newPassword';
+    await request(app.getHttpServer())
+      .patch(`/users/me/password`)
+      .send({ currentPassword: userPassword, newPassword: newPassword })
+      .expect(401);
+  });
+
+  it('PATCH /users/me/password should not change the password of a current user if the jwt token is forged.', async () => {
+    const newPassword = 'newPassword';
+    await request(app.getHttpServer())
+      .patch(`/users/me/password`)
+      .set('Authorization', `Bearer ${forgedJwtToken}`)
+      .send({ currentPassword: userPassword, newPassword: newPassword })
       .expect(401);
   });
 

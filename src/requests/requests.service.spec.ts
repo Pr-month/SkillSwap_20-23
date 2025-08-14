@@ -210,7 +210,7 @@ describe('RequestsService', () => {
       ] as Request[];
 
       // мокируем возвращаемые заявки
-      jest.spyOn(requestRepository, 'find').mockResolvedValue(expectedRequests  as Request[]);
+      jest.spyOn(requestRepository, 'find').mockResolvedValue(expectedRequests);
 
       const result = await service.findIncoming(userId);
 
@@ -242,7 +242,7 @@ describe('RequestsService', () => {
         { id: 'request-2', sender: { id: userId } },
       ] as Request[];
 
-      jest.spyOn(requestRepository, 'find').mockResolvedValue(expectedRequests  as Request[]);
+      jest.spyOn(requestRepository, 'find').mockResolvedValue(expectedRequests);
 
       const result = await service.findOutgoing(userId);
 
@@ -382,7 +382,7 @@ describe('RequestsService', () => {
 
       // мокируем методы репозиториев
       jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue(user);
-      jest.spyOn(requestRepository, 'findOneOrFail').mockResolvedValue(request as Request);
+      jest.spyOn(requestRepository, 'findOneOrFail').mockResolvedValue(request);
       jest.spyOn(requestRepository, 'remove').mockResolvedValue(request);
 
       // проверяем успешное удаление
@@ -401,7 +401,7 @@ describe('RequestsService', () => {
       jest
         .spyOn(userRepository, 'findOneOrFail')
         .mockResolvedValue({ id: adminId, role: 'admin' } as User);
-      jest.spyOn(requestRepository, 'findOneOrFail').mockResolvedValue(request as Request);
+      jest.spyOn(requestRepository, 'findOneOrFail').mockResolvedValue(request);
       jest.spyOn(requestRepository, 'remove').mockResolvedValue(request);
 
       // проверяем, что админ может удалить чужую заявку
@@ -419,7 +419,7 @@ describe('RequestsService', () => {
       } as Request;
 
       jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue({} as User);
-      jest.spyOn(requestRepository, 'findOneOrFail').mockResolvedValue(request as Request);
+      jest.spyOn(requestRepository, 'findOneOrFail').mockResolvedValue(request);
 
       // проверяем, что будет выброшено исключение
       await expect(service.remove(userId, requestId)).rejects.toThrow(
@@ -444,7 +444,7 @@ describe('RequestsService', () => {
       } as Request;
 
       jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValue({} as User);
-      jest.spyOn(requestRepository, 'findOneOrFail').mockResolvedValue(request as Request);
+      jest.spyOn(requestRepository, 'findOneOrFail').mockResolvedValue(request);
 
       // проверяем обработку случая с отсутствующим отправителем
       await expect(service.remove(userId, requestId)).rejects.toThrow(

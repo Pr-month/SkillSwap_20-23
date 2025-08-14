@@ -34,7 +34,7 @@ export class CreateUserDto extends PartialType(User) {
 
   @IsOptional()
   @IsEnum(Gender)
-  gender: Gender;
+  gender?: Gender;
 
   @IsString()
   @IsOptional()
@@ -42,7 +42,7 @@ export class CreateUserDto extends PartialType(User) {
 
   @IsOptional()
   @IsUrl()
-  avatar: string;
+  avatar?: string;
 
   @IsOptional()
   @IsString()

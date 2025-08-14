@@ -12,7 +12,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 //import * as fs from 'fs';
 import { UsersService } from '../users/users.service';
 import { Repository } from 'typeorm';
-import { UsersService } from '../users/users.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { FindSkillsQueryDto } from './dto/find-skills.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';

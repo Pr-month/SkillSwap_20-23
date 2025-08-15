@@ -27,7 +27,7 @@ describe('RequestsService', () => {
   let userRepository: jest.Mocked<Repository<User>>;
   let notificationsService: jest.Mocked<NotificationsService>;
 
-  // Фабричная функция для создания тестового пользователя
+  // фабричная функция для создания тестового пользователя
   const createTestUser = (overrides: Partial<User> = {}): User => {
     const defaults: User = {
       id: uuidv4(),
@@ -82,10 +82,12 @@ describe('RequestsService', () => {
 
     // получаем экземпляры сервисов и репозиториев
     service = module.get<RequestsService>(RequestsService);
-    requestRepository = module.get(getRepositoryToken(Request)) as jest.Mocked<Repository<Request>>;
-    skillRepository = module.get(getRepositoryToken(Skill)) as jest.Mocked<Repository<Skill>>;
-    userRepository = module.get(getRepositoryToken(User)) as jest.Mocked<Repository<User>>;
-    notificationsService = module.get<NotificationsService>(NotificationsService) as jest.Mocked<NotificationsService>;
+    requestRepository = module.get(getRepositoryToken(Request));
+    skillRepository = module.get(getRepositoryToken(Skill));
+    userRepository = module.get(getRepositoryToken(User));
+    notificationsService = module.get<NotificationsService>(
+      NotificationsService,
+    ) as jest.Mocked<NotificationsService>;
   });
 
   // базовый тест на создание сервиса
@@ -130,14 +132,18 @@ describe('RequestsService', () => {
       jest.spyOn(requestRepository, 'create').mockReturnValue(expectedRequest);
       jest.spyOn(requestRepository, 'save').mockResolvedValue(expectedRequest);
 
+      // мокаем метод уведомления
+      const mockNotifyNewRequest = jest.spyOn(
+        notificationsService,
+        'notifyNewRequest',
+      );
+
       // вызываем тестируемый метод
       const result = await service.create(createRequestDto, sender.id);
 
       // проверяем результаты
       expect(result).toEqual(expectedRequest);
-      expect(notificationsService.notifyNewRequest).toHaveBeenCalledWith(
-        expectedRequest,
-      );
+      expect(mockNotifyNewRequest).toHaveBeenCalledWith(expectedRequest);
     });
 
     it('ошибка, если отправитель не найден', async () => {
@@ -217,13 +223,13 @@ describe('RequestsService', () => {
       expect(requestRepository.find).toHaveBeenCalledWith({
         where: {
           receiver: { id: userId },
-          status: expect.anything(), // проверяем In([PENDING, INPROGRESS])
+          status: expect.anything() as typeof ReqStatus, // проверяем In([PENDING, INPROGRESS])
         },
         relations: expect.arrayContaining([
           'sender',
           'offeredSkill',
           'requestedSkill',
-        ]),
+        ]) as (keyof Request)[],
         order: {
           createdAt: 'DESC',
         },
@@ -250,13 +256,13 @@ describe('RequestsService', () => {
       expect(requestRepository.find).toHaveBeenCalledWith({
         where: {
           sender: { id: userId },
-          status: expect.anything(), // проверяем In([PENDING, INPROGRESS])
+          status: expect.anything() as typeof ReqStatus, // проверяем In([PENDING, INPROGRESS])
         },
         relations: expect.arrayContaining([
           'receiver',
           'offeredSkill',
           'requestedSkill',
-        ]),
+        ] as (keyof Request)[]),
         order: {
           createdAt: 'DESC',
         },
@@ -295,6 +301,12 @@ describe('RequestsService', () => {
         email: 'test@example.com',
       };
 
+      // мокаем метод уведомления
+      const mockNotifyUpdateRequest = jest.spyOn(
+        notificationsService,
+        'notifyUpdateRequest',
+      );
+
       // вызываем метод обновления
       const result = await service.update(requestId, updateDto, jwtPayload);
 
@@ -302,9 +314,7 @@ describe('RequestsService', () => {
       expect(result.status).toBe(ReqStatus.ACCEPTED);
       expect(result.isRead).toBe(true);
       // проверяем вызов уведомления
-      expect(notificationsService.notifyUpdateRequest).toHaveBeenCalledWith(
-        updatedRequest,
-      );
+      expect(mockNotifyUpdateRequest).toHaveBeenCalledWith(updatedRequest);
     });
 
     it('ошибка, если заявка не найдена', async () => {
@@ -360,10 +370,19 @@ describe('RequestsService', () => {
         email: 'admin@example.com',
       };
 
+      // мокаем метод уведомления
+      const mockNotifyUpdateRequest = jest.spyOn(
+        notificationsService,
+        'notifyUpdateRequest',
+      );
+
       // проверяем, что админ может обновить
-      await expect(
-        service.update(request.id, updateDto, adminPayload),
-      ).resolves.toBeDefined();
+      const result = await service.update(request.id, updateDto, adminPayload);
+      expect(result).toBeDefined();
+      expect(mockNotifyUpdateRequest).toHaveBeenCalledWith({
+        ...request,
+        status: ReqStatus.ACCEPTED,
+      });
     });
   });
 

@@ -47,7 +47,7 @@ describe('RolesGuard', () => {
       // создаем контекст с пользователем-ADMIN
       const mockContext = createMockContext({
         sub: '123',
-        role: [Role.ADMIN] // пользователь имеет нужную роль
+        role: [Role.ADMIN], // пользователь имеет нужную роль
       });
       expect(guard.canActivate(mockContext)).toBe(true);
     });
@@ -57,7 +57,7 @@ describe('RolesGuard', () => {
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN]);
       const mockContext = createMockContext({
         sub: '123',
-        role: [Role.USER]// пользователь имеет только роль USER
+        role: [Role.USER], // пользователь имеет только роль USER
       });
       expect(guard.canActivate(mockContext)).toBe(false);
     });
@@ -70,11 +70,13 @@ describe('RolesGuard', () => {
     });
 
     // Тест 5: доступ разрешен при наличии одной из требуемых ролей, требуются ADMIN или USER
-    it('должен разрешить доступ, если пользователь имеет одну из требуемых ролей', () => {  
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN, Role.USER]);
+    it('должен разрешить доступ, если пользователь имеет одну из требуемых ролей', () => {
+      jest
+        .spyOn(reflector, 'getAllAndOverride')
+        .mockReturnValue([Role.ADMIN, Role.USER]);
       const mockContext = createMockContext({
         sub: '123',
-        role: [Role.USER]
+        role: [Role.USER],
       });
       expect(guard.canActivate(mockContext)).toBe(true);
     });
@@ -84,7 +86,7 @@ describe('RolesGuard', () => {
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN]);
       const mockContext = createMockContext({
         sub: '123',
-        role: [Role.USER, Role.ADMIN] // пользователь имеет обе роли
+        role: [Role.USER, Role.ADMIN], // пользователь имеет обе роли
       });
       expect(guard.canActivate(mockContext)).toBe(true);
     });
@@ -93,8 +95,8 @@ describe('RolesGuard', () => {
     it('должен выбрасывать ForbiddenException при недостатке прав', () => {
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN]);
       const mockContext = createMockContext({
-        sub: '123', 
-        role: [Role.USER] // пользователь имеет только USER
+        sub: '123',
+        role: [Role.USER], // пользователь имеет только USER
       });
       // временная модификация guard для теста исключения
       const callGuard = () => {
@@ -115,7 +117,7 @@ describe('RolesGuard', () => {
     return {
       switchToHttp: () => ({
         getRequest: () => ({
-          user
+          user,
         }),
       }),
       getHandler: () => {},

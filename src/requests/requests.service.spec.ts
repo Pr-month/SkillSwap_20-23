@@ -82,12 +82,10 @@ describe('RequestsService', () => {
 
     // получаем экземпляры сервисов и репозиториев
     service = module.get<RequestsService>(RequestsService);
-    requestRepository = module.get(getRepositoryToken(Request));
-    skillRepository = module.get(getRepositoryToken(Skill));
-    userRepository = module.get(getRepositoryToken(User));
-    notificationsService = module.get<NotificationsService>(
-      NotificationsService,
-    ) as jest.Mocked<NotificationsService>;
+    requestRepository = module.get(getRepositoryToken(Request)) as jest.Mocked<Repository<Request>>;
+    skillRepository = module.get(getRepositoryToken(Skill)) as jest.Mocked<Repository<Skill>>;
+    userRepository = module.get(getRepositoryToken(User)) as jest.Mocked<Repository<User>>;
+    notificationsService = module.get<NotificationsService>(NotificationsService) as jest.Mocked<NotificationsService>;
   });
 
   // базовый тест на создание сервиса
@@ -133,10 +131,7 @@ describe('RequestsService', () => {
       jest.spyOn(requestRepository, 'save').mockResolvedValue(expectedRequest);
 
       // мокаем метод уведомления
-      const mockNotifyNewRequest = jest.spyOn(
-        notificationsService,
-        'notifyNewRequest',
-      );
+      const mockNotifyNewRequest = jest.spyOn(notificationsService, 'notifyNewRequest');
 
       // вызываем тестируемый метод
       const result = await service.create(createRequestDto, sender.id);
@@ -262,7 +257,7 @@ describe('RequestsService', () => {
           'receiver',
           'offeredSkill',
           'requestedSkill',
-        ] as (keyof Request)[]),
+        ]) as (keyof Request)[],
         order: {
           createdAt: 'DESC',
         },
@@ -302,10 +297,7 @@ describe('RequestsService', () => {
       };
 
       // мокаем метод уведомления
-      const mockNotifyUpdateRequest = jest.spyOn(
-        notificationsService,
-        'notifyUpdateRequest',
-      );
+      const mockNotifyUpdateRequest = jest.spyOn(notificationsService, 'notifyUpdateRequest');
 
       // вызываем метод обновления
       const result = await service.update(requestId, updateDto, jwtPayload);
@@ -371,10 +363,7 @@ describe('RequestsService', () => {
       };
 
       // мокаем метод уведомления
-      const mockNotifyUpdateRequest = jest.spyOn(
-        notificationsService,
-        'notifyUpdateRequest',
-      );
+      const mockNotifyUpdateRequest = jest.spyOn(notificationsService, 'notifyUpdateRequest');
 
       // проверяем, что админ может обновить
       const result = await service.update(request.id, updateDto, adminPayload);

@@ -137,8 +137,14 @@ export class AuthService {
       this.jwtSettings.hashSaltRounds,
     );
 
-    await this.userService.updateUserById(user.id, {
-      ...user,
+    // Заменил это
+    // await this.userService.updateUserById(user.id, {
+    //   ...user,
+    //   refreshToken: hashedRefreshToken,
+    // });
+    // на это \/\/\/ т.к. нет смысла вызывать userSevice,
+    // когда все остальные функции в auth.service вызывают userRepository
+    await this.userRepository.update(user.id, {
       refreshToken: hashedRefreshToken,
     });
 

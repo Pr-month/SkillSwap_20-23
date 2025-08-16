@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -42,7 +46,7 @@ export class AuthService {
             where: { id: catId },
           });
           if (!foundRepository) {
-            throw new BadRequestException('Категория не была найдена')
+            throw new BadRequestException('Категория не была найдена');
           }
           return foundRepository;
         }),

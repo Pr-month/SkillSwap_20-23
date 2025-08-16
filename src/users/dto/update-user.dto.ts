@@ -7,10 +7,13 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
   ValidateNested,
 } from 'class-validator';
 import { Gender } from '../../common/gender.enum';
 import { Skill } from '../../skills/entities/skill.entity';
+import { ApiProperty } from '@nestjs/swagger';
+import { UUID } from 'typeorm/driver/mongodb/bson.typings';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -52,4 +55,14 @@ export class UpdateUserDto {
   @ValidateNested({ each: true })
   @Type(() => Skill)
   favoriteSkills?: Skill[];
+
+  @ApiProperty({
+    description: 'Категории навыков, которые пользователь хочет изучить',
+    type: [UUID],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  wantToLearn?: string[];
 }

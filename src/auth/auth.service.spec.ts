@@ -1,17 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Test, TestingModule } from '@nestjs/testing';
-import { JwtService } from '@nestjs/jwt';
-import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from '../users/entities/user.entity';
-import * as bcrypt from 'bcrypt';
 import { UnauthorizedException } from '@nestjs/common';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+import { Category } from 'src/categories/entities/category.entity';
 import { Gender, Role } from '../common/types';
 import { jwtConfig } from '../config/jwt.config';
+import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
+import { AuthService } from './auth.service';
 import { JwtPayload } from './auth.types';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 // Mock bcrypt
 jest.mock('bcrypt', () => ({
@@ -53,6 +54,14 @@ describe('AuthService', () => {
     verifyAsync: jest.fn(),
   };
 
+  const mockCategoriesService = {
+    create: jest.fn(),
+    findAll: jest.fn(),
+    findOne: jest.fn(),
+    update: jest.fn(),
+    remove: jest.fn(),
+  };
+
   const mockUserRepository = {
     create: jest.fn(),
     save: jest.fn(),
@@ -75,6 +84,10 @@ describe('AuthService', () => {
         {
           provide: getRepositoryToken(User),
           useValue: mockUserRepository,
+        },
+        {
+          provide: getRepositoryToken(Category),
+          useValue: mockCategoriesService,
         },
         {
           provide: jwtConfig.KEY,
@@ -127,6 +140,7 @@ describe('AuthService', () => {
       expect(mockUserRepository.create).toHaveBeenCalledWith({
         ...registerDto,
         password: hashedPassword,
+        wantToLearn: expect.any(Array),
       });
       expect(mockJwtService.signAsync).toHaveBeenCalledTimes(2);
       expect(result).toEqual({

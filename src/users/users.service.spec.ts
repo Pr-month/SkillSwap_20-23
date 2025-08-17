@@ -14,6 +14,7 @@ import {
 import { QueryParamsDto } from './dto/query-param.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Gender, Role } from '../common/types';
+import { SkillsService } from '../skills/skills.service';
 
 // Mock bcrypt
 jest.mock('bcrypt', () => ({
@@ -49,6 +50,10 @@ describe('UsersService', () => {
     delete: jest.fn(),
   };
 
+  const mockSkillsService = {
+    findOneWithCategory: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -56,6 +61,10 @@ describe('UsersService', () => {
         {
           provide: getRepositoryToken(User),
           useValue: mockRepository,
+        },
+        {
+          provide: SkillsService,
+          useValue: mockSkillsService,
         },
       ],
     }).compile();
@@ -75,11 +84,13 @@ describe('UsersService', () => {
 
       const result = await service.findAll(query);
 
-      expect(result).toEqual({
-        data: mockUsers,
-        page: 1,
-        totalPages: 1,
-      });
+      expect(result.page).toBe(1);
+      expect(result.totalPages).toBe(1);
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toBeInstanceOf(User);
+      expect(result.data[0].id).toBe(mockUser.id);
+      expect(result.data[0].password).toBeUndefined();
+      expect(result.data[0].refreshToken).toBeUndefined();
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         take: 20,
         skip: 0,
@@ -94,11 +105,15 @@ describe('UsersService', () => {
 
       const result = await service.findAll(query);
 
-      expect(result).toEqual({
-        data: mockUsers,
-        page: 2,
-        totalPages: 3,
-      });
+      expect(result.page).toBe(2);
+      expect(result.totalPages).toBe(3);
+      expect(result.data).toHaveLength(2);
+      expect(result.data[0]).toBeInstanceOf(User);
+      expect(result.data[1]).toBeInstanceOf(User);
+      expect(result.data[0].id).toBe(mockUser.id);
+      expect(result.data[1].id).toBe('user-2');
+      expect(result.data[0].password).toBeUndefined();
+      expect(result.data[0].refreshToken).toBeUndefined();
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         take: 10,
         skip: 10,
@@ -178,13 +193,13 @@ describe('UsersService', () => {
 
   describe('findUserById', () => {
     it('should return a user when found', async () => {
-      mockRepository.findOneOrFail.mockResolvedValue(mockUser);
+      mockRepository.findOne.mockResolvedValue(mockUser);
 
       const result = await service.findUserById('test-user-id');
 
       expect(result).toBeDefined();
       expect(result.id).toBe(mockUser.id);
-      expect(mockRepository.findOneOrFail).toHaveBeenCalledWith({
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
         where: { id: 'test-user-id' },
       });
     });
@@ -195,24 +210,25 @@ describe('UsersService', () => {
         password: 'plainPassword',
         refreshToken: 'plainRefreshToken',
       };
-      mockRepository.findOneOrFail.mockResolvedValue(userWithSensitiveData);
+      mockRepository.findOne.mockResolvedValue(userWithSensitiveData);
 
       const result = await service.findUserById('test-user-id');
 
       // The plainToInstance should handle this through @Exclude decorators
       expect(result).toBeDefined();
-      expect(mockRepository.findOneOrFail).toHaveBeenCalledWith({
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
         where: { id: 'test-user-id' },
       });
     });
 
-    it('should throw EntityNotFoundError when user not found', async () => {
-      mockRepository.findOneOrFail.mockRejectedValue(
-        new EntityNotFoundError(User, { where: { id: 'non-existent' } }),
-      );
+    it('should throw BadRequestException when user not found', async () => {
+      mockRepository.findOne.mockResolvedValue(null);
 
       await expect(service.findUserById('non-existent')).rejects.toThrow(
-        EntityNotFoundError,
+        BadRequestException,
+      );
+      await expect(service.findUserById('non-existent')).rejects.toThrow(
+        'Не удается найти пользователя по указанному ID non-existent',
       );
     });
   });

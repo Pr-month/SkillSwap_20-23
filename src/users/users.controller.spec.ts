@@ -103,9 +103,6 @@ describe('UsersController', () => {
     it('should return current user data', async () => {
       mockUserService.findUserById.mockResolvedValue(mockUser);
 
-      // Mock console.log to avoid output during tests
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-
       const result = await controller.getMe(
         mockRequest as AuthenticatedRequest,
       );
@@ -113,9 +110,6 @@ describe('UsersController', () => {
       expect(result).toEqual(mockUser);
       expect(mockUserService.findUserById).toHaveBeenCalledWith('test-user-id');
       expect(mockUserService.findUserById).toHaveBeenCalledTimes(1);
-      expect(consoleSpy).toHaveBeenCalledWith(mockRequest.user);
-
-      consoleSpy.mockRestore();
     });
 
     it('should handle service errors when getting current user', async () => {
@@ -366,14 +360,9 @@ describe('UsersController', () => {
     it('should handle missing user in request for getMe', () => {
       const invalidRequest = {} as AuthenticatedRequest;
 
-      // Mock console.log to avoid output during tests
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-
       expect(() => controller.getMe(invalidRequest)).toThrow(
         "Cannot read properties of undefined (reading 'sub')",
       );
-
-      consoleSpy.mockRestore();
     });
 
     it('should handle missing user.sub in request for updateMe', async () => {

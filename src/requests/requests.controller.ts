@@ -17,7 +17,13 @@ import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { HasRoles } from '../auth/decorators/roles.decorator';
 import { Role } from '../common/types';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from './entities/request.entity';
 
 @ApiTags('Requests')
@@ -30,11 +36,11 @@ export class RequestsController {
   @UseGuards(AccessTokenGuard)
   @ApiOperation({
     summary: 'Создать новый запрос обмена навыками',
-    description: 'Создает новый запрос обмена навыками между пользователями'
+    description: 'Создает новый запрос обмена навыками между пользователями',
   })
   @ApiBody({
     type: CreateRequestDto,
-    description: 'Данные для создания запроса'
+    description: 'Данные для создания запроса',
   })
   @ApiResponse({
     status: 201,
@@ -42,29 +48,29 @@ export class RequestsController {
     type: Request,
     content: {
       'application/json': {
-        example: [new Request()]
-      }
-    }
+        example: [new Request()],
+      },
+    },
   })
   @ApiResponse({
     status: 400,
-    description: 'Неверные параметры запроса'
+    description: 'Неверные параметры запроса',
   })
   @ApiResponse({
     status: 401,
-    description: 'Пользователь не авторизован'
+    description: 'Пользователь не авторизован',
   })
   @ApiResponse({
     status: 403,
-    description: 'У пользователя нет прав на создание запроса'
+    description: 'У пользователя нет прав на создание запроса',
   })
   @ApiResponse({
     status: 404,
-    description: 'Указанный навык не найден'
+    description: 'Указанный навык не найден',
   })
   @ApiResponse({
     status: 500,
-    description: 'Внутренняя ошибка сервера'
+    description: 'Внутренняя ошибка сервера',
   })
   async create(
     @Body() createRequestDto: CreateRequestDto,
@@ -74,9 +80,9 @@ export class RequestsController {
   }
 
   @Get()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Получить список всех запросов',
-    description: 'Возвращает список всех запросов'
+    description: 'Возвращает список всех запросов',
   })
   @ApiResponse({
     status: 200,
@@ -85,8 +91,9 @@ export class RequestsController {
     isArray: true,
     content: {
       'application/json': {
-        example: [new Request()]
-    }}
+        example: [new Request()],
+      },
+    },
   })
   @ApiResponse({
     status: 401,
@@ -110,8 +117,9 @@ export class RequestsController {
     isArray: true,
     content: {
       'application/json': {
-        example: [new Request()]
-    }}
+        example: [new Request()],
+      },
+    },
   })
   @UseGuards(AccessTokenGuard)
   findIncoming(@Req() req: AuthenticatedRequest) {
@@ -127,8 +135,9 @@ export class RequestsController {
     isArray: true,
     content: {
       'application/json': {
-        example: [new Request()]
-    }}
+        example: [new Request()],
+      },
+    },
   })
   @ApiOperation({ summary: 'Получить список исходящих запросов' })
   @UseGuards(AccessTokenGuard)
@@ -144,8 +153,9 @@ export class RequestsController {
     type: Request,
     content: {
       'application/json': {
-        example: new Request()
-    }}
+        example: new Request(),
+      },
+    },
   })
   findOne(@Param('id') id: string) {
     return this.requestsService.findOne(id);
@@ -156,17 +166,17 @@ export class RequestsController {
   @ApiOperation({ summary: 'Обновить запрос по ID' })
   @ApiBody({
     type: UpdateRequestDto,
-    description: 'Данные для создания запроса'
+    description: 'Данные для создания запроса',
   })
-
   @ApiResponse({
     status: 200,
     description: 'Обновление запроса по ID',
     type: Request,
     content: {
       'application/json': {
-        example: new Request()
-    }}
+        example: new Request(),
+      },
+    },
   })
   @UseGuards(AccessTokenGuard, RolesGuard)
   @HasRoles(Role.ADMIN, Role.USER) // Только админ или пользователь

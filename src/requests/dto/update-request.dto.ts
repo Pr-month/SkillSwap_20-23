@@ -12,10 +12,10 @@ export class UpdateRequestDto {
       ACCEPTED: 'Принят',
       REJECTED: 'Отклонён',
       INPROGRESS: 'В процессе',
-      DONE: 'Завершён'
+      DONE: 'Завершён',
     },
     format: 'enum',
-    default: null
+    default: null,
   })
   @IsOptional()
   @IsEnum(ReqStatus)
@@ -25,7 +25,7 @@ export class UpdateRequestDto {
     description: 'Флаг прочтения запроса',
     type: Boolean,
     example: false,
-    default: null
+    default: null,
   })
   @IsOptional()
   @IsBoolean()

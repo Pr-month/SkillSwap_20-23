@@ -17,7 +17,7 @@ export class Request {
     description: 'Уникальный идентификатор запроса',
     example: '123e4567-e89b-12d3-a456-426614174000',
     required: true,
-    format: 'uuid'
+    format: 'uuid',
   })
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -26,7 +26,7 @@ export class Request {
     description: 'Дата создания запроса',
     format: 'date-time',
     example: '2023-10-05T14:48:00Z',
-    readOnly: true
+    readOnly: true,
   })
   @CreateDateColumn()
   createdAt: Date;
@@ -36,8 +36,8 @@ export class Request {
     type: () => User,
     example: {
       id: '123',
-      name: 'John Doe'
-    }
+      name: 'John Doe',
+    },
   })
   @OneToOne(() => User)
   @JoinColumn()
@@ -48,8 +48,8 @@ export class Request {
     type: () => User,
     example: {
       id: '456',
-      name: 'Jane Smith'
-    }
+      name: 'Jane Smith',
+    },
   })
   @OneToOne(() => User)
   @JoinColumn()
@@ -59,7 +59,7 @@ export class Request {
     description: 'Статус запроса',
     enum: ReqStatus,
     example: ReqStatus.PENDING,
-    default: ReqStatus.PENDING
+    default: ReqStatus.PENDING,
   })
   @Column({
     type: 'enum',
@@ -73,8 +73,8 @@ export class Request {
     type: () => Skill,
     example: {
       id: '789',
-      name: 'Web Development'
-    }
+      name: 'Web Development',
+    },
   })
   @OneToOne(() => Skill)
   @JoinColumn()
@@ -85,8 +85,8 @@ export class Request {
     type: () => Skill,
     example: {
       id: '012',
-      name: 'Graphic Design'
-    }
+      name: 'Graphic Design',
+    },
   })
   @OneToOne(() => Skill)
   @JoinColumn()
@@ -95,7 +95,7 @@ export class Request {
   @ApiProperty({
     description: 'Флаг прочтения запроса',
     example: false,
-    default: false
+    default: false,
   })
   @Column()
   isRead: boolean;

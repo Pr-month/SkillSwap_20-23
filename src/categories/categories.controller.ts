@@ -66,19 +66,6 @@ export class CategoriesController {
     return this.categoriesService.findAll();
   }
 
-  @ApiOperation({ summary: 'Получить категорию по ID' })
-  @ApiParam({ name: 'id', description: 'ID категории', type: String })
-  @ApiResponse({
-    status: 200,
-    description: 'Найденная категория',
-    type: Category,
-  })
-  @ApiResponse({ status: 404, description: 'Категория не найдена' })
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
-  }
-
   @ApiOperation({ summary: 'Обновить категорию' })
   @ApiBearerAuth('JWT-auth')
   @ApiParam({

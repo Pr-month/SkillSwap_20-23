@@ -12,6 +12,7 @@ import { Category } from '../../categories/entities/category.entity';
 import { Gender, Role } from '../../common/types';
 import { Skill } from '../../skills/entities/skill.entity';
 import { Request } from '../../requests/entities/request.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 // @Exclude() // По умолчанию все поля исключены
 // @Expose() // Явно указываем, что поле нужно включать
@@ -22,9 +23,17 @@ export class User {
   id: string = uuidv4();
 
   @Column({ type: 'text' })
+  @ApiProperty({
+    example: 'alex',
+    description: 'Имя пользователя',
+  })
   name: string;
 
   @Column({ type: 'text', unique: true })
+  @ApiProperty({
+    example: 'alex@example.com',
+    description: 'Email пользователя',
+  })
   email: string;
 
   @Column({ type: 'text' })
@@ -38,9 +47,17 @@ export class User {
     type: 'date',
     nullable: true,
   })
+  @ApiProperty({
+    example: '1990-01-01',
+    description: 'Дата рождения',
+  })
   birthDate: Date | null = null;
 
   @Column({ type: 'text', nullable: true })
+  @ApiProperty({
+    example: 'Tokio',
+    description: 'Город',
+  })
   city: string | null = null;
 
   @Column({
@@ -48,9 +65,17 @@ export class User {
     enum: Gender,
     nullable: true,
   })
+  @ApiProperty({
+    example: 'male',
+    description: 'пол',
+  })
   gender: Gender;
 
   @Column({ type: 'text', nullable: true })
+  @ApiProperty({
+    example: 'avatar.png',
+    description: 'аватар пользователя',
+  })
   avatar: string;
 
   @Column({

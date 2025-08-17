@@ -1,20 +1,20 @@
 import * as request from 'supertest';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../app.module';
-import { AllExceptionFilter } from '../common/all-exception.filter';
-import { AppDataSource } from '../config/data-source';
+import { AppModule } from '../src/app.module';
+import { AllExceptionFilter } from '../src/common/all-exception.filter';
+import { AppDataSource } from '../src/config/data-source';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { Category } from './entities/category.entity';
-import { UpdateCategoryDto } from './dto/update-category.dto';
-import { User } from '../users/entities/user.entity';
-import { Skill } from '../skills/entities/skill.entity';
+import { CreateCategoryDto } from '../src/categories/dto/create-category.dto';
+import { Category } from '../src/categories/entities/category.entity';
+import { UpdateCategoryDto } from '../src/categories/dto/update-category.dto';
+import { User } from '../src/users/entities/user.entity';
+import { Skill } from '../src/skills/entities/skill.entity';
 import { App } from 'supertest/types';
 import { Repository } from 'typeorm';
-import { AdminUsersData } from '../scripts/users.data';
-import { Role } from '../common/types';
-import { Categories } from '../scripts/categories.data';
+import { AdminUsersData } from '../src/scripts/users.data';
+import { Role } from '../src/common/types';
+import { Categories } from '../src/scripts/categories.data';
 import * as bcrypt from 'bcrypt';
 
 export interface SomeUserDTO {

@@ -5,6 +5,8 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { diskStorage } from 'multer';
 import { Request } from 'express';
+import { extname } from 'path';
+import { imageFileFilter } from './utils/image-file-filter';
 
 export interface IFileUploadeConfig {
   destination: string;
@@ -18,9 +20,8 @@ export interface IFileUploadeConfig {
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const fileUploadConfig = config.get<IFileUploadeConfig>(
-          'APP_CONFIG.fileUploads',
-        );
+        const fileUploadConfig =
+          config.get<IFileUploadeConfig>('APP.fileUploads');
         return {
           limits: {
             fileSize: fileUploadConfig?.limit,
@@ -32,10 +33,15 @@ export interface IFileUploadeConfig {
               file: Express.Multer.File,
               cb: (error: Error | null, filename: string) => void,
             ): void => {
-              const filename = `${Date.now()}${file.originalname}`;
-              cb(null, filename);
+              const ext = extname(file.originalname);
+              const baseName = file.originalname
+                .replace(ext, '')
+                .replace(/[^a-zA-Z0-9-_]/g, '_');
+              const uniqueName = `${Date.now()}${baseName}${ext}`;
+              cb(null, uniqueName);
             },
           }),
+          fileFilter: imageFileFilter,
         };
       },
     }),

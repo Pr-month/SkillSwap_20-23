@@ -1,48 +1,72 @@
 import {
-  ConflictException,
+  BadRequestException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
-import { UsersService } from 'src/users/users.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
+import * as bcrypt from 'bcrypt';
+import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
 import { Repository } from 'typeorm';
 import { JwtPayload } from './auth.types';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { Role } from 'src/common/types';
+import { Role } from '../common/types';
+import { IJwtConfig } from '../config/config.types';
+import { Inject } from '@nestjs/common';
+import { jwtConfig } from '../config/jwt.config';
+import { Category } from '../categories/entities/category.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
     private userService: UsersService,
     private jwtService: JwtService,
-    private configService: ConfigService,
+    @Inject(jwtConfig.KEY)
+    private readonly jwtSettings: IJwtConfig,
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const existingUser = await this.userRepository.findOne({
-      where: { email: registerDto.email },
-    });
+    const hashedPassword = await bcrypt.hash(
+      registerDto.password,
+      this.jwtSettings.hashSaltRounds,
+    );
 
-    if (existingUser) {
-      throw new ConflictException('User with this email already exists!');
+    const { wantToLearn, ...userData } = registerDto;
+
+    let wantToLearnCategories: Category[];
+    if (wantToLearn) {
+      wantToLearnCategories = await Promise.all(
+        wantToLearn.map(async (catId) => {
+          const foundRepository = await this.categoryRepository.findOne({
+            where: { id: catId },
+          });
+          if (!foundRepository) {
+            throw new BadRequestException('Категория не была найдена');
+          }
+          return foundRepository;
+        }),
+      );
+    } else {
+      wantToLearnCategories = [];
     }
 
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-
     const user = this.userRepository.create({
-      ...registerDto,
+      ...userData,
+      wantToLearn: wantToLearnCategories,
       password: hashedPassword,
     });
 
     const tokens = await this._getTokens(user);
 
-    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    const hashedRefreshToken = await bcrypt.hash(
+      tokens.refreshToken,
+      this.jwtSettings.hashSaltRounds,
+    );
     await this.userRepository.save({
       ...user,
       refreshToken: hashedRefreshToken,
@@ -74,7 +98,10 @@ export class AuthService {
 
     const tokens = await this._getTokens(user);
 
-    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    const hashedRefreshToken = await bcrypt.hash(
+      tokens.refreshToken,
+      this.jwtSettings.hashSaltRounds,
+    );
     await this.userRepository.update(user.id, {
       refreshToken: hashedRefreshToken,
     });
@@ -105,10 +132,19 @@ export class AuthService {
       throw new UnauthorizedException('Access denied!');
     }
 
-    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    const hashedRefreshToken = await bcrypt.hash(
+      tokens.refreshToken,
+      this.jwtSettings.hashSaltRounds,
+    );
 
-    await this.userService.updateUserById(user.id, {
-      ...user,
+    // Заменил это
+    // await this.userService.updateUserById(user.id, {
+    //   ...user,
+    //   refreshToken: hashedRefreshToken,
+    // });
+    // на это \/\/\/ т.к. нет смысла вызывать userSevice,
+    // когда все остальные функции в auth.service вызывают userRepository
+    await this.userRepository.update(user.id, {
       refreshToken: hashedRefreshToken,
     });
 
@@ -136,13 +172,13 @@ export class AuthService {
     };
 
     const accessToken = await this.jwtService.signAsync(payload, {
-      secret: this.configService.get('JWT_ACCESS_SECRET'),
-      expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION') || '15m',
+      secret: this.jwtSettings.accessSecret,
+      expiresIn: this.jwtSettings.accessExpiration,
     });
 
     const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: this.configService.get('JWT_REFRESH_SECRET'),
-      expiresIn: this.configService.get('JWT_EXPIRATION'),
+      secret: this.jwtSettings.refreshSecret,
+      expiresIn: this.jwtSettings.refreshExpiration,
     });
 
     return { accessToken, refreshToken };

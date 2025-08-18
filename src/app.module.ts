@@ -1,42 +1,69 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataSourceOptions } from 'typeorm';
 import { UsersModule } from './users/users.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { configuration } from './config/configuration';
-import { AppDataSource } from './config/data-source';
+import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { AccessTokenStrategy } from './auth/strategies/access-token.strategy';
 import { UploadModule } from './upload/upload.module';
 import { SkillsModule } from './skills/skills.module';
 import { CategoriesModule } from './categories/categories.module';
 import { WinstonLogger } from './logger/winston-logger';
+import { RequestsModule } from './requests/requests.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { NotificationsModule } from './notifications/notifications.module';
+import { appConfig } from './config/app.config';
+import { dbConfig } from './config/db.config';
+import { jwtConfig } from './config/jwt.config';
+import { postgresConfig } from './config/db.config';
+import { pgAdminConfig } from './config/db.config';
+import { IJwtConfig } from './config/config.types';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       expandVariables: true,
-      load: [configuration],
-      envFilePath: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env',
+      load: [appConfig, dbConfig, jwtConfig, postgresConfig, pgAdminConfig],
+      envFilePath:
+        process.env.NODE_ENV === 'production'
+          ? '.env.prod'
+          : `.env.${process.env.NODE_ENV || 'development'}`,
+      // envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
     JwtModule.registerAsync({
       global: true, // Делаем модуль глобальным
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get('JWT_ACCESS_SECRET') || 'defaultSecretKey',
+      inject: [jwtConfig.KEY],
+      useFactory: (config: IJwtConfig) => ({
+        secret: config.accessSecret,
         signOptions: {
-          expiresIn: configService.get('JWT_EXPIRATION') || '2h',
+          expiresIn: config.accessExpiration,
         },
       }),
-      inject: [ConfigService],
     }),
-    TypeOrmModule.forRoot(AppDataSource.options),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      exclude: ['/api*', '/upload*'],
+      serveStaticOptions: {
+        index: false,
+      },
+      serveRoot: '/public',
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [dbConfig.KEY],
+      useFactory: (config: DataSourceOptions) => config,
+    }),
     UsersModule,
     AuthModule,
     UploadModule,
     SkillsModule,
     CategoriesModule,
+    RequestsModule,
+    NotificationsModule,
   ],
   providers: [
     AccessTokenStrategy,

@@ -1,6 +1,8 @@
 services:
-  database:
+  postgres:
     image: postgres:17.5
+    container_name: skillswap-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -8,40 +10,31 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
-
-    volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     ports:
       - '5432:5432'
-    networks:
-      - postgres-network
-    # Добавьте проверку существования скрипта
-    command: >
-      /bin/bash -c "
-        if [ -f /docker-entrypoint-initdb.d/01_INITIALIZE_DB.sh ]; then
-          chmod +x /docker-entrypoint-initdb.d/01_INITIALIZE_DB.sh;
-        fi;
-        docker-entrypoint.sh postgres
-      "
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin4_container
-    restart: always
+    image: dpage/pgadmin4:latest
+    container_name: skillswap-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
     ports:
       - '8080:80'
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-    networks:
-      - postgres-network
-
-networks:
-  postgres-network:
-    driver: bridge
+    depends_on:
+      - postgres
 
 volumes:
-  db_data:
+  postgres_data:
   pgadmin_data:

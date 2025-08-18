@@ -1,39 +1,38 @@
+import { Type } from 'class-transformer';
 import {
+  IsArray,
+  IsDate,
   IsEmail,
-  IsNotEmpty,
-  IsString,
-  MinLength,
-  IsOptional,
   IsEnum,
-  IsInt,
-  Min,
-  Max,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested,
 } from 'class-validator';
-import { Gender } from 'src/common/gender.enum';
+import { Gender } from '../../common/gender.enum';
+import { Skill } from '../../skills/entities/skill.entity';
+import { ApiProperty } from '@nestjs/swagger';
+import { UUID } from 'typeorm/driver/mongodb/bson.typings';
 
 export class UpdateUserDto {
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name?: string;
 
+  @IsOptional()
   @IsEmail()
   @IsNotEmpty()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(6)
-  password: string;
+  email?: string;
 
   @IsOptional()
   @IsString()
-  about?: string | null; // Разрешаем null;
+  about?: string | null;
 
   @IsOptional()
-  @IsInt()
-  @Min(16)
-  @Max(100)
-  age?: number | null; // Разрешаем null
+  @IsDate()
+  birthDate?: Date | null; // Разрешаем null
 
   @IsOptional()
   @IsString()
@@ -47,6 +46,23 @@ export class UpdateUserDto {
   @IsString()
   avatar?: string;
 
+  @IsOptional()
   @IsString()
   refreshToken: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Skill)
+  favoriteSkills?: Skill[];
+
+  @ApiProperty({
+    description: 'Категории навыков, которые пользователь хочет изучить',
+    type: [UUID],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  wantToLearn?: string[];
 }

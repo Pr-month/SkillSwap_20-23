@@ -11,8 +11,8 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { AuthenticatedRequest } from 'src/auth/auth.types';
-import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
+import { AuthenticatedRequest } from '../auth/auth.types';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { UpdatePasswordDto } from './dto/password-update.dto';
 import { QueryParamsDto } from './dto/query-param.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -30,13 +30,22 @@ export class UsersController {
   @UseGuards(AccessTokenGuard)
   @Get('me')
   getMe(@Request() req: AuthenticatedRequest) {
-    console.log(req.user);
     return this.usersService.findUserById(req.user.sub);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findUserById(id);
+  }
+
+  @Get('by-skill/:id')
+  async findBySkill(@Param('id') skillId: string) {
+    return this.usersService.findUserBySkillId(skillId);
+  }
+
+  @Get('similar-skill/:id')
+  async findSimilarSkillOwnersById(@Param('id') skillId: string) {
+    return this.usersService.findSimilarSkillOwnersBySkillId(skillId);
   }
 
   @UseGuards(AccessTokenGuard)

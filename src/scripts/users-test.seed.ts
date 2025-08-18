@@ -11,10 +11,21 @@ async function seed() {
     const password = await bcrypt.hash('test123', 10);
 
     for (const user of TestUsersData) {
-      userRepo.create({
-        ...user,
-        password: password,
+      const thisUser = await userRepo.findOne({
+        where: { email: user.email },
       });
+
+      if (thisUser && thisUser.email === user.email) {
+        console.log(`Пользователь уже существует! ${thisUser.email}`);
+        return;
+      }
+
+      await userRepo.save(
+        userRepo.create({
+          ...user,
+          password: password,
+        }),
+      );
     }
 
     console.log('Пользователи успешно добавлены в базу данных');

@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { Exclude } from 'class-transformer';
 import {
   Column,
   Entity,
@@ -7,10 +7,12 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
-import { Exclude } from 'class-transformer';
+import { v4 as uuidv4 } from 'uuid';
+import { Category } from '../../categories/entities/category.entity';
 import { Gender, Role } from '../../common/types';
 import { Skill } from '../../skills/entities/skill.entity';
-import { Category } from '../../categories/entities/category.entity';
+import { Request } from '../../requests/entities/request.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 // @Exclude() // По умолчанию все поля исключены
 // @Expose() // Явно указываем, что поле нужно включать
@@ -21,9 +23,17 @@ export class User {
   id: string = uuidv4();
 
   @Column({ type: 'text' })
+  @ApiProperty({
+    example: 'alex',
+    description: 'Имя пользователя',
+  })
   name: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', unique: true })
+  @ApiProperty({
+    example: 'alex@example.com',
+    description: 'Email пользователя',
+  })
   email: string;
 
   @Column({ type: 'text' })
@@ -34,21 +44,38 @@ export class User {
   about: string | null = null;
 
   @Column({
-    type: 'int',
+    type: 'date',
     nullable: true,
   })
-  age: number | null = null;
+  @ApiProperty({
+    example: '1990-01-01',
+    description: 'Дата рождения',
+  })
+  birthDate: Date | null = null;
 
   @Column({ type: 'text', nullable: true })
+  @ApiProperty({
+    example: 'Tokio',
+    description: 'Город',
+  })
   city: string | null = null;
 
   @Column({
     type: 'enum',
     enum: Gender,
+    nullable: true,
+  })
+  @ApiProperty({
+    example: 'male',
+    description: 'пол',
   })
   gender: Gender;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
+  @ApiProperty({
+    example: 'avatar.png',
+    description: 'аватар пользователя',
+  })
   avatar: string;
 
   @Column({
@@ -62,6 +89,7 @@ export class User {
     type: 'varchar',
     length: 255,
     unique: true,
+    nullable: true,
   })
   @Exclude()
   refreshToken: string;
@@ -70,6 +98,13 @@ export class User {
     cascade: true,
   })
   skills?: Skill[];
+
+  // Добавляем связи с заявками
+  @OneToMany(() => Request, (request) => request.sender)
+  sentRequests?: Request[];
+
+  @OneToMany(() => Request, (request) => request.receiver)
+  receivedRequests?: Request[];
 
   @ManyToMany(() => Skill, { eager: true })
   @JoinTable()

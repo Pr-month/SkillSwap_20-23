@@ -1,22 +1,33 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { plainToInstance } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
+import { plainToInstance } from 'class-transformer';
 import { Repository } from 'typeorm';
+import { SkillsService } from '../skills/skills.service';
 import { QueryParamsDto } from './dto/query-param.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { Category } from '../categories/entities/category.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
+    @Inject(forwardRef(() => SkillsService))
+    private skillsService: SkillsService,
   ) {}
 
   async findAll(query: QueryParamsDto): Promise<{
@@ -35,23 +46,86 @@ export class UsersService {
 
     const totalPages = Math.ceil(total / take);
 
+    if (page > totalPages)
+      throw new HttpException('Страница не найдена', HttpStatus.NOT_FOUND);
+
     return {
-      data: users,
+      data: plainToInstance(User, users),
       page,
       totalPages,
     };
   }
 
   async findUserById(id: string) {
-    const user = await this.userRepository.findOneOrFail({ where: { id } });
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user || user.id !== id) {
+      throw new BadRequestException(
+        `Не удается найти пользователя по указанному ID ${id}`,
+      );
+    }
     return plainToInstance(User, user);
+  }
+
+  // староеназвание findUserSkillId
+  async findSimilarSkillOwnersBySkillId(skillId: string) {
+    const skill = await this.skillsService.findOneWithCategory(skillId);
+
+    const users = await this.userRepository.find({
+      where: {
+        wantToLearn: { id: skill.category.id },
+      },
+      take: 10,
+    });
+
+    return users.map((user) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, refreshToken, ...other } = user;
+      return other;
+    });
+  }
+
+  async findUserBySkillId(skillId: string) {
+    const skillOwner = await this.userRepository.findOne({
+      where: {
+        skills: { id: skillId },
+      },
+    });
+
+    if (!skillOwner) {
+      throw new NotFoundException('Не удалось найти владельца навыка...');
+    }
+    return skillOwner;
   }
 
   async updateUserById(id: string, updateUserDto: UpdateUserDto) {
     try {
       const user = await this.userRepository.findOneOrFail({ where: { id } });
-      const mergedUser = this.userRepository.merge(user, updateUserDto);
-      const savedUser = await this.userRepository.save(mergedUser);
+
+      const { wantToLearn, ...userData } = updateUserDto;
+
+      let wantToLearnCategories: Category[];
+
+      if (wantToLearn) {
+        wantToLearnCategories = await Promise.all(
+          wantToLearn.map(async (catId) => {
+            const foundRepository = await this.categoryRepository.findOne({
+              where: { id: catId },
+            });
+            if (!foundRepository) {
+              throw new BadRequestException('Категория не была найдена');
+            }
+            return foundRepository;
+          }),
+        );
+      } else {
+        wantToLearnCategories = [];
+      }
+
+      const savedUser = await this.userRepository.save({
+        ...user,
+        ...userData,
+        wantToLearn: wantToLearnCategories,
+      });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, refreshToken, ...updatedUser } = savedUser;
 

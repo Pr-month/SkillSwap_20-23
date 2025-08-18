@@ -1,17 +1,18 @@
 import { PartialType } from '@nestjs/mapped-types';
 import {
+  IsDate,
   IsEmail,
   IsEnum,
-  IsInt,
   IsOptional,
   IsString,
   IsUrl,
   IsUUID,
-  Max,
-  Min,
+  MinLength,
 } from 'class-validator';
-import { Gender } from 'src/common/gender.enum';
+import { Gender } from '../../common/gender.enum';
 import { User } from '../entities/user.entity';
+import { Category } from 'src/categories/entities/category.entity';
+import { Type } from 'class-transformer';
 
 export class CreateUserDto extends PartialType(User) {
   @IsUUID()
@@ -24,13 +25,12 @@ export class CreateUserDto extends PartialType(User) {
   email: string;
 
   @IsString()
+  @MinLength(8)
   password: string;
 
   @IsOptional()
-  @IsInt()
-  @Min(0)
-  @Max(150)
-  age: number;
+  @IsDate()
+  birthDate?: Date;
 
   @IsOptional()
   @IsString()
@@ -38,7 +38,7 @@ export class CreateUserDto extends PartialType(User) {
 
   @IsOptional()
   @IsEnum(Gender)
-  gender: Gender;
+  gender?: Gender;
 
   @IsString()
   @IsOptional()
@@ -46,9 +46,13 @@ export class CreateUserDto extends PartialType(User) {
 
   @IsOptional()
   @IsUrl()
-  avatar: string;
+  avatar?: string;
 
   @IsOptional()
   @IsString()
   refreshToken?: string;
+
+  @IsOptional()
+  @Type(() => Category)
+  wantToLearn?: Category[];
 }

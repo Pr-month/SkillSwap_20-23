@@ -183,6 +183,7 @@ describe('AuthModule (e2e)', () => {
           .expect(201);
       } catch (e: any) {
         if ((e as SupertestError).status !== 409) throw e;
+        console.log(e)
       }
 
       const loginRes = await request(app.getHttpServer())

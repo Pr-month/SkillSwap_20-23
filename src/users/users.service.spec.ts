@@ -15,6 +15,7 @@ import { QueryParamsDto } from './dto/query-param.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Gender, Role } from '../common/types';
 import { SkillsService } from '../skills/skills.service';
+import { Category } from '../categories/entities/category.entity';
 
 // Mock bcrypt
 jest.mock('bcrypt', () => ({
@@ -50,8 +51,23 @@ describe('UsersService', () => {
     delete: jest.fn(),
   };
 
+  const mockCategoryRepository = {
+    find: jest.fn(),
+    findOne: jest.fn(),
+    findOneOrFail: jest.fn(),
+    save: jest.fn(),
+    delete: jest.fn(),
+  };
+
   const mockSkillsService = {
+    findOne: jest.fn(),
     findOneWithCategory: jest.fn(),
+    findAll: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    remove: jest.fn(),
+    addFavorite: jest.fn(),
+    removeFavorite: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -61,6 +77,10 @@ describe('UsersService', () => {
         {
           provide: getRepositoryToken(User),
           useValue: mockRepository,
+        },
+        {
+          provide: getRepositoryToken(Category),
+          useValue: mockCategoryRepository,
         },
         {
           provide: SkillsService,

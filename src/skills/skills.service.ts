@@ -171,6 +171,7 @@ export class SkillsService {
       favoriteSkills: user.favoriteSkills
         ? [...user.favoriteSkills, skill]
         : [skill],
+      wantToLearn: [],
     });
   }
 
@@ -186,6 +187,7 @@ export class SkillsService {
     return await this.userService.updateUserById(user.id, {
       ...user,
       favoriteSkills: user.favoriteSkills.filter((obj) => obj.id !== skillId),
+      wantToLearn: [],
     });
   }
 }

@@ -22,7 +22,7 @@ import {
   ApiResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { returnErrorDTO } from 'src/auth/dto/returnErrorDTO';
+import { returnErrorDTO } from '../auth/dto/returnErrorDTO';
 import { AuthenticatedRequest } from '../auth/auth.types';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { CreateSkillDto } from './dto/create-skill.dto';

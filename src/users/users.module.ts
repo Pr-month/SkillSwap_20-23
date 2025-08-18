@@ -5,10 +5,14 @@ import { SkillsModule } from '../skills/skills.module';
 import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { Category } from '../categories/entities/category.entity';
+import { CategoriesModule } from '../categories/categories.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]), // Регистрация репозитория User
+    TypeOrmModule.forFeature([Category]),
+    CategoriesModule,
     SkillsModule,
   ],
   controllers: [UsersController],

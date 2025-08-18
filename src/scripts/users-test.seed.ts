@@ -4,6 +4,7 @@ import { TestUsersData } from './users.data';
 import * as bcrypt from 'bcrypt';
 
 async function seed() {
+  console.log('НАЧИНАЮ СИДИРОВАНИЕ ПОЛЬЗОВАТЕЛЕЙ!');
   await AppDataSource.initialize();
   const userRepo = AppDataSource.getRepository(User);
 

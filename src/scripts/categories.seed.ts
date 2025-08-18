@@ -3,6 +3,7 @@ import { Category } from '../categories/entities/category.entity';
 import { Categories } from './categories.data';
 
 async function seed() {
+  console.log('НАЧИНАЮ СИДИРОВАНИЕ КАТЕГОРИЙ! ');
   await AppDataSource.initialize(); // инициализация подключения к БД
   const categoryRepo = AppDataSource.getRepository(Category); // получаем репозиторий для работы с категориями
 

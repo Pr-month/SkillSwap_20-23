@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { Role } from '../common/types';
 
 async function seed() {
+  console.log('НАЧИНАЮ СИДИРОВАНИЕ АДМИНИСТРАТОРА! ');
   await AppDataSource.initialize();
   const userRepo = AppDataSource.getRepository(User);
 

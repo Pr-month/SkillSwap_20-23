@@ -43,7 +43,7 @@ describe('AuthModule (e2e)', () => {
   let app: NestExpressApplication;
 
   const userDto = {
-    email: 'test@example.com',
+    email: 'test@authExample.com',
     password: '123456',
     name: 'Test User',
     gender: 'male',
@@ -97,7 +97,7 @@ describe('AuthModule (e2e)', () => {
       await request(app.getHttpServer())
         .post('/auth/register')
         .send({
-          email: 'test4@example.com',
+          email: 'test4@authExample.com',
           password: '123456',
           name: 'Test User',
           gender: 'male',
@@ -108,7 +108,7 @@ describe('AuthModule (e2e)', () => {
       await request(app.getHttpServer())
         .post('/auth/register')
         .send({
-          email: 'test4@example.com',
+          email: 'test4@authExample.com',
           password: '123456',
           name: 'Test User',
           gender: 'male',
@@ -123,7 +123,7 @@ describe('AuthModule (e2e)', () => {
       await request(app.getHttpServer())
         .post('/auth/register')
         .send({
-          email: 'test2@example.com',
+          email: 'test2@authExample.com',
           password: '123456',
           name: 'Test User',
           gender: 'male',
@@ -134,7 +134,7 @@ describe('AuthModule (e2e)', () => {
       const res = await request(app.getHttpServer())
         .post('/auth/login')
         .send({
-          email: 'test2@example.com',
+          email: 'test2@authExample.com',
           password: '123456',
         })
         .expect(200);
@@ -147,7 +147,7 @@ describe('AuthModule (e2e)', () => {
       await request(app.getHttpServer())
         .post('/auth/register')
         .send({
-          email: 'test3@example.com',
+          email: 'test3@authExample.com',
           password: '123456',
           name: 'Test User',
           gender: 'male',
@@ -158,7 +158,7 @@ describe('AuthModule (e2e)', () => {
       await request(app.getHttpServer())
         .post('/auth/login')
         .send({
-          email: 'test3@example.com',
+          email: 'test3@authExample.com',
           password: 'wrongpass',
         })
         .expect(401);
@@ -174,7 +174,7 @@ describe('AuthModule (e2e)', () => {
         await request(app.getHttpServer())
           .post('/auth/register')
           .send({
-            email: 'test5@example.com',
+            email: 'test5@authExample.com',
             password: '123456',
             name: 'Test User',
             gender: 'male',
@@ -188,7 +188,7 @@ describe('AuthModule (e2e)', () => {
       const loginRes = await request(app.getHttpServer())
         .post('/auth/login')
         .send({
-          email: 'test5@example.com',
+          email: 'test5@authExample.com',
           password: '123456',
         })
         .expect(200);

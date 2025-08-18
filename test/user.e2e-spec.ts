@@ -96,6 +96,7 @@ describe('User module (e2e)', () => {
       }),
     );
     await app.init();
+
     userRepo = AppDataSource.getRepository(User);
     categoryRepo = AppDataSource.getRepository(Category);
     skillRepo = AppDataSource.getRepository(Skill);

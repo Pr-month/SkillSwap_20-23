@@ -57,16 +57,6 @@ export class UpdateUserDto {
   @Type(() => Skill)
   favoriteSkills?: Skill[];
 
-  // @ApiProperty({
-  //   description: 'Категории навыков, которые пользователь хочет изучить',
-  //   type: [UUID],
-  //   required: false,
-  // })
-  // @IsOptional()
-  // @IsArray()
-  // @IsUUID('all', { each: true })
-  // wantToLearn?: string[];
-
   @ApiProperty({
     description: 'Категории навыков, которые пользователь хочет изучить',
     type: [UUID],

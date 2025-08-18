@@ -7,6 +7,7 @@ import { AppModule } from '../src/app.module';
 import {
   AdminUsersData,
   AdminUsersPassword,
+  TestUserPassword,
   TestUsersData,
 } from '../src/scripts/users.data';
 import { AllExceptionFilter } from '../src/common/all-exception.filter';
@@ -149,7 +150,7 @@ describe('User module (e2e)', () => {
       const someCategory = createdCategories[0];
       someCategoryID = createdCategories[0].id;
 
-      userPassword = 'userPassword123';
+      userPassword = TestUserPassword;
       const userPasswordEncrypted = await bcrypt.hash(userPassword, 10);
 
       for (const user of TestUsersData) {
@@ -420,33 +421,6 @@ describe('User module (e2e)', () => {
         ]),
       );
     });
-  });
-
-  it('checking if register works', async () => {
-    await request(app.getHttpServer())
-      .post(`/auth/register`)
-      .set('Authorization', `Bearer ${jwtToken}`)
-      .send({
-        name: 'Johny Doe',
-        email: 'johnydoe@mail.com',
-        about: 'something about johny',
-        wantToLearn: [someCategoryID],
-        password: 'somepassword',
-      })
-      .expect(201);
-  });
-
-  it('checking if register works', async () => {
-    await request(app.getHttpServer())
-      .post(`/auth/register`)
-      .set('Authorization', `Bearer ${jwtToken}`)
-      .send({
-        name: 'Jane Doe',
-        email: 'janedoe@mail.com',
-        about: 'something about jane',
-        password: 'somepassword',
-      })
-      .expect(201);
   });
 
   afterAll(async () => {

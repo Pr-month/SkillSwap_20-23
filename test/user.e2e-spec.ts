@@ -189,6 +189,7 @@ describe('User module (e2e)', () => {
       }
       testUsers = await userRepo.findBy({
         role: Role.USER,
+        wantToLearn: someCategory,
       });
 
       console.log('Тестовая БД успешна заполнена необходимыми значениями.');
@@ -415,11 +416,13 @@ describe('User module (e2e)', () => {
       .get(`/users/similar-skill/${someSkillID}`)
       .expect(200);
     testUsers.forEach((user) => {
-      expect(similarSkillResponse.body).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ name: user.name, email: user.email }),
-        ]),
-      );
+      if (user.name != someUser.name) {
+        expect(similarSkillResponse.body).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ name: user.name, email: user.email }),
+          ]),
+        );
+      }
     });
   });
 

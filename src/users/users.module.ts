@@ -10,11 +10,12 @@ import { CategoriesModule } from '../categories/categories.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]), // Регистрация репозитория User
+    TypeOrmModule.forFeature([User, Category]), // Регистрация репозитория User
+    CategoriesModule,
     SkillsModule,
   ],
   controllers: [UsersController],
   providers: [UsersService, AccessTokenGuard],
   exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

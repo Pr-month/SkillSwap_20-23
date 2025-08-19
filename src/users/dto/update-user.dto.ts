@@ -12,8 +12,7 @@ import {
 } from 'class-validator';
 import { Gender } from '../../common/gender.enum';
 import { Skill } from '../../skills/entities/skill.entity';
-import { ApiProperty, ApiPropertyOptional  } from '@nestjs/swagger';
-import { UUID } from 'typeorm/driver/mongodb/bson.typings';
+import { ApiPropertyOptional  } from '@nestjs/swagger';
 
 export class UpdateUserDto {
   @ApiPropertyOptional({

@@ -319,7 +319,8 @@ describe('AuthService', () => {
         .mockResolvedValueOnce(newRefreshToken);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (bcrypt.hash as jest.Mock).mockResolvedValue(hashedNewRefreshToken);
-      mockUsersService.updateUserById.mockResolvedValue(undefined);
+      // Исправлено: используем mockUserRepository.update вместо mockUsersService.updateUserById
+      mockUserRepository.update.mockResolvedValue(undefined);
 
       const result = await service.refresh(jwtPayload);
 
@@ -330,12 +331,10 @@ describe('AuthService', () => {
         newRefreshToken,
         mockUser.refreshToken,
       );
-      expect(mockUsersService.updateUserById).toHaveBeenCalledWith(
-        mockUser.id,
-        expect.objectContaining({
-          refreshToken: hashedNewRefreshToken,
-        }),
-      );
+      // Исправлено: проверяем вызов userRepository.update вместо usersService.updateUserById
+      expect(mockUserRepository.update).toHaveBeenCalledWith(mockUser.id, {
+        refreshToken: hashedNewRefreshToken,
+      });
       expect(result).toEqual({
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,

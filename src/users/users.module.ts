@@ -16,4 +16,4 @@ import { Category } from '../categories/entities/category.entity';
   providers: [UsersService, AccessTokenGuard],
   exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

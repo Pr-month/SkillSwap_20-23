@@ -147,8 +147,14 @@ export class UsersController {
   @ApiOperation({ summary: 'Обновить пароль текущего пользователя' })
   @ApiBody({ type: UpdatePasswordDto })
   @ApiResponse({ status: 204, description: 'Пароль успешно обновлен' })
-  @ApiResponse({ status: 401, description: 'Не авторизован или неверный пароль' })
-  @ApiResponse({ status: 400, description: 'Новый пароль не соответствует требованиям' })
+  @ApiResponse({
+    status: 401,
+    description: 'Не авторизован или неверный пароль',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Новый пароль не соответствует требованиям',
+  })
   @ApiResponse({ status: 409, description: 'Новый пароль совпадает с текущим' })
   async updatePassword(
     @Req() req: AuthenticatedRequest, // Запрос с данными пользователя

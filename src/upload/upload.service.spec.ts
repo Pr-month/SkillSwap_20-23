@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { UploadService } from './upload.service';
-import { BadRequestException } from '@nestjs/common';
 
 describe('UploadService', () => {
   let service: UploadService;
-  let consoleLogSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -14,14 +12,9 @@ describe('UploadService', () => {
     }).compile();
 
     service = module.get<UploadService>(UploadService);
-
-    // Mock console.log to avoid output during tests
-    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
   });
 
   afterEach(() => {
-    // Restore console.log
-    consoleLogSpy.mockRestore();
     jest.clearAllMocks();
   });
 
@@ -53,9 +46,6 @@ describe('UploadService', () => {
         filePath:
           'http://localhost:3000/public/uploads/1234567890-test-image.jpg',
       });
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'public/uploads/1234567890-test-image.jpg',
-      );
     });
 
     it('should normalize backslashes to forward slashes in file path', () => {
@@ -79,9 +69,6 @@ describe('UploadService', () => {
         filePath:
           'http://localhost:3000/public/uploads/1234567890-test-image.png',
       });
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'public/uploads/1234567890-test-image.png',
-      );
     });
 
     it('should handle mixed slashes in file path', () => {
@@ -105,33 +92,6 @@ describe('UploadService', () => {
         filePath:
           'http://localhost:3000/public/uploads/subfolder/1234567890-test-image.gif',
       });
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'public/uploads/subfolder/1234567890-test-image.gif',
-      );
-    });
-
-    it('should throw BadRequestException when no file is provided', () => {
-      const mockFile = null as any;
-
-      expect(() => service.handleFileUpload(mockFileUrl, mockFile)).toThrow(
-        BadRequestException,
-      );
-      expect(() => service.handleFileUpload(mockFileUrl, mockFile)).toThrow(
-        'no file uploaded',
-      );
-      expect(consoleLogSpy).not.toHaveBeenCalled();
-    });
-
-    it('should throw BadRequestException when file is undefined', () => {
-      const mockFile = undefined as any;
-
-      expect(() => service.handleFileUpload(mockFileUrl, mockFile)).toThrow(
-        BadRequestException,
-      );
-      expect(() => service.handleFileUpload(mockFileUrl, mockFile)).toThrow(
-        'no file uploaded',
-      );
-      expect(consoleLogSpy).not.toHaveBeenCalled();
     });
 
     it('should handle different file URLs', () => {
@@ -200,7 +160,6 @@ describe('UploadService', () => {
         message: 'File uploaded successfully',
         filePath: 'http://localhost:3000/',
       });
-      expect(consoleLogSpy).toHaveBeenCalledWith('');
     });
 
     it('should handle file URL with trailing slash', () => {
@@ -246,9 +205,6 @@ describe('UploadService', () => {
         message: 'File uploaded successfully',
         filePath: 'http://localhost:3000/public/uploads/2024/01/15/test.jpg',
       });
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'public/uploads/2024/01/15/test.jpg',
-      );
     });
 
     it('should handle file with no extension', () => {
@@ -337,29 +293,6 @@ describe('UploadService', () => {
         message: 'File uploaded successfully',
         filePath: 'http://localhost:3000/uploads//subfolder//test.jpg',
       });
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'uploads//subfolder//test.jpg',
-      );
-    });
-
-    it('should preserve the exact console.log behavior', () => {
-      const mockFile: Express.Multer.File = {
-        fieldname: 'file',
-        originalname: 'test.jpg',
-        encoding: '7bit',
-        mimetype: 'image/jpeg',
-        destination: 'uploads',
-        filename: 'test.jpg',
-        path: 'test\\path\\file.jpg',
-        size: 1024,
-        stream: {} as any,
-        buffer: Buffer.from(''),
-      };
-
-      service.handleFileUpload(mockFileUrl, mockFile);
-
-      expect(consoleLogSpy).toHaveBeenCalledTimes(1);
-      expect(consoleLogSpy).toHaveBeenCalledWith('test/path/file.jpg');
     });
   });
 

@@ -44,7 +44,6 @@ export class UpdateUserDto {
   @IsString()
   about?: string | null;
 
-  
   @ApiPropertyOptional({
     description: 'Дата рождения',
     example: '1990-01-01',
@@ -102,7 +101,7 @@ export class UpdateUserDto {
   @Type(() => Skill)
   favoriteSkills?: Skill[];
 
-   @ApiPropertyOptional({
+  @ApiPropertyOptional({
     description: 'Категории навыков, которые пользователь хочет изучить',
     type: [String],
     example: ['123e4567-e89b-12d3-a456-426614174000'],

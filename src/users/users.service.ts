@@ -101,30 +101,9 @@ export class UsersService {
     try {
       const user = await this.userRepository.findOneOrFail({ where: { id } });
 
-      const { wantToLearn, ...userData } = updateUserDto;
-
-      let wantToLearnCategories: Category[];
-
-      if (wantToLearn) {
-        wantToLearnCategories = await Promise.all(
-          wantToLearn.map(async (catId) => {
-            const foundRepository = await this.categoryRepository.findOne({
-              where: { id: catId },
-            });
-            if (!foundRepository) {
-              throw new BadRequestException('Категория не была найдена');
-            }
-            return foundRepository;
-          }),
-        );
-      } else {
-        wantToLearnCategories = [];
-      }
-
       const savedUser = await this.userRepository.save({
         ...user,
-        ...userData,
-        wantToLearn: wantToLearnCategories,
+        ...updateUserDto,
       });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, refreshToken, ...updatedUser } = savedUser;

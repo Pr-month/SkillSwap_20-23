@@ -24,15 +24,19 @@ import { AuthenticatedRequest } from '../auth/auth.types';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { UpdatePasswordDto } from './dto/password-update.dto';
 import { QueryParamsDto } from './dto/query-param.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateMeDto, UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
+import { CategoriesService } from '../categories/categories.service';
 
 @ApiTags('users')
 @ApiBearerAuth()
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly categoriesService: CategoriesService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Получить список пользователей' })
@@ -121,8 +125,15 @@ export class UsersController {
   @ApiResponse({ status: 500, description: 'Ошибка при обновлении' })
   async updateMe(
     @Request() req: AuthenticatedRequest,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() updateMeDto: UpdateMeDto,
   ) {
+    const { wantToLearn, ...updateMeData } = updateMeDto;
+    const wantToLearnCategories =
+      await this.categoriesService.getCategoriesByCategoryIDs(wantToLearn);
+    const updateUserDto: UpdateUserDto = {
+      wantToLearn: wantToLearnCategories,
+      ...updateMeData,
+    };
     return await this.usersService.updateUserById(
       req.user.sub, // ID пользователя
       updateUserDto,

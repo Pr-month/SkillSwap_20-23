@@ -12,7 +12,9 @@ import {
 } from 'class-validator';
 import { Gender } from '../../common/gender.enum';
 import { Skill } from '../../skills/entities/skill.entity';
-import { ApiPropertyOptional  } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { UUID } from 'typeorm/driver/mongodb/bson.typings';
+import { Category } from '../../categories/entities/category.entity';
 
 export class UpdateUserDto {
   @ApiPropertyOptional({
@@ -105,6 +107,59 @@ export class UpdateUserDto {
     type: [String],
     example: ['123e4567-e89b-12d3-a456-426614174000'],
     nullable: true,
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Category)
+  wantToLearn?: Category[];
+}
+
+export class UpdateMeDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  name?: string;
+
+  @IsOptional()
+  @IsEmail()
+  @IsNotEmpty()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  about?: string | null;
+
+  @IsOptional()
+  @IsDate()
+  birthDate?: Date | null; // Разрешаем null
+
+  @IsOptional()
+  @IsString()
+  city?: string | null;
+
+  @IsOptional()
+  @IsEnum(Gender)
+  gender?: Gender;
+
+  @IsOptional()
+  @IsString()
+  avatar?: string;
+
+  @IsOptional()
+  @IsString()
+  refreshToken: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Skill)
+  favoriteSkills?: Skill[];
+
+  @ApiProperty({
+    description: 'Категории навыков, которые пользователь хочет изучить',
+    type: [UUID],
+    required: false,
   })
   @IsOptional()
   @IsArray()

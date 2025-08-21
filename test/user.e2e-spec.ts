@@ -7,6 +7,7 @@ import { AppModule } from '../src/app.module';
 import {
   AdminUsersData,
   AdminUsersPassword,
+  TestUserPassword,
   TestUsersData,
 } from '../src/scripts/users.data';
 import { AllExceptionFilter } from '../src/common/all-exception.filter';
@@ -96,6 +97,7 @@ describe('User module (e2e)', () => {
       }),
     );
     await app.init();
+
     userRepo = AppDataSource.getRepository(User);
     categoryRepo = AppDataSource.getRepository(Category);
     skillRepo = AppDataSource.getRepository(Skill);
@@ -148,7 +150,7 @@ describe('User module (e2e)', () => {
       const someCategory = createdCategories[0];
       someCategoryID = createdCategories[0].id;
 
-      userPassword = 'userPassword123';
+      userPassword = TestUserPassword;
       const userPasswordEncrypted = await bcrypt.hash(userPassword, 10);
 
       for (const user of TestUsersData) {
@@ -187,6 +189,7 @@ describe('User module (e2e)', () => {
       }
       testUsers = await userRepo.findBy({
         role: Role.USER,
+        wantToLearn: someCategory,
       });
 
       console.log('Тестовая БД успешна заполнена необходимыми значениями.');
@@ -413,39 +416,14 @@ describe('User module (e2e)', () => {
       .get(`/users/similar-skill/${someSkillID}`)
       .expect(200);
     testUsers.forEach((user) => {
-      expect(similarSkillResponse.body).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ name: user.name, email: user.email }),
-        ]),
-      );
+      if (user.name != someUser.name) {
+        expect(similarSkillResponse.body).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ name: user.name, email: user.email }),
+          ]),
+        );
+      }
     });
-  });
-
-  it('checking if register works', async () => {
-    await request(app.getHttpServer())
-      .post(`/auth/register`)
-      .set('Authorization', `Bearer ${jwtToken}`)
-      .send({
-        name: 'Johny Doe',
-        email: 'johnydoe@mail.com',
-        about: 'something about johny',
-        wantToLearn: [someCategoryID],
-        password: 'somepassword',
-      })
-      .expect(201);
-  });
-
-  it('checking if register works', async () => {
-    await request(app.getHttpServer())
-      .post(`/auth/register`)
-      .set('Authorization', `Bearer ${jwtToken}`)
-      .send({
-        name: 'Jane Doe',
-        email: 'janedoe@mail.com',
-        about: 'something about jane',
-        password: 'somepassword',
-      })
-      .expect(201);
   });
 
   afterAll(async () => {

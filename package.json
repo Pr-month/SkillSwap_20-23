@@ -24,10 +24,13 @@
     "docker:pgadmin:console": "docker exec -it pgadmin /bin/bash",
     "docker:database:console": "docker exec -it database /bin/bash",
     "seed": "npm run seed:categories && npm run seed:admin",
-    "seed:test": "npm run seed && npm run seed:test:users",
     "seed:categories": "ts-node -r tsconfig-paths/register src/scripts/categories.seed.ts",
     "seed:admin": "ts-node -r tsconfig-paths/register src/scripts/users-admin.seed.ts",
-    "seed:test:users": "ts-node -r tsconfig-paths/register src/scripts/users-test.seed.ts",
+    "seed:test": "npm run seed:test:admin && npm run seed:test:categories && npm run seed:test:users && npm run seed:test:skills",
+    "seed:test:categories": "cross-env NODE_ENV=test ts-node -r tsconfig-paths/register src/scripts/categories.seed.ts",
+    "seed:test:admin": "cross-env NODE_ENV=test ts-node -r tsconfig-paths/register src/scripts/users-admin.seed.ts",
+    "seed:test:users": "cross-env NODE_ENV=test ts-node -r tsconfig-paths/register src/scripts/users-test.seed.ts",
+    "seed:test:skills": "cross-env NODE_ENV=test ts-node -r tsconfig-paths/register src/scripts/skills-test.seed.ts",
     "de-seed:users": "ts-node -r tsconfig-paths/register src/scripts/users-test.remove.seed.ts"
   },
   "dependencies": {

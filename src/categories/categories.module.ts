@@ -10,5 +10,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   ],
   controllers: [CategoriesController],
   providers: [CategoriesService],
+  exports: [CategoriesService],
 })
 export class CategoriesModule {}

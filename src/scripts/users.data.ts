@@ -12,6 +12,8 @@ export const AdminUsersData = {
 export const AdminUsersPassword =
   String(process.env.SEED_ADMIN_PASSWORD) || 'admin123';
 
+export const TestUserPassword = 'testUserPassword123';
+
 export const TestUsersData = [
   {
     name: 'testuser1',

@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 //import * as fs from 'fs';
-import { UsersService } from '../users/users.service';
 import { Repository } from 'typeorm';
+import { UsersService } from '../users/users.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { FindSkillsQueryDto } from './dto/find-skills.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
@@ -147,7 +147,16 @@ export class SkillsService {
     if (!skill.owner) throw new BadRequestException('Skill has no owner');
     if (user.id === skill.owner.id) {
       // this.deleteImages(skill.images);
-      return await this.skillRepository.remove(skill);
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, refreshToken, ...clearOwnerData } = skill.owner;
+
+      return await this.skillRepository.remove(skill, {
+        data: {
+          ...skill,
+          owner: clearOwnerData,
+        },
+      });
     } else {
       throw new ForbiddenException(
         'You do not have permission to delete this skill',
@@ -166,13 +175,17 @@ export class SkillsService {
     if (user.favoriteSkills?.find((obj) => obj.id === skill.id))
       throw new BadRequestException('Навык уже выбран избранным');
 
-    return await this.userService.updateUserById(user.id, {
+    await this.userService.updateUserById(user.id, {
       ...user,
       favoriteSkills: user.favoriteSkills
         ? [...user.favoriteSkills, skill]
         : [skill],
       wantToLearn: [],
     });
+
+    return {
+      message: 'Навык успешно добавлен в избранное',
+    };
   }
 
   async removeFavorite(userId: string, skillId: string) {
@@ -184,10 +197,14 @@ export class SkillsService {
     )
       throw new BadRequestException('Выбранного навыка нет в списке избранных');
 
-    return await this.userService.updateUserById(user.id, {
+    await this.userService.updateUserById(user.id, {
       ...user,
       favoriteSkills: user.favoriteSkills.filter((obj) => obj.id !== skillId),
       wantToLearn: [],
     });
+
+    return {
+      message: 'Навык успешно удален из избранного',
+    };
   }
 }

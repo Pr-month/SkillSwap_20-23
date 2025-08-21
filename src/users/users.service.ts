@@ -14,11 +14,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
 import { Repository } from 'typeorm';
+import { Category } from '../categories/entities/category.entity';
 import { SkillsService } from '../skills/skills.service';
 import { QueryParamsDto } from './dto/query-param.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { Category } from '../categories/entities/category.entity';
 
 @Injectable()
 export class UsersService {
@@ -94,7 +94,11 @@ export class UsersService {
     if (!skillOwner) {
       throw new NotFoundException('Не удалось найти владельца навыка...');
     }
-    return skillOwner;
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, refreshToken, ...clearSkillOwner } = skillOwner;
+
+    return clearSkillOwner;
   }
 
   async updateUserById(id: string, updateUserDto: UpdateUserDto) {

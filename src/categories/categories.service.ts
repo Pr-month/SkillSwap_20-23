@@ -130,6 +130,18 @@ export class CategoriesService {
     return this.categoryRepository.delete(id);
   }
 
+  async getCategoryById(categoryId: string) {
+    const returnedCategory = await this.categoryRepository.findOne({
+      where: { id: categoryId },
+    });
+    if (!returnedCategory || returnedCategory.id != categoryId) {
+      throw new BadRequestException(
+        `Категория по указанному ID не была найдена: ${categoryId}`,
+      );
+    }
+    return returnedCategory;
+  }
+
   async getCategoriesByCategoryIDs(
     categoryIDs: string[] | undefined,
   ): Promise<Category[]> {

@@ -16,7 +16,7 @@ import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateUserDto extends PartialType(User) {
-   @ApiProperty({
+  @ApiProperty({
     description: 'UUID пользователя',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
@@ -46,7 +46,7 @@ export class CreateUserDto extends PartialType(User) {
   @MinLength(8)
   password: string;
 
-@ApiPropertyOptional({
+  @ApiPropertyOptional({
     description: 'Дата рождения',
     example: '1990-01-01',
     nullable: true,
@@ -64,7 +64,7 @@ export class CreateUserDto extends PartialType(User) {
   @IsString()
   city: string;
 
-   @ApiPropertyOptional({
+  @ApiPropertyOptional({
     description: 'Пол',
     enum: Gender,
     example: Gender.MALE,
@@ -83,16 +83,15 @@ export class CreateUserDto extends PartialType(User) {
   @IsOptional()
   about: string;
 
- @ApiPropertyOptional({
+  @ApiPropertyOptional({
     description: 'URL аватара',
     example: 'https://example.com/avatar.jpg',
     nullable: true,
-  }) 
+  })
   @IsOptional()
   @IsUrl()
   avatar?: string;
 
-  
   @ApiPropertyOptional({
     description: 'Refresh token',
     example: 'refresh-token-string',

@@ -25,7 +25,7 @@
     "docker:database:console": "docker exec -it database /bin/bash",
     "de-seed:users": "ts-node -r tsconfig-paths/register src/scripts/users-test.remove.seed.ts",
     "de-seed:skills": "ts-node -r tsconfig-paths/register src/scripts/skills-test.remove.seed.ts",
-    "de-seed:test": "npm run de-seed:users && npm run de-seed:skills"
+    "de-seed:test": "npm run de-seed:users && npm run de-seed:skills",
     "seed": "npm run seed:categories && npm run seed:admin",
     "seed:categories": "ts-node -r tsconfig-paths/register src/scripts/categories.seed.ts",
     "seed:admin": "ts-node -r tsconfig-paths/register src/scripts/users-admin.seed.ts",
@@ -33,7 +33,7 @@
     "seed:test:categories": "cross-env NODE_ENV=test ts-node -r tsconfig-paths/register src/scripts/categories.seed.ts",
     "seed:test:admin": "cross-env NODE_ENV=test ts-node -r tsconfig-paths/register src/scripts/users-admin.seed.ts",
     "seed:test:users": "cross-env NODE_ENV=test ts-node -r tsconfig-paths/register src/scripts/users-test.seed.ts",
-    "seed:test:skills": "cross-env NODE_ENV=test ts-node -r tsconfig-paths/register src/scripts/skills-test.seed.ts",
+    "seed:test:skills": "cross-env NODE_ENV=test ts-node -r tsconfig-paths/register src/scripts/skills-test.seed.ts"
   },
   "dependencies": {
     "@nestjs/class-transformer": "^0.4.0",

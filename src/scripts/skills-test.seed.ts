@@ -1,76 +1,78 @@
-import { Skill } from '../skills/entities/skill.entity';
 import { AppDataSource } from '../config/data-source';
+import { Skill } from '../skills/entities/skill.entity';
 import { User } from '../users/entities/user.entity';
-import { TestUsersData } from './users.data';
 import { Category } from '../categories/entities/category.entity';
-import { Repository } from 'typeorm';
-
-export async function seedSkillsTest(
-  userRepo: Repository<User>,
-  skillRepo: Repository<Skill>,
-  categoryRepo: Repository<Category>,
-) {
-  console.log('НАЧИНАЮ СИДИРОВАНИЕ НАВЫКОВ!');
-  for (const user of TestUsersData) {
-    const thisUser = await userRepo.findOne({
-      where: { email: user.email },
-    });
-
-    if (!thisUser) {
-      console.log(`Пользователь ${user.name} не существует!`);
-      return;
-    }
-
-    const thisSkill = await skillRepo.findOne({
-      where: { owner: thisUser },
-    });
-
-    if (thisSkill) {
-      console.log(`Навык уже существует! ${thisSkill.title}`);
-      return;
-    }
-
-    const commonCategory = await categoryRepo.findOne({
-      where: { name: 'Backend' },
-    });
-
-    if (!commonCategory) {
-      console.log('Категории BACKEND не существует.');
-      return;
-    }
-    await skillRepo.save(
-      skillRepo.create({
-        title: `${thisUser.name} skill in ${commonCategory.name}`,
-        description: `Description of ${thisUser.name} skill in ${commonCategory.name}`,
-        images: ['some.jpg'],
-        category: commonCategory,
-        owner: thisUser,
-      }),
-    );
-
-    await userRepo.save({
-      ...thisUser,
-      wantToLearn: [commonCategory],
-    });
-  }
-  console.log('Навыки успешно добавлены в базу данных');
-}
+import { TestSkills } from '../scripts/skills-test.data'
 
 async function seed() {
-  await AppDataSource.initialize();
-  const userRepo = AppDataSource.getRepository(User);
-  const skillRepo = AppDataSource.getRepository(Skill);
-  const categoryRepo = AppDataSource.getRepository(Category);
-
   try {
-    await seedSkillsTest(userRepo, skillRepo, categoryRepo);
+    await AppDataSource.initialize();
+    const skillRepo = AppDataSource.getRepository(Skill);
+    const userRepo = AppDataSource.getRepository(User);
+    const categoryRepo = AppDataSource.getRepository(Category);
+
+    // Проверяем, есть ли уже тестовые навыки
+    const existingSkills = await skillRepo
+      .createQueryBuilder('skill')
+      .leftJoinAndSelect('skill.owner', 'user')
+      .where('user.email LIKE :email', { email: '%test%@example.com' })
+      .getCount();
+
+    if (existingSkills > 0) {
+      console.log('Тестовые навыки уже существуют в базе данных');
+      await AppDataSource.destroy();
+      return;
+    }
+
+    console.log('Начинаем сидирование тестовых навыков...');
+
+    // Создаем навыки
+    for (const skillData of TestSkills) {
+      // Находим пользователя по email
+      const user = await userRepo.findOne({
+        where: { email: skillData.ownerEmail }
+      });
+
+      if (!user) {
+        console.warn(`Пользователь с email ${skillData.ownerEmail} не найден, пропускаем навык: ${skillData.title}`);
+        continue;
+      }
+
+      // Находим категорию по имени
+      const category = await categoryRepo.findOne({
+        where: { name: skillData.categoryName }
+      });
+
+      if (!category) {
+        console.warn(`Категория "${skillData.categoryName}" не найдена, пропускаем навык: ${skillData.title}`);
+        continue;
+      }
+
+      // Создаем и сохраняем навык
+      const skill = skillRepo.create({
+        title: skillData.title,
+        description: skillData.description,
+        images: skillData.images,
+        owner: user,
+        category: category
+      });
+
+      await skillRepo.save(skill);
+      console.log(`Создан навык: ${skillData.title} для пользователя ${user.email}`);
+    }
+
+    console.log('Тестовые навыки успешно добавлены в базу данных');
+    
   } catch (error) {
     console.error('Ошибка при добавлении тестовых навыков:', error);
+    throw error;
+  } finally {
+    await AppDataSource.destroy();
   }
-  await AppDataSource.destroy();
 }
 
-seed().catch((e) => {
-  console.error('Ошибка при добавлении навыков:', e);
+// Запуск сидирования
+seed().catch((error) => {
+  console.error('Необработанная ошибка в скрипте сидирования:', error);
   process.exit(1);
 });

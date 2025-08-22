@@ -16,6 +16,7 @@ import { CreateSkillDto } from './dto/create-skill.dto';
 import { FindSkillsQueryDto } from './dto/find-skills.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
+import { CategoriesService } from '../categories/categories.service';
 
 @Injectable()
 export class SkillsService {
@@ -23,6 +24,8 @@ export class SkillsService {
     @InjectRepository(Skill) private skillRepository: Repository<Skill>,
     @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
+    @Inject(forwardRef(() => CategoriesService))
+    private readonly categoriesService: CategoriesService,
   ) {}
 
   async findOne(skillId: string): Promise<Skill> {
@@ -113,17 +116,30 @@ export class SkillsService {
       },
     });
 
-    console.log('test test');
+    let updatedSkill: Skill;
 
     const currentUser = await this.userService.findUserById(userId);
 
     if (currentUser.id !== skill.owner.id)
       throw new ForbiddenException('Недостаточно прав');
 
-    return this.skillRepository.save({
-      ...skill,
-      ...updateSkillDto,
-    });
+    if (updateSkillDto.categoryId) {
+      const newCategoryEntity = await this.categoriesService.getCategoryById(
+        updateSkillDto.categoryId,
+      );
+      updatedSkill = {
+        ...skill,
+        ...updateSkillDto,
+        category: newCategoryEntity,
+      };
+    } else {
+      updatedSkill = {
+        ...skill,
+        ...updateSkillDto,
+      };
+    }
+
+    return this.skillRepository.save(updatedSkill);
   }
 
   // deleteImages(imagesArray: string[]) {

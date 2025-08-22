@@ -90,7 +90,6 @@ describe('UploadController', () => {
         'http://localhost:3000',
         mockFile,
       );
-      expect(consoleLogSpy).toHaveBeenCalledWith(mockFile);
       expect(mockRequest.get).toHaveBeenCalledWith('host');
     });
 
@@ -143,45 +142,26 @@ describe('UploadController', () => {
       });
 
       controller.uploadFile(mockFile, mockRequest);
-
-      expect(consoleLogSpy).toHaveBeenCalledTimes(1);
-      expect(consoleLogSpy).toHaveBeenCalledWith(mockFile);
     });
 
     it('should handle when file is null', () => {
       const mockRequest = createMockRequest() as Request;
       const nullFile = null as any;
 
-      mockUploadService.handleFileUpload.mockImplementation(() => {
-        throw new BadRequestException('no file uploaded');
-      });
-
       expect(() => controller.uploadFile(nullFile, mockRequest)).toThrow(
         BadRequestException,
       );
-      expect(uploadService.handleFileUpload).toHaveBeenCalledWith(
-        'http://localhost:3000',
-        null,
-      );
-      expect(consoleLogSpy).toHaveBeenCalledWith(null);
+      expect(uploadService.handleFileUpload).not.toHaveBeenCalled();
     });
 
     it('should handle when file is undefined', () => {
       const mockRequest = createMockRequest() as Request;
       const undefinedFile = undefined as any;
 
-      mockUploadService.handleFileUpload.mockImplementation(() => {
-        throw new BadRequestException('no file uploaded');
-      });
-
       expect(() => controller.uploadFile(undefinedFile, mockRequest)).toThrow(
         BadRequestException,
       );
-      expect(uploadService.handleFileUpload).toHaveBeenCalledWith(
-        'http://localhost:3000',
-        undefined,
-      );
-      expect(consoleLogSpy).toHaveBeenCalledWith(undefined);
+      expect(uploadService.handleFileUpload).not.toHaveBeenCalled();
     });
 
     it('should handle service errors', () => {
@@ -324,11 +304,7 @@ describe('UploadController', () => {
 
       controller.uploadFile(mockFile, mockRequest);
 
-      expect(callOrder).toEqual([
-        'request.get(host)',
-        'console.log',
-        'handleFileUpload',
-      ]);
+      expect(callOrder).toEqual(['request.get(host)', 'handleFileUpload']);
     });
 
     it('should handle IPv6 addresses in host', () => {
@@ -448,7 +424,6 @@ describe('UploadController', () => {
         'http://localhost:3000',
         emptyFile,
       );
-      expect(consoleLogSpy).toHaveBeenCalledWith(emptyFile);
     });
   });
 });

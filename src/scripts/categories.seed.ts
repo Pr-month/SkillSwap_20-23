@@ -1,18 +1,15 @@
 import { AppDataSource } from '../config/data-source';
 import { Category } from '../categories/entities/category.entity';
 import { Categories } from './categories.data';
+import { Repository } from 'typeorm';
 
-async function seed() {
-  await AppDataSource.initialize(); // инициализация подключения к БД
-  const categoryRepo = AppDataSource.getRepository(Category); // получаем репозиторий для работы с категориями
-
+export async function seedCategories(categoryRepo: Repository<Category>) {
+  console.log('НАЧИНАЮ СИДИРОВАНИЕ КАТЕГОРИЙ! ');
   // проверяем, есть ли уже данные в таблице
   const existing = await categoryRepo.count();
   if (existing > 0) {
-    await AppDataSource.destroy();
     return;
   }
-
   // создаем все категории с использованием Promise.all для оптимизации
   await Promise.all(
     Categories.map(async (categoryData) => {
@@ -37,6 +34,12 @@ async function seed() {
 
   // завершение работы
   console.log('Категории успешно добавлены в базу данных');
+}
+
+async function seed() {
+  await AppDataSource.initialize(); // инициализация подключения к БД
+  const categoryRepo = AppDataSource.getRepository(Category); // получаем репозиторий для работы с категориями
+  await seedCategories(categoryRepo);
   await AppDataSource.destroy();
 }
 

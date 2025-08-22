@@ -20,6 +20,10 @@ import { ApiProperty } from '@nestjs/swagger';
 @Entity('user')
 export class User {
   @PrimaryColumn({ type: 'uuid' })
+  @ApiProperty({
+    example: 'b1a3e57c-8af0-4df0-9d85-0d6f92c8f3ad',
+    description: 'Уникальный идентификатор пользователя',
+  })
   id: string = uuidv4();
 
   @Column({ type: 'text' })
@@ -41,6 +45,11 @@ export class User {
   password: string;
 
   @Column({ type: 'text', nullable: true })
+  @ApiProperty({
+    example: 'Customer',
+    description: 'Краткая информация о пользователе',
+    nullable: true,
+  })
   about: string | null = null;
 
   @Column({
@@ -112,5 +121,10 @@ export class User {
 
   @ManyToMany(() => Category, { eager: true })
   @JoinTable()
+  @ApiProperty({
+    type: () => [Category],
+    description: 'Список категорий, которые пользователь хочет изучать',
+    example: [],
+  })
   wantToLearn?: Category[];
 }

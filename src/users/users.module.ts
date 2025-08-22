@@ -6,14 +6,16 @@ import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { Category } from '../categories/entities/category.entity';
+import { CategoriesModule } from '../categories/categories.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Category]), // Регистрация репозитория User
+    CategoriesModule,
     SkillsModule,
   ],
   controllers: [UsersController],
   providers: [UsersService, AccessTokenGuard],
   exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

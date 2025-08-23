@@ -2,10 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { QueryParamsDto } from './dto/query-param.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateMeDto, UpdateUserDto } from './dto/update-user.dto';
 import { UpdatePasswordDto } from './dto/password-update.dto';
 import { AuthenticatedRequest } from '../auth/auth.types';
 import { Gender, Role } from '../common/types';
+import { CategoriesService } from 'src/categories/categories.service';
+import { Category } from 'src/categories/entities/category.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -43,6 +46,14 @@ describe('UsersController', () => {
     },
   };
 
+  const mockCategoryRepository = {
+    find: jest.fn(),
+    findOne: jest.fn(),
+    findOneOrFail: jest.fn(),
+    save: jest.fn(),
+    delete: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
@@ -51,6 +62,11 @@ describe('UsersController', () => {
           provide: UsersService,
           useValue: mockUserService,
         },
+        {
+          provide: getRepositoryToken(Category),
+          useValue: mockCategoryRepository
+        },
+        CategoriesService,
       ],
     }).compile();
 
@@ -179,10 +195,11 @@ describe('UsersController', () => {
 
   describe('updateMe', () => {
     it('should update current user successfully', async () => {
-      const updateDto: UpdateUserDto = {
+      const updateDto: UpdateMeDto = {
         name: 'Updated Name',
         about: 'Updated about',
         refreshToken: 'newRefreshToken',
+        wantToLearn: []
       };
       const updatedUser = { ...mockUser, ...updateDto };
       mockUserService.updateUserById.mockResolvedValue(updatedUser);
@@ -201,9 +218,10 @@ describe('UsersController', () => {
     });
 
     it('should handle partial updates', async () => {
-      const updateDto: UpdateUserDto = {
+      const updateDto = {
         name: 'Only Name Updated',
         refreshToken: 'newRefreshToken',
+        wantToLearn: []
       };
       const updatedUser = { ...mockUser, name: 'Only Name Updated' };
       mockUserService.updateUserById.mockResolvedValue(updatedUser);
@@ -221,7 +239,7 @@ describe('UsersController', () => {
     });
 
     it('should handle update with all optional fields', async () => {
-      const updateDto: UpdateUserDto = {
+      const updateDto = {
         name: 'Full Update',
         email: 'newemail@example.com',
         about: 'New about',
@@ -243,7 +261,7 @@ describe('UsersController', () => {
     });
 
     it('should handle service errors during update', async () => {
-      const updateDto: UpdateUserDto = {
+      const updateDto = {
         name: 'Updated Name',
         refreshToken: 'newRefreshToken',
       };
@@ -259,7 +277,7 @@ describe('UsersController', () => {
 
   describe('updatePassword', () => {
     it('should update password successfully and return no content', async () => {
-      const updatePasswordDto: UpdatePasswordDto = {
+      const updatePasswordDto = {
         currentPassword: 'oldPassword123',
         newPassword: 'newPassword123',
       };
@@ -367,7 +385,7 @@ describe('UsersController', () => {
 
     it('should handle missing user.sub in request for updateMe', async () => {
       const invalidRequest = { user: {} } as AuthenticatedRequest;
-      const updateDto: UpdateUserDto = {
+      const updateDto = {
         name: 'Test',
         refreshToken: 'token',
       };

@@ -10,13 +10,15 @@ async function removeTestSkills() {
     const deleteResult = await skillRepo
       .createQueryBuilder('skill')
       .delete()
-      .where('skill.ownerId IN (SELECT id FROM "user" WHERE email LIKE :email)', {
-        email: '%test%@example.com'
-      })
+      .where(
+        'skill.ownerId IN (SELECT id FROM "user" WHERE email LIKE :email)',
+        {
+          email: '%test%@example.com',
+        },
+      )
       .execute();
 
     console.log(`Удалено ${deleteResult.affected} тестовых навыков`);
-
   } catch (error) {
     console.error('Ошибка при удалении тестовых навыков:', error);
     throw error;

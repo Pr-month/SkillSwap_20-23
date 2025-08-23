@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { QueryParamsDto } from './dto/query-param.dto';
-import { UpdateMeDto, UpdateUserDto } from './dto/update-user.dto';
+import { UpdateMeDto } from './dto/update-user.dto';
 import { UpdatePasswordDto } from './dto/password-update.dto';
 import { AuthenticatedRequest } from '../auth/auth.types';
 import { Gender, Role } from '../common/types';
@@ -64,7 +64,7 @@ describe('UsersController', () => {
         },
         {
           provide: getRepositoryToken(Category),
-          useValue: mockCategoryRepository
+          useValue: mockCategoryRepository,
         },
         CategoriesService,
       ],
@@ -199,7 +199,7 @@ describe('UsersController', () => {
         name: 'Updated Name',
         about: 'Updated about',
         refreshToken: 'newRefreshToken',
-        wantToLearn: []
+        wantToLearn: [],
       };
       const updatedUser = { ...mockUser, ...updateDto };
       mockUserService.updateUserById.mockResolvedValue(updatedUser);
@@ -221,7 +221,7 @@ describe('UsersController', () => {
       const updateDto = {
         name: 'Only Name Updated',
         refreshToken: 'newRefreshToken',
-        wantToLearn: []
+        wantToLearn: [],
       };
       const updatedUser = { ...mockUser, name: 'Only Name Updated' };
       mockUserService.updateUserById.mockResolvedValue(updatedUser);

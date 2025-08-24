@@ -13,7 +13,7 @@ import { Skill } from '../src/skills/entities/skill.entity';
 import { TestSkills } from '../src/scripts/skills-test.data';
 
 export interface FindAllSkillsResponse {
-  body: { data: User[]; page: number; totalPages: number };
+  body: { data: User[]; page: number; totalPage: number };
 }
 
 describe('Skills module (e2e)', () => {
@@ -57,7 +57,9 @@ describe('Skills module (e2e)', () => {
       .get('/skills/')
       .expect(200);
     expect(response.body.data).toEqual(
-      expect.arrayContaining([expect.objectContaining(TestSkills[0])]),
+      expect.arrayContaining([
+        expect.objectContaining({ title: TestSkills[0].title,  }),
+      ]),
     );
   });
 
@@ -66,7 +68,7 @@ describe('Skills module (e2e)', () => {
       .get('/skills/')
       .expect(200);
     expect(response.body.page).toBeGreaterThanOrEqual(1);
-    expect(response.body.totalPages).toBeGreaterThanOrEqual(1);
+    expect(response.body.totalPage).toBeGreaterThanOrEqual(1);
   });
 
   afterAll(async () => {

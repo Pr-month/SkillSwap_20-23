@@ -42,7 +42,7 @@ export class SkillsService {
   async findAll(@Query() query: FindSkillsQueryDto) {
     const page = Math.max(parseInt(query.page ?? '1'), 1);
     const limit = Math.min(Math.max(parseInt(query.limit ?? '20'), 1), 100);
-    const search = query.search?.trim() || '';
+    const search = query.search?.trim().toLowerCase() || '';
     const categorySearch = query.category?.trim().toLowerCase() || '';
 
     const db = this.skillRepository
@@ -55,7 +55,6 @@ export class SkillsService {
     }
 
     if (categorySearch) {
-      console.log(categorySearch)
       db.where('LOWER(category.name) LIKE :categorySearch', {
         categorySearch: `%${categorySearch}%`,
       });

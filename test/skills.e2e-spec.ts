@@ -15,6 +15,7 @@ import { TestUserPassword } from '../src/scripts/users.data';
 import { CreateSkillDto } from '../src/skills/dto/create-skill.dto';
 import { Gender } from '../src/common/gender.enum';
 import { RegisterDto } from '../src/auth/dto/register.dto';
+import { UpdateSkillDto } from 'src/skills/dto/update-skill.dto';
 
 export interface FindAllSkillsResponse {
   body: { data: User[]; page: number; totalPage: number };
@@ -217,7 +218,42 @@ describe('Skills module (e2e)', () => {
     createdTestSkill = response.body;
   });
 
-  it('DELETE /skills/ should create a new skill', async () => {
+  it('PATCH /skills/ should change a new skill', async () => {
+    const patchSkillTestData: UpdateSkillDto = {
+      title: 'PostSkillTestPatched',
+      description: 'Post Skill Test Desctiption Patched',
+    };
+
+    const response: PostSkillResponse = await request(app.getHttpServer())
+      .patch(`/skills/${createdTestSkill.id}`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send(patchSkillTestData)
+      .expect(201);
+
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        title: patchSkillTestData.title,
+        description: patchSkillTestData.description,
+      }),
+    );
+    createdTestSkill = response.body;
+  });
+
+  it('PATCH /skills/:id/favourite should add skill to favourite', async () => {
+    await request(app.getHttpServer())
+      .patch(`/skills/${createdTestSkill.id}/favorite`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .expect(200);
+  });
+
+  it('DELETE /skills/:id/favorite should remove skill from favorites', async () => {
+    await request(app.getHttpServer())
+      .delete(`/skills/${createdTestSkill.id}/favorite`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .expect(200);
+  });
+
+  it('DELETE /skills/ should delete a new skill', async () => {
     const response = await request(app.getHttpServer())
       .delete(`/skills/${createdTestSkill.id}`)
       .set('Authorization', `Bearer ${jwtToken}`)

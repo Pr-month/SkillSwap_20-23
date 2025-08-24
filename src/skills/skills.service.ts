@@ -111,18 +111,23 @@ export class SkillsService {
   }
 
   async update(id: string, updateSkillDto: UpdateSkillDto, userId: string) {
-    const skill = await this.skillRepository.findOneOrFail({
+    const skill = await this.skillRepository.findOne({
       where: {
         id,
       },
+      relations: ['owner'],
     });
+
+    if (!skill) {
+      throw new BadRequestException('Навык не найден!');
+    }
 
     let updatedSkill: Skill;
 
     const currentUser = await this.userService.findUserById(userId);
-
-    if (currentUser.id !== skill.owner.id)
+    if (currentUser.id !== skill.owner.id) {
       throw new ForbiddenException('Недостаточно прав');
+    }
 
     if (updateSkillDto.categoryId) {
       const newCategoryEntity = await this.categoriesService.getCategoryById(
@@ -140,7 +145,7 @@ export class SkillsService {
       };
     }
 
-    return this.skillRepository.save(updatedSkill);
+    return await this.skillRepository.save(updatedSkill);
   }
 
   // deleteImages(imagesArray: string[]) {
@@ -182,22 +187,25 @@ export class SkillsService {
   }
 
   async addFavorite(userId: string, skillId: string) {
+    console.log('We are here')
     const skill = await this.skillRepository.findOneOrFail({
       where: { id: skillId },
       relations: ['owner'],
     });
 
+    console.log('We are here 2')
     const user = await this.userService.findUserById(userId);
 
     if (user.favoriteSkills?.find((obj) => obj.id === skill.id))
       throw new BadRequestException('Навык уже выбран избранным');
-
+    
+    console.log(skill);
+    console.log(user)
     await this.userService.updateUserById(user.id, {
       ...user,
       favoriteSkills: user.favoriteSkills
         ? [...user.favoriteSkills, skill]
         : [skill],
-      wantToLearn: [],
     });
 
     return {
@@ -215,9 +223,7 @@ export class SkillsService {
       throw new BadRequestException('Выбранного навыка нет в списке избранных');
 
     await this.userService.updateUserById(user.id, {
-      ...user,
       favoriteSkills: user.favoriteSkills.filter((obj) => obj.id !== skillId),
-      wantToLearn: [],
     });
 
     return {

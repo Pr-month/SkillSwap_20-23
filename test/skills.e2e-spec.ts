@@ -201,7 +201,6 @@ describe('Skills module (e2e)', () => {
       description: 'Post Skill Test Desctiption',
       categoryId: someTestCategory.id,
     };
-    console.log(postSkillTestData);
 
     const response: PostSkillResponse = await request(app.getHttpServer())
       .post('/skills/')
@@ -221,14 +220,15 @@ describe('Skills module (e2e)', () => {
   it('PATCH /skills/ should change a new skill', async () => {
     const patchSkillTestData: UpdateSkillDto = {
       title: 'PostSkillTestPatched',
-      description: 'Post Skill Test Desctiption Patched',
+      description: 'Patched description',
     };
 
-    const response: PostSkillResponse = await request(app.getHttpServer())
+    // console.log(createdTestSkill)
+    const response = await request(app.getHttpServer())
       .patch(`/skills/${createdTestSkill.id}`)
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(patchSkillTestData)
-      .expect(201);
+      .expect(200);
 
     expect(response.body).toEqual(
       expect.objectContaining({
@@ -236,19 +236,30 @@ describe('Skills module (e2e)', () => {
         description: patchSkillTestData.description,
       }),
     );
-    createdTestSkill = response.body;
-  });
 
-  it('PATCH /skills/:id/favourite should add skill to favourite', async () => {
     await request(app.getHttpServer())
-      .patch(`/skills/${createdTestSkill.id}/favorite`)
+      .patch(`/skills/${createdTestSkill.id}`)
       .set('Authorization', `Bearer ${jwtToken}`)
+      .send({
+        title: createdTestSkill.title,
+        description: createdTestSkill.description,
+      })
       .expect(200);
   });
 
-  it('DELETE /skills/:id/favorite should remove skill from favorites', async () => {
+  it('POST /skills/:id/favourite should add skill to favourite', async () => {
+    const testSkillId = createdTestSkill.id;
+    console.log(testSkillId)
     await request(app.getHttpServer())
-      .delete(`/skills/${createdTestSkill.id}/favorite`)
+      .post(`/skills/${testSkillId}/favorite`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .expect(201);
+  });
+
+  it('DELETE /skills/:id/favorite should remove skill from favorites', async () => {
+    const testSkillId = createdTestSkill.id;
+    await request(app.getHttpServer())
+      .delete(`/skills/${testSkillId}/favorite`)
       .set('Authorization', `Bearer ${jwtToken}`)
       .expect(200);
   });

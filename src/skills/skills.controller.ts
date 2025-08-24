@@ -135,7 +135,6 @@ export class SkillsController {
     @Request() req: AuthenticatedRequest,
     @Body() createSkillDto: CreateSkillDto,
   ) {
-    console.log(createSkillDto);
     return this.skillsService.create(req.user.sub, createSkillDto);
   }
 
@@ -215,6 +214,7 @@ export class SkillsController {
     type: returnErrorDTO,
   })
   addFavorite(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
+    console.log(`User ID: ${req.user.sub}\n Skill ID: ${id}`);
     return this.skillsService.addFavorite(req.user.sub, id);
   }
 

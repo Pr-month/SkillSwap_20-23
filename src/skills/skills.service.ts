@@ -187,20 +187,16 @@ export class SkillsService {
   }
 
   async addFavorite(userId: string, skillId: string) {
-    console.log('We are here')
     const skill = await this.skillRepository.findOneOrFail({
       where: { id: skillId },
       relations: ['owner'],
     });
-
-    console.log('We are here 2')
+    
     const user = await this.userService.findUserById(userId);
 
     if (user.favoriteSkills?.find((obj) => obj.id === skill.id))
       throw new BadRequestException('Навык уже выбран избранным');
     
-    console.log(skill);
-    console.log(user)
     await this.userService.updateUserById(user.id, {
       ...user,
       favoriteSkills: user.favoriteSkills

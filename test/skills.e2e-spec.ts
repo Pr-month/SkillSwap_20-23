@@ -223,7 +223,6 @@ describe('Skills module (e2e)', () => {
       description: 'Patched description',
     };
 
-    // console.log(createdTestSkill)
     const response = await request(app.getHttpServer())
       .patch(`/skills/${createdTestSkill.id}`)
       .set('Authorization', `Bearer ${jwtToken}`)
@@ -249,7 +248,6 @@ describe('Skills module (e2e)', () => {
 
   it('POST /skills/:id/favourite should add skill to favourite', async () => {
     const testSkillId = createdTestSkill.id;
-    console.log(testSkillId)
     await request(app.getHttpServer())
       .post(`/skills/${testSkillId}/favorite`)
       .set('Authorization', `Bearer ${jwtToken}`)

@@ -16,6 +16,10 @@ export interface FindAllSkillsResponse {
   body: { data: User[]; page: number; totalPage: number };
 }
 
+export interface GetSkillIdResponse {
+  body: Skill;
+}
+
 describe('Skills module (e2e)', () => {
   let app: INestApplication<App>;
 
@@ -94,12 +98,21 @@ describe('Skills module (e2e)', () => {
   });
 
   it('GET /skills/:id should return a skill.', async () => {
-    const response = await request(app.getHttpServer())
+    const response: GetSkillIdResponse = await request(app.getHttpServer())
       .get(`/skills/${someTestSkill.id}`)
       .expect(200);
     expect(response.body).toEqual(
       expect.objectContaining({ title: someTestSkill.title }),
     );
+  });
+
+  it('GET /skills/:id should not return a skill owner with password and refreshToken.', async () => {
+    const response: GetSkillIdResponse = await request(app.getHttpServer())
+      .get(`/skills/${someTestSkill.id}`)
+      .expect(200);
+    expect(response.body.owner).toBeUndefined();
+    expect(response.body.owner.password).toBeUndefined();
+    expect(response.body.owner.refreshToken).toBeUndefined();
   });
 
   afterAll(async () => {

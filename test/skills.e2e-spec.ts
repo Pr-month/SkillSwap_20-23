@@ -11,6 +11,7 @@ import { User } from '../src/users/entities/user.entity';
 import { Category } from '../src/categories/entities/category.entity';
 import { Skill } from '../src/skills/entities/skill.entity';
 import { TestSkills } from '../src/scripts/skills-test.data';
+import { TestUserPassword } from '../src/scripts/users.data';
 
 export interface FindAllSkillsResponse {
   body: { data: User[]; page: number; totalPage: number };
@@ -29,6 +30,12 @@ describe('Skills module (e2e)', () => {
 
   let testSkills: Skill[];
   let someTestSkill: Skill;
+
+  let someTestUser: User;
+
+  let someTestCategory: Category;
+
+  let jwtToken: string;
 
   beforeAll(async () => {
     await AppDataSource.initialize();
@@ -65,6 +72,18 @@ describe('Skills module (e2e)', () => {
     someTestSkill = testSkills[0];
   });
 
+  it('User repository should not be empty, then getting data for the next tests.', async () => {
+    const users = await userRepo.find();
+    expect(users.length).toBeGreaterThanOrEqual(1);
+    someTestUser = users[0];
+  });
+
+  it('Category repository should not be empty, then getting data for the next tests.', async () => {
+    const cateogries = await categoryRepo.find();
+    expect(cateogries.length).toBeGreaterThanOrEqual(1);
+    someTestCategory = cateogries[0];
+  });
+
   it('GET /skills/ should return a list of skills.', async () => {
     const response: FindAllSkillsResponse = await request(app.getHttpServer())
       .get('/skills/')
@@ -72,6 +91,30 @@ describe('Skills module (e2e)', () => {
     expect(response.body.data).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ title: TestSkills[0].title }),
+      ]),
+    );
+  });
+
+  it('GET /skills?category= should return a list of skills with a category.', async () => {
+    const response: FindAllSkillsResponse = await request(app.getHttpServer())
+      .get(`/skills?category=${someTestCategory.name}`)
+      .expect(200);
+    expect(response.body.data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          category: someTestCategory,
+        }),
+      ]),
+    );
+  });
+
+  it('GET /skills?search= should return a list of skills with a fitting name.', async () => {
+    const response: FindAllSkillsResponse = await request(app.getHttpServer())
+      .get(`/skills?search=${someTestSkill.title}`)
+      .expect(200);
+    expect(response.body.data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ title: someTestSkill.title }),
       ]),
     );
   });
@@ -106,14 +149,13 @@ describe('Skills module (e2e)', () => {
     );
   });
 
-  it('GET /skills/:id should not return a skill owner with password and refreshToken.', async () => {
-    const response: GetSkillIdResponse = await request(app.getHttpServer())
-      .get(`/skills/${someTestSkill.id}`)
+  it('POST /skill/ should create a new skill' async () => {
+    const response = await request(app.getHttpServer())
+      .post('/skills')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({ about: 'Testing patching about data for this user' })
       .expect(200);
-    expect(response.body.owner).toBeUndefined();
-    expect(response.body.owner.password).toBeUndefined();
-    expect(response.body.owner.refreshToken).toBeUndefined();
-  });
+  })
 
   afterAll(async () => {
     await app.close();

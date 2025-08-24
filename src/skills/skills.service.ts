@@ -50,7 +50,6 @@ export class SkillsService {
       .leftJoinAndSelect('skill.category', 'category');
 
     if (search) {
-      console.log(search)
       db.where('LOWER(skill.title) LIKE :search', { search: `%${search}%` });
     }
 

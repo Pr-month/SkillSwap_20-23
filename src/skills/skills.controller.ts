@@ -135,6 +135,7 @@ export class SkillsController {
     @Request() req: AuthenticatedRequest,
     @Body() createSkillDto: CreateSkillDto,
   ) {
+    console.log(createSkillDto);
     return this.skillsService.create(req.user.sub, createSkillDto);
   }
 

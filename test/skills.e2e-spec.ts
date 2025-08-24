@@ -12,6 +12,9 @@ import { Category } from '../src/categories/entities/category.entity';
 import { Skill } from '../src/skills/entities/skill.entity';
 import { TestSkills } from '../src/scripts/skills-test.data';
 import { TestUserPassword } from '../src/scripts/users.data';
+import { CreateSkillDto } from '../src/skills/dto/create-skill.dto';
+import { Gender } from '../src/common/gender.enum';
+import { RegisterDto } from '../src/auth/dto/register.dto';
 
 export interface FindAllSkillsResponse {
   body: { data: User[]; page: number; totalPage: number };
@@ -19,6 +22,18 @@ export interface FindAllSkillsResponse {
 
 export interface GetSkillIdResponse {
   body: Skill;
+}
+
+export interface Tokens {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface AuthResponse {
+  body: {
+    user: User;
+    tokens: Tokens;
+  };
 }
 
 describe('Skills module (e2e)', () => {
@@ -31,11 +46,22 @@ describe('Skills module (e2e)', () => {
   let testSkills: Skill[];
   let someTestSkill: Skill;
 
+  const someTestUserRegisterData: RegisterDto = {
+    email: 'test@skillsExample.com',
+    name: 'Tests Skills',
+    password: TestUserPassword,
+    gender: Gender.MALE,
+    avatar: 'default-avatar.png',
+  };
   let someTestUser: User;
 
   let someTestCategory: Category;
 
+  let createdTestSkill: Skill;
+
   let jwtToken: string;
+
+  // Data for test
 
   beforeAll(async () => {
     await AppDataSource.initialize();
@@ -75,7 +101,22 @@ describe('Skills module (e2e)', () => {
   it('User repository should not be empty, then getting data for the next tests.', async () => {
     const users = await userRepo.find();
     expect(users.length).toBeGreaterThanOrEqual(1);
-    someTestUser = users[0];
+  });
+
+  it('Registering new user, Logging in, then getting data for the next tests.', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/register')
+      .send(someTestUserRegisterData)
+      .expect(201);
+    const authResponse: AuthResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: someTestUserRegisterData.email,
+        password: someTestUserRegisterData.password,
+      })
+      .expect(200);
+    someTestUser = authResponse.body.user;
+    jwtToken = authResponse.body.tokens.accessToken;
   });
 
   it('Category repository should not be empty, then getting data for the next tests.', async () => {
@@ -149,13 +190,44 @@ describe('Skills module (e2e)', () => {
     );
   });
 
-  it('POST /skill/ should create a new skill' async () => {
+  it('POST /skills/ should create a new skill', async () => {
+    const postSkillTestData: CreateSkillDto = {
+      title: 'PostSkillTest',
+      description: 'Post Skill Test Desctiption',
+      categoryId: someTestCategory.id,
+    };
+    console.log(postSkillTestData);
+
     const response = await request(app.getHttpServer())
-      .post('/skills')
+      .post('/skills/')
       .set('Authorization', `Bearer ${jwtToken}`)
-      .send({ about: 'Testing patching about data for this user' })
+      .send(postSkillTestData)
+      .expect(201);
+
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        title: postSkillTestData.title,
+        description: postSkillTestData.description,
+      }),
+    );
+    createdTestSkill = response.body;
+  });
+
+  it('DELETE /skills/ should create a new skill', async () => {
+    const response = await request(app.getHttpServer())
+      .delete(`/skills/${createdTestSkill.id}`)
+      .set('Authorization', `Bearer ${jwtToken}`)
       .expect(200);
-  })
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        title: createdTestSkill.title,
+      }),
+    );
+  });
+
+  it('Post test cleanup', async () => {
+    await userRepo.remove(someTestUser);
+  });
 
   afterAll(async () => {
     await app.close();

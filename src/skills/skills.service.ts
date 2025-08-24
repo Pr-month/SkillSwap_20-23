@@ -191,12 +191,12 @@ export class SkillsService {
       where: { id: skillId },
       relations: ['owner'],
     });
-    
+
     const user = await this.userService.findUserById(userId);
 
     if (user.favoriteSkills?.find((obj) => obj.id === skill.id))
       throw new BadRequestException('Навык уже выбран избранным');
-    
+
     await this.userService.updateUserById(user.id, {
       ...user,
       favoriteSkills: user.favoriteSkills

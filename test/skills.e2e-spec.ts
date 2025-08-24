@@ -36,6 +36,10 @@ export interface AuthResponse {
   };
 }
 
+export interface PostSkillResponse {
+  body: Skill;
+}
+
 describe('Skills module (e2e)', () => {
   let app: INestApplication<App>;
 
@@ -198,7 +202,7 @@ describe('Skills module (e2e)', () => {
     };
     console.log(postSkillTestData);
 
-    const response = await request(app.getHttpServer())
+    const response: PostSkillResponse = await request(app.getHttpServer())
       .post('/skills/')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(postSkillTestData)

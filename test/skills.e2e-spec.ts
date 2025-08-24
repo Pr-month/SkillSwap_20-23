@@ -10,8 +10,13 @@ import { Repository } from 'typeorm';
 import { User } from '../src/users/entities/user.entity';
 import { Category } from '../src/categories/entities/category.entity';
 import { Skill } from '../src/skills/entities/skill.entity';
+import { TestSkills } from '../src/scripts/skills-test.data';
 
-describe('User module (e2e)', () => {
+export interface FindAllSkillsResponse {
+  body: { data: User[]; page: number; totalPages: number };
+}
+
+describe('Skills module (e2e)', () => {
   let app: INestApplication<App>;
 
   let userRepo: Repository<User>;
@@ -47,8 +52,21 @@ describe('User module (e2e)', () => {
     await app.close();
   });
 
-  it('GET /users/ should return a list of users.', async () => {
-    await request(app.getHttpServer()).get('/users/').expect(200);
+  it('GET /skills/ should return a list of skills.', async () => {
+    const response: FindAllSkillsResponse = await request(app.getHttpServer())
+      .get('/skills/')
+      .expect(200);
+    expect(response.body.data).toEqual(
+      expect.arrayContaining([expect.objectContaining(TestSkills[0])]),
+    );
+  });
+
+  it('GET /skills/ should have a page and total pages returned .', async () => {
+    const response: FindAllSkillsResponse = await request(app.getHttpServer())
+      .get('/skills/')
+      .expect(200);
+    expect(response.body.page).toBeGreaterThanOrEqual(1);
+    expect(response.body.totalPages).toBeGreaterThanOrEqual(1);
   });
 
   afterAll(async () => {

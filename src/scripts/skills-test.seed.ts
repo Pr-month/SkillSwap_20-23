@@ -20,7 +20,7 @@ async function seed() {
 
     if (existingSkills > 0) {
       console.log('Тестовые навыки уже существуют в базе данных');
-      await AppDataSource.destroy();
+      // await AppDataSource.destroy();
       return;
     }
 

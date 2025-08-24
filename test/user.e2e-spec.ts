@@ -212,7 +212,7 @@ describe('User module (e2e)', () => {
     );
   });
 
-  it('GET /users/ should return have a page and total pages returned .', async () => {
+  it('GET /users/ should have a page and total pages returned .', async () => {
     const response: FindAllUsersResponse = await request(app.getHttpServer())
       .get('/users/')
       .expect(200);

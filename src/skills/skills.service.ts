@@ -77,7 +77,8 @@ export class SkillsService {
     const formatSkills = skills.map((skill) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, refreshToken, ...other } = skill.owner;
-      return other;
+      const formattedSkill = { ...skill, owner: other };
+      return formattedSkill;
     });
 
     return { data: formatSkills, page, totalPage };

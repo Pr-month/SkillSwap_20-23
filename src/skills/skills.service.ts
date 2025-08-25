@@ -42,7 +42,7 @@ export class SkillsService {
   async findAll(@Query() query: FindSkillsQueryDto) {
     const page = Math.max(parseInt(query.page ?? '1'), 1);
     const limit = Math.min(Math.max(parseInt(query.limit ?? '20'), 1), 100);
-    const search = query.search?.trim() || '';
+    const search = query.search?.trim().toLowerCase() || '';
     const categorySearch = query.category?.trim().toLowerCase() || '';
 
     const db = this.skillRepository
@@ -54,7 +54,7 @@ export class SkillsService {
     }
 
     if (categorySearch) {
-      db.where('LOWER(category.name) LIKE :search', {
+      db.where('LOWER(category.name) LIKE :categorySearch', {
         categorySearch: `%${categorySearch}%`,
       });
     }
@@ -77,7 +77,8 @@ export class SkillsService {
     const formatSkills = skills.map((skill) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, refreshToken, ...other } = skill.owner;
-      return other;
+      const formattedSkill = { ...skill, owner: other };
+      return formattedSkill;
     });
 
     return { data: formatSkills, page, totalPage };
@@ -110,18 +111,23 @@ export class SkillsService {
   }
 
   async update(id: string, updateSkillDto: UpdateSkillDto, userId: string) {
-    const skill = await this.skillRepository.findOneOrFail({
+    const skill = await this.skillRepository.findOne({
       where: {
         id,
       },
+      relations: ['owner'],
     });
+
+    if (!skill) {
+      throw new BadRequestException('Навык не найден!');
+    }
 
     let updatedSkill: Skill;
 
     const currentUser = await this.userService.findUserById(userId);
-
-    if (currentUser.id !== skill.owner.id)
+    if (currentUser.id !== skill.owner.id) {
       throw new ForbiddenException('Недостаточно прав');
+    }
 
     if (updateSkillDto.categoryId) {
       const newCategoryEntity = await this.categoriesService.getCategoryById(
@@ -139,7 +145,7 @@ export class SkillsService {
       };
     }
 
-    return this.skillRepository.save(updatedSkill);
+    return await this.skillRepository.save(updatedSkill);
   }
 
   // deleteImages(imagesArray: string[]) {
@@ -196,7 +202,6 @@ export class SkillsService {
       favoriteSkills: user.favoriteSkills
         ? [...user.favoriteSkills, skill]
         : [skill],
-      wantToLearn: [],
     });
 
     return {
@@ -214,9 +219,7 @@ export class SkillsService {
       throw new BadRequestException('Выбранного навыка нет в списке избранных');
 
     await this.userService.updateUserById(user.id, {
-      ...user,
       favoriteSkills: user.favoriteSkills.filter((obj) => obj.id !== skillId),
-      wantToLearn: [],
     });
 
     return {

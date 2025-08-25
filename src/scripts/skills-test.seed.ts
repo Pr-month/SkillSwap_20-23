@@ -7,6 +7,7 @@ import { TestSkills } from '../scripts/skills-test.data';
 async function seed() {
   try {
     await AppDataSource.initialize();
+    console.log(AppDataSource.options);
     const skillRepo = AppDataSource.getRepository(Skill);
     const userRepo = AppDataSource.getRepository(User);
     const categoryRepo = AppDataSource.getRepository(Category);
@@ -20,7 +21,7 @@ async function seed() {
 
     if (existingSkills > 0) {
       console.log('Тестовые навыки уже существуют в базе данных');
-      await AppDataSource.destroy();
+      // await AppDataSource.destroy();
       return;
     }
 

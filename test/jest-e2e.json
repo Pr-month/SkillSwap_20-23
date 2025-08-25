@@ -1,4 +1,7 @@
 {
+  "globals": {
+    "NODE_ENV": "test"
+  },
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
   "testEnvironment": "node",

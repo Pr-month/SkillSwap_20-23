@@ -9,6 +9,7 @@ import { UsersService } from 'src/users/users.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { UpdateUserDto } from 'src/users/dto/update-user.dto';
+import { CategoriesService } from 'src/categories/categories.service';
 
 describe('SkillsService', () => {
   let service: SkillsService;
@@ -59,6 +60,7 @@ describe('SkillsService', () => {
         },
         UsersService,
         SkillsService,
+        CategoriesService,
       ],
     }).compile();
 

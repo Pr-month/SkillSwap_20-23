@@ -214,6 +214,7 @@ export class SkillsController {
     type: returnErrorDTO,
   })
   addFavorite(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
+    console.log(`User ID: ${req.user.sub}\n Skill ID: ${id}`);
     return this.skillsService.addFavorite(req.user.sub, id);
   }
 

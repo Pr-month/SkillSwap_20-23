@@ -8,22 +8,13 @@ export const dbConfig = registerAs(
     applicationName: 'skillswap',
     host: process.env.DB_HOST || 'localhost',
     port: Number(process.env.DB_PORT) || 5432,
-    database:
-      process.env.NODE_ENV === 'test'
-        ? process.env.DB_TEST_NAME
-        : process.env.DB_NAME || 'skillswap',
-    username:
-      process.env.NODE_ENV === 'test'
-        ? process.env.DB_TEST_USER
-        : process.env.DB_USER || 'skillswapuser',
-    password:
-      process.env.NODE_ENV === 'test'
-        ? process.env.DB_TEST_PASSWORD
-        : process.env.DB_PASSWORD || 'skillswapuserpassword',
+    database: process.env.DB_NAME || 'skillswap',
+    username: process.env.DB_USER || 'skillswapuser',
+    password: process.env.DB_PASSWORD || 'skillswapuserpassword',
     synchronize: process.env.SYNCHRONIZE === 'true',
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
     migrations: [__dirname + '/../migrations/*{.ts,.js}'],
-    dropSchema: process.env.NODE_ENV === 'test',
+    // dropSchema: process.env.NODE_ENV === 'test',
   }),
 );
 

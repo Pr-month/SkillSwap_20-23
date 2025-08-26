@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  OneToOne,
+  ManyToOne, // ЗАМЕНА: OneToOne → ManyToOne
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ReqStatus } from '../../common/requests-status.enum';
@@ -39,8 +39,8 @@ export class Request {
       name: 'John Doe',
     },
   })
-  @OneToOne(() => User)
-  @JoinColumn()
+  @ManyToOne(() => User) // ЗАМЕНА: OneToOne → ManyToOne
+  @JoinColumn() 
   sender: User;
 
   @ApiProperty({
@@ -51,8 +51,8 @@ export class Request {
       name: 'Jane Smith',
     },
   })
-  @OneToOne(() => User)
-  @JoinColumn()
+  @ManyToOne(() => User) // ЗАМЕНА: OneToOne → ManyToOne
+  @JoinColumn() 
   receiver: User;
 
   @ApiProperty({
@@ -76,8 +76,8 @@ export class Request {
       name: 'Web Development',
     },
   })
-  @OneToOne(() => Skill)
-  @JoinColumn()
+  @ManyToOne(() => Skill) // ЗАМЕНА: OneToOne → ManyToOne
+  @JoinColumn() 
   offeredSkill: Skill;
 
   @ApiProperty({
@@ -88,8 +88,8 @@ export class Request {
       name: 'Graphic Design',
     },
   })
-  @OneToOne(() => Skill)
-  @JoinColumn()
+  @ManyToOne(() => Skill) // ЗАМЕНА: OneToOne → ManyToOne
+  @JoinColumn() 
   requestedSkill: Skill;
 
   @ApiProperty({

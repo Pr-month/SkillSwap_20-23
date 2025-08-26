@@ -40,7 +40,7 @@ export class Request {
     },
   })
   @ManyToOne(() => User) // ЗАМЕНА: OneToOne → ManyToOne
-  @JoinColumn() 
+  @JoinColumn({ name: 'senderId' }) // Добавлено явное имя колонки
   sender: User;
 
   @ApiProperty({
@@ -52,7 +52,7 @@ export class Request {
     },
   })
   @ManyToOne(() => User) // ЗАМЕНА: OneToOne → ManyToOne
-  @JoinColumn() 
+  @JoinColumn({ name: 'receiverId' }) // Добавлено явное имя колонки
   receiver: User;
 
   @ApiProperty({
@@ -77,7 +77,7 @@ export class Request {
     },
   })
   @ManyToOne(() => Skill) // ЗАМЕНА: OneToOne → ManyToOne
-  @JoinColumn() 
+  @JoinColumn({ name: 'offeredSkillId' }) // Добавлено явное имя колонки
   offeredSkill: Skill;
 
   @ApiProperty({
@@ -89,7 +89,7 @@ export class Request {
     },
   })
   @ManyToOne(() => Skill) // ЗАМЕНА: OneToOne → ManyToOne
-  @JoinColumn() 
+  @JoinColumn({ name: 'requestedSkillId' }) // Добавлено явное имя колонки
   requestedSkill: Skill;
 
   @ApiProperty({

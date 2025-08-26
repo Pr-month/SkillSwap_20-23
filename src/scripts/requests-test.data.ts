@@ -1,3 +1,4 @@
+// requests-test.data.ts
 export interface TestRequestData {
   offeredSkillTitle: string;
   requestedSkillTitle: string;
@@ -14,7 +15,7 @@ export const TestRequests: TestRequestData[] = [
     requestedSkillTitle: 'Графический дизайн',
     senderEmail: 'test1@example.com',
     receiverEmail: 'test2@example.com',
-    status: 'PENDING',
+    status: 'pending',  // Изменено на нижний регистр
     isRead: false
   },
   {
@@ -22,7 +23,7 @@ export const TestRequests: TestRequestData[] = [
     requestedSkillTitle: 'Английский язык для IT',
     senderEmail: 'test2@example.com',
     receiverEmail: 'test3@example.com',
-    status: 'PENDING',
+    status: 'pending',  // Изменено на нижний регистр
     isRead: false
   },
   {
@@ -30,7 +31,7 @@ export const TestRequests: TestRequestData[] = [
     requestedSkillTitle: 'Фотография продукта',
     senderEmail: 'test3@example.com',
     receiverEmail: 'test1@example.com',
-    status: 'ACCEPTED',
+    status: 'accepted',  // Изменено на нижний регистр
     isRead: true
   },
   {
@@ -38,7 +39,7 @@ export const TestRequests: TestRequestData[] = [
     requestedSkillTitle: 'Копирайтинг для сайтов',
     senderEmail: 'test1@example.com',
     receiverEmail: 'test2@example.com',
-    status: 'REJECTED',
+    status: 'rejected',  // Изменено на нижний регистр
     isRead: true
   },
   {
@@ -46,7 +47,7 @@ export const TestRequests: TestRequestData[] = [
     requestedSkillTitle: 'Веб-разработка на JavaScript',
     senderEmail: 'test2@example.com',
     receiverEmail: 'test1@example.com',
-    status: 'INPROGRESS',
+    status: 'inProgress',  // Изменено на нижний регистр
     isRead: true
   }
 ];

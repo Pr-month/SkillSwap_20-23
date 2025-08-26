@@ -12,22 +12,6 @@ async function seed() {
     const userRepo = AppDataSource.getRepository(User);
     const skillRepo = AppDataSource.getRepository(Skill);
 
-    // Проверяем, есть ли уже тестовые заявки
-    const existingRequests = await requestRepo
-      .createQueryBuilder('request')
-      .leftJoinAndSelect('request.sender', 'sender')
-      .leftJoinAndSelect('request.receiver', 'receiver')
-      .where('sender.email LIKE :email OR receiver.email LIKE :email', { 
-        email: '%test%@example.com' 
-      })
-      .getCount();
-
-    if (existingRequests > 0) {
-      console.log('Тестовые заявки уже существуют в базе данных');
-      await AppDataSource.destroy();
-      return;
-    }
-
     console.log('Начинаем сидирование тестовых заявок...');
 
     // Создаем заявки
@@ -92,18 +76,40 @@ async function seed() {
           continue;
         }
 
+        // Преобразуем строковый статус в enum значение
+        let status: ReqStatus;
+        switch (requestData.status?.toUpperCase()) {
+          case 'PENDING':
+            status = ReqStatus.PENDING;
+            break;
+          case 'ACCEPTED':
+            status = ReqStatus.ACCEPTED;
+            break;
+          case 'REJECTED':
+            status = ReqStatus.REJECTED;
+            break;
+          case 'INPROGRESS':
+            status = ReqStatus.INPROGRESS;
+            break;
+          case 'DONE':
+            status = ReqStatus.DONE;
+            break;
+          default:
+            status = ReqStatus.PENDING;
+        }
+
         // Создаем и сохраняем заявку
         const request = requestRepo.create({
           sender,
           receiver,
           offeredSkill,
           requestedSkill,
-          status: requestData.status as ReqStatus || ReqStatus.PENDING,
+          status: status,
           isRead: requestData.isRead || false
         });
 
         await requestRepo.save(request);
-        console.log(`Создана заявка: ${sender.email} предлагает "${offeredSkill.title}" для "${requestedSkill.title}"`);
+        console.log(`Создана заявка: ${sender.email} предлагает "${offeredSkill.title}" для "${requestedSkill.title}" со статусом ${status}`);
 
       } catch (error) {
         console.error(`Ошибка при создании заявки между ${requestData.senderEmail} и ${requestData.receiverEmail}:`, error);

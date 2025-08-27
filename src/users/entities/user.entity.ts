@@ -101,7 +101,7 @@ export class User {
     nullable: true,
   })
   @Exclude()
-  refreshToken: string;
+  refreshToken: string | null;
 
   @OneToMany(() => Skill, (skill) => skill.owner, {
     cascade: true,

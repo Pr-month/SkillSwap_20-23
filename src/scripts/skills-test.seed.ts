@@ -7,7 +7,6 @@ import { TestSkills } from '../scripts/skills-test.data';
 async function seed() {
   try {
     await AppDataSource.initialize();
-    console.log(AppDataSource.options);
     const skillRepo = AppDataSource.getRepository(Skill);
     const userRepo = AppDataSource.getRepository(User);
     const categoryRepo = AppDataSource.getRepository(Category);

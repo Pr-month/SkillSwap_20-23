@@ -12,10 +12,8 @@ import { User } from '../src/users/entities/user.entity';
 import { Skill } from '../src/skills/entities/skill.entity';
 import { App } from 'supertest/types';
 import { Repository } from 'typeorm';
-import { AdminUsersData } from '../src/scripts/users.data';
+import { AdminUsersData, AdminUsersPassword } from '../src/scripts/users.data';
 import { Role } from '../src/common/types';
-import { Categories } from '../src/scripts/categories.data';
-import * as bcrypt from 'bcrypt';
 
 export interface SomeUserDTO {
   email: string;
@@ -59,7 +57,6 @@ export interface SimilarSkillResponse {
 describe('Categories (e2e)', () => {
   let app: INestApplication<App>;
 
-  let userRepo: Repository<User>;
   let categoryRepo: Repository<Category>;
 
   let userPassword: string;
@@ -68,17 +65,19 @@ describe('Categories (e2e)', () => {
 
   let createdCategoryId: string;
 
+  // Use timestamp to avoid conflicts with existing data
+  const timestamp = Date.now();
   const categoriesDtoNotParentID: CreateCategoryDto = {
-    name: 'Categories # 1',
+    name: `Test Category ${timestamp}`,
   };
 
   const categoriesDtoWithParent: CreateCategoryDto = {
-    name: 'Categories # 2',
+    name: `Test Child Category ${timestamp}`,
     parentId: 'testParentId',
   };
 
   const updateCategoryDto: UpdateCategoryDto = {
-    name: 'Updated Category Name',
+    name: `Updated Test Category ${timestamp}`,
   };
 
   beforeAll(async () => {
@@ -100,55 +99,18 @@ describe('Categories (e2e)', () => {
     );
 
     await app.init();
-    userRepo = AppDataSource.getRepository(User);
     categoryRepo = AppDataSource.getRepository(Category);
 
     try {
-      const existingAdmin = await userRepo.findOne({
-        where: { email: AdminUsersData.email, role: Role.ADMIN },
-      });
+      // Используем уже существующего администратора из сидинга
+      someEmail = AdminUsersData.email;
+      userPassword = AdminUsersPassword;
 
-      if (existingAdmin && existingAdmin.email === AdminUsersData.email) {
-        console.log('Администратор уже существует');
-        return;
-      }
-
-      userPassword = 'userPassword123';
-      const userPasswordEncrypted = await bcrypt.hash(userPassword, 10);
-
-      const admin = await userRepo.save(
-        userRepo.create({
-          ...AdminUsersData,
-          password: userPasswordEncrypted,
-        }),
-      );
-
-      someEmail = admin.email;
-
-      const existing = await categoryRepo.count();
-      if (existing > 0) {
-        await AppDataSource.destroy();
-        return;
-      }
-
-      await Promise.all(
-        Categories.map(async (categoryData) => {
-          const parentCategory = await categoryRepo.save(
-            categoryRepo.create({ name: categoryData.name }),
-          );
-
-          await Promise.all(
-            categoryData.children.map((childName) =>
-              categoryRepo.save(
-                categoryRepo.create({
-                  name: childName,
-                  parent: parentCategory,
-                }),
-              ),
-            ),
-          );
-        }),
-      );
+      // Авторизация для всех тестов
+      const authResponse: AuthResponse = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: someEmail, password: userPassword });
+      jwtToken = authResponse.body.tokens.accessToken;
 
       console.log('Тестовая БД успешна заполнена необходимыми значениями.');
     } catch (error) {
@@ -174,11 +136,6 @@ describe('Categories (e2e)', () => {
 
   describe('POST', () => {
     it('/categories - Создание новой категории без parentId', async () => {
-      const authResponse: AuthResponse = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({ email: someEmail, password: userPassword });
-      jwtToken = authResponse.body.tokens.accessToken;
-
       const res = await request(app.getHttpServer())
         .post('/categories')
         .set('Authorization', `Bearer ${jwtToken}`)
@@ -193,11 +150,6 @@ describe('Categories (e2e)', () => {
     });
 
     it('/categories - Создание категории с parentId', async () => {
-      const authResponse: AuthResponse = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({ email: someEmail, password: userPassword });
-      jwtToken = authResponse.body.tokens.accessToken;
-
       const categories = await categoryRepo.find();
 
       let parentCategory: Category | undefined;
@@ -226,6 +178,7 @@ describe('Categories (e2e)', () => {
     it('/categories/:id - Обновление существующей категории', async () => {
       const res = await request(app.getHttpServer())
         .patch(`/categories/${createdCategoryId}`)
+        .set('Authorization', `Bearer ${jwtToken}`)
         .send(updateCategoryDto)
         .expect(200);
 
@@ -235,21 +188,12 @@ describe('Categories (e2e)', () => {
   });
 
   describe('DELETE', () => {
-    beforeAll(async () => {
-      const authResponse: AuthResponse = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({ email: someEmail, password: userPassword });
-      jwtToken = authResponse.body.tokens.accessToken;
-    });
-
     it('/categories/:id - Удаление существующей категории', async () => {
-      const categories = await categoryRepo.find();
-
-      if (categories.length === 0) {
-        throw new Error('Нет категорий для удаления');
+      if (!createdCategoryId) {
+        throw new Error('Нет созданной категории для удаления');
       }
 
-      const categoryId = categories[0].id;
+      const categoryId = createdCategoryId;
 
       try {
         await request(app.getHttpServer())
@@ -289,13 +233,6 @@ describe('Categories (e2e)', () => {
   });
 
   describe('Validation', () => {
-    beforeAll(async () => {
-      const authResponse: AuthResponse = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({ email: someEmail, password: userPassword });
-      jwtToken = authResponse.body.tokens.accessToken;
-    });
-
     it('Должен возвращать 400 при отсутствии имени категории', async () => {
       const invalidDto: Partial<CreateCategoryDto> = {};
 

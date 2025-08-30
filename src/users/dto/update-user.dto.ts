@@ -88,7 +88,7 @@ export class UpdateUserDto {
   })
   @IsOptional()
   @IsString()
-  refreshToken?: string;
+  refreshToken?: string | null;
 
   @ApiPropertyOptional({
     description: 'Любимые навыки',
@@ -147,7 +147,7 @@ export class UpdateMeDto {
 
   @IsOptional()
   @IsString()
-  refreshToken: string;
+  refreshToken: string | null;
 
   @IsOptional()
   @IsArray()

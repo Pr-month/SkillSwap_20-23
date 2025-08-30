@@ -99,7 +99,7 @@ export class CreateUserDto extends PartialType(User) {
   })
   @IsOptional()
   @IsString()
-  refreshToken?: string;
+  refreshToken?: string | null;
 
   @ApiPropertyOptional({
     description: 'Категории, которые пользователь хочет изучить',

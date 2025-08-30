@@ -169,7 +169,7 @@ describe('SkillsService', () => {
     };
 
     it('Обновляем навык если id совпадает', async () => {
-      mockSkillsRepository.findOneOrFail.mockResolvedValue(mockSkill);
+      mockSkillsRepository.findOne.mockResolvedValue(mockSkill);
 
       jest.spyOn(userService, 'findUserById').mockResolvedValue(mockUser);
 

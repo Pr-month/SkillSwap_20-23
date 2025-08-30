@@ -10,16 +10,21 @@ async function removeTestRequests() {
     const deleteResult = await requestRepo
       .createQueryBuilder('request')
       .delete()
-      .where('request.senderId IN (SELECT id FROM "user" WHERE email LIKE :email)', {
-        email: '%test%@example.com'
-      })
-      .orWhere('request.receiverId IN (SELECT id FROM "user" WHERE email LIKE :email)', {
-        email: '%test%@example.com'
-      })
+      .where(
+        'request.senderId IN (SELECT id FROM "user" WHERE email LIKE :email)',
+        {
+          email: '%test%@example.com',
+        },
+      )
+      .orWhere(
+        'request.receiverId IN (SELECT id FROM "user" WHERE email LIKE :email)',
+        {
+          email: '%test%@example.com',
+        },
+      )
       .execute();
 
     console.log(`Удалено ${deleteResult.affected} тестовых заявок`);
-
   } catch (error) {
     console.error('Ошибка при удалении тестовых заявок:', error);
     throw error;

@@ -11,7 +11,7 @@ export const dbConfig = registerAs(
     database: process.env.DB_NAME || 'postgres',
     username: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
-    synchronize: process.env.NODE_ENV  !== 'production',
+    synchronize: process.env.NODE_ENV !== 'production',
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
     migrations: [__dirname + '/../migrations/*{.ts,.js}'],
     // dropSchema: process.env.NODE_ENV === 'test',

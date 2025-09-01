@@ -408,7 +408,7 @@ describe('AuthService', () => {
       await service.logout(userId);
 
       expect(mockUserRepository.update).toHaveBeenCalledWith(userId, {
-        refreshToken: '',
+        refreshToken: null,
       });
     });
 

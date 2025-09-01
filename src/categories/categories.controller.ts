@@ -91,6 +91,8 @@ export class CategoriesController {
     description: 'Категория с таким именем уже существует',
   })
   @Patch(':id')
+  @HasRoles(Role.ADMIN) // только для админов
+  @UseGuards(AccessTokenGuard, RolesGuard) // защита эндпоинта JWT-аутентификацией
   update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,

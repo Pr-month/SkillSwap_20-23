@@ -6,12 +6,6 @@ import { AllExceptionFilter } from '../src/common/all-exception.filter';
 import { AppDataSource } from '../src/config/data-source';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
-export interface SupertestError {
-  status: number;
-  body?: any;
-  message?: string;
-}
-
 export interface User {
   id: number | string;
   email: string;
@@ -42,13 +36,17 @@ export interface LogoutResponse {
 describe('AuthModule (e2e)', () => {
   let app: NestExpressApplication;
 
-  const userDto = {
-    email: 'test@example.com',
+  // Use timestamp to avoid conflicts
+  const timestamp = Date.now();
+  const createUserDto = (suffix: string) => ({
+    email: `test-${suffix}-${timestamp}@authExample.com`,
     password: '123456',
     name: 'Test User',
     gender: 'male',
     avatar: 'default-avatar.png',
-  };
+  });
+
+  const userDto = createUserDto('main');
 
   beforeAll(async () => {
     await AppDataSource.initialize();
@@ -94,48 +92,34 @@ describe('AuthModule (e2e)', () => {
     });
 
     it('/auth/register (POST) - не должен зарегистрировать того же пользователя повторно', async () => {
+      const duplicateUserDto = createUserDto('duplicate');
+
       await request(app.getHttpServer())
         .post('/auth/register')
-        .send({
-          email: 'test4@example.com',
-          password: '123456',
-          name: 'Test User',
-          gender: 'male',
-          avatar: 'default-avatar.png',
-        })
+        .send(duplicateUserDto)
         .expect(201);
 
       await request(app.getHttpServer())
         .post('/auth/register')
-        .send({
-          email: 'test4@example.com',
-          password: '123456',
-          name: 'Test User',
-          gender: 'male',
-          avatar: 'default-avatar.png',
-        })
+        .send(duplicateUserDto)
         .expect(409);
     });
   });
 
   describe('Login', () => {
     it('/auth/login (POST) - должен войти с правильными данными', async () => {
+      const loginUserDto = createUserDto('login');
+
       await request(app.getHttpServer())
         .post('/auth/register')
-        .send({
-          email: 'test2@example.com',
-          password: '123456',
-          name: 'Test User',
-          gender: 'male',
-          avatar: 'default-avatar.png',
-        })
+        .send(loginUserDto)
         .expect(201);
 
       const res = await request(app.getHttpServer())
         .post('/auth/login')
         .send({
-          email: 'test2@example.com',
-          password: '123456',
+          email: loginUserDto.email,
+          password: loginUserDto.password,
         })
         .expect(200);
 
@@ -144,21 +128,17 @@ describe('AuthModule (e2e)', () => {
     });
 
     it('/auth/login (POST) - не должен войти с неправильным паролем', async () => {
+      const wrongPassUserDto = createUserDto('wrongpass');
+
       await request(app.getHttpServer())
         .post('/auth/register')
-        .send({
-          email: 'test3@example.com',
-          password: '123456',
-          name: 'Test User',
-          gender: 'male',
-          avatar: 'default-avatar.png',
-        })
+        .send(wrongPassUserDto)
         .expect(201);
 
       await request(app.getHttpServer())
         .post('/auth/login')
         .send({
-          email: 'test3@example.com',
+          email: wrongPassUserDto.email,
           password: 'wrongpass',
         })
         .expect(401);
@@ -166,46 +146,32 @@ describe('AuthModule (e2e)', () => {
   });
 
   describe('Token operations', () => {
-    let refreshToken: string;
-    let accessToken: string;
+    const tokenUserDto = createUserDto('tokens');
 
     beforeAll(async () => {
-      try {
-        await request(app.getHttpServer())
-          .post('/auth/register')
-          .send({
-            email: 'test5@example.com',
-            password: '123456',
-            name: 'Test User',
-            gender: 'male',
-            avatar: 'default-avatar.png',
-          })
-          .expect(201);
-      } catch (e: any) {
-        if ((e as SupertestError).status !== 409) throw e;
-        console.log(e)
-      }
-
-      const loginRes = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({
-          email: 'test5@example.com',
-          password: '123456',
-        })
-        .expect(200);
-
-      const response = loginRes.body as AuthResponse;
-      if (!response.user || !response.tokens) {
-        throw new Error('Unexpected response format');
-      }
-      refreshToken = response.tokens.refreshToken;
-      accessToken = response.tokens.accessToken;
+      // Register user for token operations
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send(tokenUserDto)
+        .expect(201);
     });
 
     it('/auth/refresh (POST) - должен обновить токены', async () => {
+      // Get fresh tokens for this specific test to avoid conflicts
+      const loginRes = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: tokenUserDto.email,
+          password: tokenUserDto.password,
+        })
+        .expect(200);
+
+      const loginResponse = loginRes.body as AuthResponse;
+      const freshRefreshToken = loginResponse.tokens.refreshToken;
+
       const res = await request(app.getHttpServer())
         .post('/auth/refresh')
-        .set('Authorization', `Bearer ${refreshToken}`)
+        .set('Authorization', `Bearer ${freshRefreshToken}`)
         .expect(200);
 
       const response = res.body as RefreshTokenResponse;
@@ -222,9 +188,29 @@ describe('AuthModule (e2e)', () => {
 
     describe('/auth/logout (POST)', () => {
       it('должен успешно разлогиниться', async () => {
+        // Create a separate user for logout test to avoid conflicts
+        const logoutUserDto = createUserDto('logout');
+
+        await request(app.getHttpServer())
+          .post('/auth/register')
+          .send(logoutUserDto)
+          .expect(201);
+
+        // Get fresh access token for logout test
+        const loginRes = await request(app.getHttpServer())
+          .post('/auth/login')
+          .send({
+            email: logoutUserDto.email,
+            password: logoutUserDto.password,
+          })
+          .expect(200);
+
+        const loginResponse = loginRes.body as AuthResponse;
+        const freshAccessToken = loginResponse.tokens.accessToken;
+
         const res = await request(app.getHttpServer())
           .post('/auth/logout')
-          .set('Authorization', `Bearer ${accessToken}`)
+          .set('Authorization', `Bearer ${freshAccessToken}`)
           .expect(200);
 
         const response = res.body as LogoutResponse;

@@ -14,6 +14,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiUnauthorizedResponse,
+  ApiHeader,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthenticatedRequest } from './auth.types';
@@ -92,6 +93,11 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('JWT-auth')
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Refresh токен в формате: Bearer <refresh_token>',
+    required: true,
+  })
   @ApiOperation({
     summary: 'Обновление токенов',
     description:

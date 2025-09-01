@@ -10,12 +10,13 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 //import * as fs from 'fs';
-import { UsersService } from '../users/users.service';
 import { Repository } from 'typeorm';
+import { UsersService } from '../users/users.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { FindSkillsQueryDto } from './dto/find-skills.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
+import { CategoriesService } from '../categories/categories.service';
 
 @Injectable()
 export class SkillsService {
@@ -23,6 +24,8 @@ export class SkillsService {
     @InjectRepository(Skill) private skillRepository: Repository<Skill>,
     @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
+    @Inject(forwardRef(() => CategoriesService))
+    private readonly categoriesService: CategoriesService,
   ) {}
 
   async findOne(skillId: string): Promise<Skill> {
@@ -39,7 +42,7 @@ export class SkillsService {
   async findAll(@Query() query: FindSkillsQueryDto) {
     const page = Math.max(parseInt(query.page ?? '1'), 1);
     const limit = Math.min(Math.max(parseInt(query.limit ?? '20'), 1), 100);
-    const search = query.search?.trim() || '';
+    const search = query.search?.trim().toLowerCase() || '';
     const categorySearch = query.category?.trim().toLowerCase() || '';
 
     const db = this.skillRepository
@@ -51,7 +54,7 @@ export class SkillsService {
     }
 
     if (categorySearch) {
-      db.where('LOWER(category.name) LIKE :search', {
+      db.where('LOWER(category.name) LIKE :categorySearch', {
         categorySearch: `%${categorySearch}%`,
       });
     }
@@ -74,7 +77,8 @@ export class SkillsService {
     const formatSkills = skills.map((skill) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, refreshToken, ...other } = skill.owner;
-      return other;
+      const formattedSkill = { ...skill, owner: other };
+      return formattedSkill;
     });
 
     return { data: formatSkills, page, totalPage };
@@ -107,23 +111,41 @@ export class SkillsService {
   }
 
   async update(id: string, updateSkillDto: UpdateSkillDto, userId: string) {
-    const skill = await this.skillRepository.findOneOrFail({
+    const skill = await this.skillRepository.findOne({
       where: {
         id,
       },
+      relations: ['owner'],
     });
 
-    console.log('test test');
+    if (!skill) {
+      throw new BadRequestException('Навык не найден!');
+    }
+
+    let updatedSkill: Skill;
 
     const currentUser = await this.userService.findUserById(userId);
-
-    if (currentUser.id !== skill.owner.id)
+    if (currentUser.id !== skill.owner.id) {
       throw new ForbiddenException('Недостаточно прав');
+    }
 
-    return this.skillRepository.save({
-      ...skill,
-      ...updateSkillDto,
-    });
+    if (updateSkillDto.categoryId) {
+      const newCategoryEntity = await this.categoriesService.getCategoryById(
+        updateSkillDto.categoryId,
+      );
+      updatedSkill = {
+        ...skill,
+        ...updateSkillDto,
+        category: newCategoryEntity,
+      };
+    } else {
+      updatedSkill = {
+        ...skill,
+        ...updateSkillDto,
+      };
+    }
+
+    return await this.skillRepository.save(updatedSkill);
   }
 
   // deleteImages(imagesArray: string[]) {
@@ -147,7 +169,16 @@ export class SkillsService {
     if (!skill.owner) throw new BadRequestException('Skill has no owner');
     if (user.id === skill.owner.id) {
       // this.deleteImages(skill.images);
-      return await this.skillRepository.remove(skill);
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, refreshToken, ...clearOwnerData } = skill.owner;
+
+      return await this.skillRepository.remove(skill, {
+        data: {
+          ...skill,
+          owner: clearOwnerData,
+        },
+      });
     } else {
       throw new ForbiddenException(
         'You do not have permission to delete this skill',
@@ -166,13 +197,16 @@ export class SkillsService {
     if (user.favoriteSkills?.find((obj) => obj.id === skill.id))
       throw new BadRequestException('Навык уже выбран избранным');
 
-    return await this.userService.updateUserById(user.id, {
+    await this.userService.updateUserById(user.id, {
       ...user,
       favoriteSkills: user.favoriteSkills
         ? [...user.favoriteSkills, skill]
         : [skill],
-      wantToLearn: [],
     });
+
+    return {
+      message: 'Навык успешно добавлен в избранное',
+    };
   }
 
   async removeFavorite(userId: string, skillId: string) {
@@ -184,10 +218,12 @@ export class SkillsService {
     )
       throw new BadRequestException('Выбранного навыка нет в списке избранных');
 
-    return await this.userService.updateUserById(user.id, {
-      ...user,
+    await this.userService.updateUserById(user.id, {
       favoriteSkills: user.favoriteSkills.filter((obj) => obj.id !== skillId),
-      wantToLearn: [],
     });
+
+    return {
+      message: 'Навык успешно удален из избранного',
+    };
   }
 }

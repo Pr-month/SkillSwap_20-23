@@ -3,34 +3,39 @@ import { User } from '../users/entities/user.entity';
 import { AdminUsersData, AdminUsersPassword } from './users.data';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../common/types';
+import { Repository } from 'typeorm';
+
+export async function seedAdmin(userRepo: Repository<User>) {
+  console.log('НАЧИНАЮ СИДИРОВАНИЕ АДМИНИСТРАТОРА! ');
+  const existingAdmin = await userRepo.findOne({
+    where: { email: AdminUsersData.email, role: Role.ADMIN },
+  });
+  if (existingAdmin && existingAdmin.email === AdminUsersData.email) {
+    console.log('Администратор уже существует');
+    return;
+  }
+
+  const user = await userRepo.save(
+    userRepo.create({
+      ...AdminUsersData,
+      password: await bcrypt.hash(AdminUsersPassword, 10),
+    }),
+  );
+
+  await userRepo.save(user);
+
+  console.log('Администратор успешно добавлены в базу данных');
+}
 
 async function seed() {
   await AppDataSource.initialize();
   const userRepo = AppDataSource.getRepository(User);
-
   try {
-    const existingAdmin = await userRepo.findOne({
-      where: { email: AdminUsersData.email, role: Role.ADMIN },
-    });
-    if (existingAdmin && existingAdmin.email === AdminUsersData.email) {
-      console.log('Администратор уже существует');
-      return;
-    }
-
-    const user = await userRepo.save(
-      userRepo.create({
-        ...AdminUsersData,
-        password: await bcrypt.hash(AdminUsersPassword, 10),
-      }),
-    );
-
-    await userRepo.save(user);
-
-    console.log('Администратор успешно добавлены в базу данных');
-    await AppDataSource.destroy();
+    await seedAdmin(userRepo);
   } catch (error) {
     console.error('Ошибка при добавлении администратора:', error);
   }
+  await AppDataSource.destroy();
 }
 
 seed().catch((e) => {

@@ -80,6 +80,10 @@ export class CategoriesService {
     });
   }
 
+  findOne(id: number) {
+    return `This action returns a #${id} category`;
+  }
+
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {
     const category = await this.categoryRepository.findOneOrFail({
       where: { id },
@@ -124,5 +128,40 @@ export class CategoriesService {
 
     // удаляем категорию (каскадное удаление подкатегорий настроено в entity)
     return this.categoryRepository.delete(id);
+  }
+
+  async getCategoryById(categoryId: string) {
+    const returnedCategory = await this.categoryRepository.findOne({
+      where: { id: categoryId },
+    });
+    if (!returnedCategory || returnedCategory.id != categoryId) {
+      throw new BadRequestException(
+        `Категория по указанному ID не была найдена: ${categoryId}`,
+      );
+    }
+    return returnedCategory;
+  }
+
+  async getCategoriesByCategoryIDs(
+    categoryIDs: string[] | undefined,
+  ): Promise<Category[]> {
+    let returnedCategories: Category[];
+
+    if (categoryIDs) {
+      returnedCategories = await Promise.all(
+        categoryIDs.map(async (catId) => {
+          const foundRepository = await this.categoryRepository.findOne({
+            where: { id: catId },
+          });
+          if (!foundRepository) {
+            throw new BadRequestException('Категория не была найдена');
+          }
+          return foundRepository;
+        }),
+      );
+    } else {
+      returnedCategories = [];
+    }
+    return returnedCategories;
   }
 }

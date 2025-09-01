@@ -123,6 +123,10 @@ export class AuthService {
 
     const tokens = await this._getTokens(user);
 
+    if (!user.refreshToken) {
+      throw new UnauthorizedException('Access denied!');
+    }
+
     const isRefreshTokenValid = await bcrypt.compare(
       tokens.refreshToken,
       user.refreshToken,
@@ -152,7 +156,7 @@ export class AuthService {
   }
 
   async logout(userId: string): Promise<void> {
-    await this.userRepository.update(userId, { refreshToken: '' });
+    await this.userRepository.update(userId, { refreshToken: null });
   }
 
   private excludePasswordAndRefreshToken(
